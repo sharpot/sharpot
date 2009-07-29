@@ -197,11 +197,22 @@ namespace SharpOT.Packets
             }
         }
 
-        public void AddCreature(Creature creature)
+        public void AddCreature(Creature creature, bool known, uint removeKnown)
         {
-            AddUInt32(creature.Id); // id
-            AddString(creature.Name);
-            AddByte(Convert.ToByte(creature.Health / creature.MaxHealth)); // health
+            if (known)
+            {
+                AddUInt16(0x62); // known
+                AddUInt32(creature.Id);
+            }
+            else
+            {
+                AddUInt16(0x61); // unknown
+                AddUInt32(removeKnown);
+                AddUInt32(creature.Id);
+                AddString(creature.Name);
+            }
+
+            AddByte(Convert.ToByte(creature.Health / creature.MaxHealth)); // health bar
             AddByte((byte)creature.Direction);
             AddOutfit(creature.Outfit);
             AddByte(creature.LightLevel);
@@ -359,113 +370,5 @@ namespace SharpOT.Packets
         }
 
         #endregion
-
-        public void AddMapDescription(int x, int y, int z, ushort width, ushort height)
-        {
-            int MAP_MAX_LAYERS = 16;
-            int skip = -1;
-	        int startZ, endZ, zStep = 0;
-
-	        if(z > 7)
-            {
-		        startZ = z - 2;
-		        endZ = Math.Min(MAP_MAX_LAYERS - 1, z + 2);
-		        zStep = 1;
-	        }
-	        else
-            {
-		        startZ = 7;
-		        endZ = 0;
-		        zStep = -1;
-	        }
-
-	        for(int nz = startZ; nz != endZ + zStep; nz += zStep){
-		        skip = AddFloorDescription(x, y, nz, width, height, z - nz, skip);
-	        }
-
-	        if(skip >= 0){
-		        AddByte((byte)skip);
-		        AddByte(0xFF);
-	        }
-        }
-
-        int AddFloorDescription(int x, int y, int z, int width, int height, int offset, int skip)
-        {
-	        Tile tile;
-
-	        for(int nx = 0; nx < width; nx++)
-            {
-                for (int ny = 0; ny < height; ny++)
-                {
-			        tile = Map.Instance.GetTile(x + nx + offset, y + ny + offset, z);
-                    tile.Location = new Location(x + nx + offset, y + ny + offset, z);
-			        if (tile != null)
-                    {
-				        if(skip >= 0)
-                        {
-					        AddByte((byte)skip);
-					        AddByte(0xFF);
-				        }
-				        skip = 0;
-
-				        AddTileDescription(tile);
-			        }
-			        else 
-                    {
-				        skip++;
-				        if(skip == 0xFF)
-                        {
-					        AddByte(0xFF);
-					        AddByte(0xFF);
-					        skip = -1;
-				        }
-			        }
-		        }
-	        }
-
-            return skip;
-        }
-
-        void AddTileDescription(Tile tile)
-        {
-	        if(tile != null)
-            {
-		        int count = 0;
-		        if(tile.Ground != null)
-                {
-			        //AddItem(tile.Ground);
-                    AddUInt16(tile.Ground.Id);
-			        count++;
-		        }
-                /*
-		        if(tile.Items != null)
-                {
-			        for(it = items->getBeginTopItem(); ((it != items->getEndTopItem()) && (count < 10)); ++it){
-				        msg->AddItem(*it);
-				        count++;
-			        }
-		        }*/
-
-		        foreach (Creature creature in tile.Creatures)
-                {
-			        if (true)// (player->canSeeCreature(*cit))
-                    {
-                        AddUInt16(0x61); // unknown
-                        AddUInt32(0); // remove known
-				        //checkCreatureAsKnown((*cit)->getID(), known, removedKnown);
-				        AddCreature(creature);
-				        count++;
-			        }
-		        }
-
-                /*
-		        if(items){
-			        for(it = items->getBeginDownItem(); ((it != items->getEndDownItem()) && (count < 10)); ++it){
-				        msg->AddItem(*it);
-				        count++;
-			        }
-		        }*/
-	        }
-        }
     }
 }
