@@ -16,6 +16,23 @@ namespace SharpOT
         uint[] xteaKey = new uint[4];
         bool remove = false;
         Creature player;
+        HashSet<uint> knownCreatures = new HashSet<uint>();
+
+        public bool IsCreatureKnown(uint id, out uint removeId)
+        {
+            if (knownCreatures.Contains(id))
+            {
+                removeId = 0;
+                return true;
+            }
+            else
+            {
+                // TODO: Fix this logic, as it is it never removes
+                knownCreatures.Add(id);
+                removeId = 0;
+                return false;
+            }
+        }
 
         public bool ShouldRemove
         {
@@ -91,7 +108,7 @@ namespace SharpOT
                     ParseMove(message, Direction.South);
                     break;
                 case ClientPacketType.MoveWest:
-                    ParseMove(message, Direction.North);
+                    ParseMove(message, Direction.West);
                     break;
                 case ClientPacketType.MoveNorthEast:
                     ParseMove(message, Direction.NorthEast);
@@ -181,6 +198,8 @@ namespace SharpOT
             player = new Creature();
             player.Id = 0x01020304;
             player.Name = "Ian";
+            player.Health = 100;
+            player.MaxHealth = 100;
             Tile tile = Map.Instance.GetTile(playerLocation);
             tile.Creatures.Add(player);
             player.Tile = tile;
@@ -192,6 +211,7 @@ namespace SharpOT
             );
 
             MapDescriptionPacket.Add(
+                this,
                 message,
                 playerLocation
             );
@@ -224,8 +244,21 @@ namespace SharpOT
                 "Welcome to Utopia! Last login: yesterday."
             );
 
-            // Player status
-            //message.AddBytes("A0 B4 00 B4 00 86 24 00 00 EA 0A 00 00 07 00 0C 1E 00 1E 00 00 00 64 D8 09".ToBytesAsHex());
+            PlayerStatusPacket.Add(
+                message,
+                100,
+                100,
+                100,
+                100,
+                1,
+                0,
+                100,
+                100,
+                0,
+                0,
+                0,
+                0
+            );
 
             // Player skills
             //message.AddBytes("A1 0A 02 0A 00 0E 44 0B 62 0A 0D 0F 3E 13 26".ToBytesAsHex());
@@ -259,32 +292,38 @@ namespace SharpOT
 
             message.AddByte(0x6D);
             message.AddLocation(fromLocation);
-            message.AddByte(1); // from stack location
+            message.AddByte(2); // from stack location
             message.AddLocation(toLocation);
 
             if (fromLocation.Y > toLocation.Y)
             { // north, for old x
                 message.AddByte(0x65);
-                message.AddMapDescription(fromLocation.X - 8, toLocation.Y - 6, toLocation.Z, 18, 1);
+                MapPacket.AddMapDescription(this, message, fromLocation.X - 8, toLocation.Y - 6, toLocation.Z, 18, 1);
             }
             else if (fromLocation.Y < toLocation.Y)
             { // south, for old x
                 message.AddByte(0x67);
-                message.AddMapDescription(fromLocation.X - 8, toLocation.Y + 7, toLocation.Z, 18, 1);
+                MapPacket.AddMapDescription(this, message, fromLocation.X - 8, toLocation.Y + 7, toLocation.Z, 18, 1);
             }
 
             if (fromLocation.X < toLocation.X)
             { // east, [with new y]
                 message.AddByte(0x66);
-                message.AddMapDescription(toLocation.X + 9, toLocation.Y - 6, toLocation.Z, 1, 14);
+                MapPacket.AddMapDescription(this, message, toLocation.X + 9, toLocation.Y - 6, toLocation.Z, 1, 14);
             }
             else if (fromLocation.X > toLocation.X)
             { // west, [with new y]
                 message.AddByte(0x68);
-                message.AddMapDescription(toLocation.X - 8, toLocation.Y - 6, toLocation.Z, 1, 14);
+                MapPacket.AddMapDescription(this, message, toLocation.X - 8, toLocation.Y - 6, toLocation.Z, 1, 14);
             }
 
+            message.PrepareToSend(xteaKey);
+            Send(message);
+        }
 
+        public void Send(NetworkMessage message)
+        {
+            stream.BeginWrite(message.Buffer, 0, message.Length, null, null);
         }
     }
 }
