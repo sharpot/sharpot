@@ -292,9 +292,9 @@ namespace SharpOT
 
             message.AddByte(0x6D);
             message.AddLocation(fromLocation);
-            message.AddByte(2); // from stack location
+            message.AddByte(1); // from stack location
             message.AddLocation(toLocation);
-
+            
             if (fromLocation.Y > toLocation.Y)
             { // north, for old x
                 message.AddByte(0x65);

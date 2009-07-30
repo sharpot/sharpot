@@ -41,6 +41,8 @@ namespace SharpOT
                     ground.Id = 4526;
                     tile.Ground = ground;
 
+                    tile.Location = new Location(x, y, 7);
+
                     tiles[x, y] = tile;
                 }
             }
@@ -57,9 +59,9 @@ namespace SharpOT
 
         public Tile GetTile(int x, int y, int z)
         {
-            if (x > 1 && x >= Size && y > 1 && y >= Size)
+            if (z != 7 || x < 0 || x >= Size || y < 0 || y >= Size)
             {
-                return Tile.Blank;
+                return null;
             }
 
             return tiles[x, y];

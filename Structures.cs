@@ -16,6 +16,11 @@ namespace SharpOT
             Z = z;
         }
 
+        public override string ToString()
+        {
+            return X + ", " + Y + ", " + Z;
+        }
+
         public Location Offset(Direction direction)
         {
             int x = X, y = Y, z = Z;
@@ -95,8 +100,6 @@ namespace SharpOT
         public Item Ground = new Item();
         public List<Item> Items = new List<Item>();
         public List<Creature> Creatures = new List<Creature>();
-
-        public static Tile Blank = new Tile() { Ground = new Item() { Id = 0 } };
     }
 
     public class Item
@@ -120,6 +123,11 @@ namespace SharpOT
         public Party Party = Party.None;
         public ushort Speed = 200;
         public Tile Tile;
+
+        public override string ToString()
+        {
+            return Name + "[" + Id + "]";
+        }
     }
 
     public class CharacterListItem
