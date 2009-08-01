@@ -200,6 +200,7 @@ namespace SharpOT
             player.Name = "Ian";
             player.Health = 100;
             player.MaxHealth = 100;
+            player.Speed = 600;
             Tile tile = Map.Instance.GetTile(playerLocation);
             tile.Creatures.Add(player);
             player.Tile = tile;
@@ -280,6 +281,7 @@ namespace SharpOT
 
         public void ParseMove(NetworkMessage message, Direction direction)
         {
+            NetworkMessage outMessage = new NetworkMessage();
             Location fromLocation = player.Tile.Location;
             Location toLocation = player.Tile.Location.Offset(direction);
             Tile toTile = Map.Instance.GetTile(toLocation);
@@ -290,35 +292,35 @@ namespace SharpOT
 
             // TODO: calculate new direction
 
-            message.AddByte(0x6D);
-            message.AddLocation(fromLocation);
-            message.AddByte(1); // from stack location
-            message.AddLocation(toLocation);
+            outMessage.AddByte(0x6D);
+            outMessage.AddLocation(fromLocation);
+            outMessage.AddByte(1); // from stack location
+            outMessage.AddLocation(toLocation);
             
             if (fromLocation.Y > toLocation.Y)
             { // north, for old x
-                message.AddByte(0x65);
-                MapPacket.AddMapDescription(this, message, fromLocation.X - 8, toLocation.Y - 6, toLocation.Z, 18, 1);
+                outMessage.AddByte(0x65);
+                MapPacket.AddMapDescription(this, outMessage, fromLocation.X - 8, toLocation.Y - 6, toLocation.Z, 18, 1);
             }
             else if (fromLocation.Y < toLocation.Y)
             { // south, for old x
-                message.AddByte(0x67);
-                MapPacket.AddMapDescription(this, message, fromLocation.X - 8, toLocation.Y + 7, toLocation.Z, 18, 1);
+                outMessage.AddByte(0x67);
+                MapPacket.AddMapDescription(this, outMessage, fromLocation.X - 8, toLocation.Y + 7, toLocation.Z, 18, 1);
             }
 
             if (fromLocation.X < toLocation.X)
             { // east, [with new y]
-                message.AddByte(0x66);
-                MapPacket.AddMapDescription(this, message, toLocation.X + 9, toLocation.Y - 6, toLocation.Z, 1, 14);
+                outMessage.AddByte(0x66);
+                MapPacket.AddMapDescription(this, outMessage, toLocation.X + 9, toLocation.Y - 6, toLocation.Z, 1, 14);
             }
             else if (fromLocation.X > toLocation.X)
             { // west, [with new y]
-                message.AddByte(0x68);
-                MapPacket.AddMapDescription(this, message, toLocation.X - 8, toLocation.Y - 6, toLocation.Z, 1, 14);
+                outMessage.AddByte(0x68);
+                MapPacket.AddMapDescription(this, outMessage, toLocation.X - 8, toLocation.Y - 6, toLocation.Z, 1, 14);
             }
 
-            message.PrepareToSend(xteaKey);
-            Send(message);
+            outMessage.PrepareToSend(xteaKey);
+            Send(outMessage);
         }
 
         public void Send(NetworkMessage message)
