@@ -212,7 +212,7 @@ namespace SharpOT.Packets
                 AddString(creature.Name);
             }
 
-            AddByte(Convert.ToByte(creature.Health / creature.MaxHealth)); // health bar
+            AddByte(Convert.ToByte(creature.Health / creature.MaxHealth * 100)); // health bar
             AddByte((byte)creature.Direction);
             AddOutfit(creature.Outfit);
             AddByte(creature.LightLevel);
