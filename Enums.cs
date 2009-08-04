@@ -263,4 +263,55 @@ namespace SharpOT
         MemberSharedExpInactive = 7,
         LeaderSharedExpInactive = 8
     }
+
+    public enum SpeechType : byte
+    {
+        Say = 0x01,	//normal talk
+        Whisper = 0x02,	//whispering - #w text
+        Yell = 0x03,	//yelling - #y text
+        PrivatePlayerToNPC = 0x04, //Player-to-NPC speaking(NPCs channel)
+        PrivateNPCToPlayer = 0x05, //NPC-to-Player speaking
+        Private = 0x06, //Players speaking privately to players
+        ChannelYellow = 0x07,	//Yellow message in chat
+        ChannelWhite = 0x08, //White message in chat
+        RuleViolationReport = 0x09, //Reporting rule violation - Ctrl+R
+        RuleViolationAnswer = 0x0A, //Answering report
+        RuleViolationContinue = 0x0B, //Answering the answer of the report
+        Broadcast = 0x0C,	//Broadcast a message - #b
+        ChannelRed = 0x0D,	//Talk red on chat - #c
+        PrivateRed = 0x0E,	//Red private - @name@ text
+        ChannelOrange = 0x0F,	//Talk orange on text
+        //SPEAK_                = 0x10, //?
+        ChannelRedAnonymous = 0x11,	//Talk red anonymously on chat - #d
+        //SPEAK_MONSTER_SAY12 = 0x12, //?????
+        MonsterSay = 0x13,	//Talk orange
+        MonsterYell = 0x14,	//Yell orange
+    }
+
+    public enum ChatChannel : ushort
+    {
+        Guild = 0x00,
+        Gamemaster = 0x01,
+        Tutor = 0x02,
+        RuleReport = 0x03,
+        Game = 0x04,
+        Trade = 0x05,
+        RealLife = 0x06,
+        TradeRook = 0x07,
+        Party = 0x08,
+        Help = 0x09,
+        OwnPrivate = 0x0E,
+        Custom = 0xA0,
+        Custom1 = 0xA1,
+        Custom2 = 0xA2,
+        Custom3 = 0xA3,
+        Custom4 = 0xA4,
+        Custom5 = 0xA5,
+        Custom6 = 0xA6,
+        Custom7 = 0xA7,
+        Custom8 = 0xA8,
+        Custom9 = 0xA9,
+        Private = 0xFFFF,
+        None = 0xAAAA
+    }
 }

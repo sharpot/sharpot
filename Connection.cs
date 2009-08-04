@@ -51,8 +51,8 @@ namespace SharpOT
 
         public void GameListenerCallback(IAsyncResult ar)
         {
-            TcpListener clientListener = (TcpListener)ar.AsyncState;
-            socket = clientListener.EndAcceptSocket(ar);
+            TcpListener gameListener = (TcpListener)ar.AsyncState;
+            socket = gameListener.EndAcceptSocket(ar);
             stream = new NetworkStream(socket);
 
             SendConnectionPacket();
@@ -96,8 +96,58 @@ namespace SharpOT
             ushort length = message.GetUInt16();
             byte type = message.GetByte();
 
-            switch ((ClientPacketType)type)
+            ParseClientPacket((ClientPacketType)type, message);
+            
+            if (!remove)
             {
+                stream.BeginRead(message.Buffer, 0, 2,
+                    new AsyncCallback(ClientReadCallBack), null);
+            }
+        }
+
+        private void ParseClientPacket(ClientPacketType type, NetworkMessage message)
+        {
+            switch (type)
+            {
+                case ClientPacketType.Logout:
+                    ParseLogout(message);
+                    break;
+                case ClientPacketType.ItemMove:
+                case ClientPacketType.ShopBuy:
+                case ClientPacketType.ShopSell:
+                case ClientPacketType.ShopClose:
+                case ClientPacketType.ItemUse:
+                case ClientPacketType.ItemUseOn:
+                case ClientPacketType.ItemRotate:
+                case ClientPacketType.LookAt:
+                case ClientPacketType.PlayerSpeech:
+                    ParsePlayerSpeech(message);
+                    break;
+                case ClientPacketType.ChannelList:
+                case ClientPacketType.ChannelOpen:
+                case ClientPacketType.ChannelClose:
+                case ClientPacketType.Attack:
+                case ClientPacketType.Follow:
+                case ClientPacketType.CancelMove:
+                case ClientPacketType.ItemUseBattlelist:
+                case ClientPacketType.ContainerClose:
+                case ClientPacketType.ContainerOpenParent:
+                case ClientPacketType.TurnUp:
+                case ClientPacketType.TurnRight:
+                case ClientPacketType.TurnDown:
+                case ClientPacketType.TurnLeft:
+                case ClientPacketType.AutoWalk:
+                case ClientPacketType.AutoWalkCancel:
+                case ClientPacketType.VipAdd:
+                case ClientPacketType.VipRemove:
+                case ClientPacketType.SetOutfit:
+                case ClientPacketType.Ping:
+                case ClientPacketType.FightModes:
+                case ClientPacketType.ContainerUpdate:
+                case ClientPacketType.TileUpdate:
+                case ClientPacketType.PrivateChannelOpen:
+                case ClientPacketType.NpcChannelClose:
+                    break;
                 case ClientPacketType.MoveNorth:
                     ParseMove(message, Direction.North);
                     break;
@@ -123,9 +173,6 @@ namespace SharpOT
                     ParseMove(message, Direction.NorthWest);
                     break;
             }
-
-            stream.BeginRead(message.Buffer, 0, 2,
-                new AsyncCallback(ClientReadCallBack), null);
         }
 
         private bool EndRead(IAsyncResult ar)
@@ -162,9 +209,7 @@ namespace SharpOT
 
             GameServerConnectPacket.Add(message);
 
-            message.PrepareToSendWithoutEncryption();
-
-            stream.BeginWrite(message.Buffer, 0, message.Length, null, null);
+            Send(message, false);
         }
 
         private void SendCharacterList()
@@ -185,9 +230,7 @@ namespace SharpOT
                 999
             );
 
-            message.PrepareToSend(xteaKey);
-
-            stream.BeginWrite(message.Buffer, 0, message.Length, null, null);
+            Send(message);
         }
 
         private void SendInitialPacket()
@@ -267,9 +310,7 @@ namespace SharpOT
             // Fight modes
             //message.AddBytes("A0 02 00 01".ToBytesAsHex());
 
-            message.PrepareToSend(xteaKey);
-
-            stream.BeginWrite(message.Buffer, 0, message.Length, null, null);
+            Send(message);
         }
 
         public void Close()
@@ -319,12 +360,43 @@ namespace SharpOT
                 MapPacket.AddMapDescription(this, outMessage, toLocation.X - 8, toLocation.Y - 6, toLocation.Z, 1, 14);
             }
 
-            outMessage.PrepareToSend(xteaKey);
+            Send(outMessage);
+        }
+
+        public void ParseLogout(NetworkMessage message)
+        {
+            Close();
+        }
+
+        public void ParsePlayerSpeech(NetworkMessage message)
+        {
+            PlayerSpeechPacket packet = PlayerSpeechPacket.Parse(message);
+            NetworkMessage outMessage = new NetworkMessage();
+            CreatureSpeechPacket.Add(
+                outMessage, 
+                player.Name, 
+                1, 
+                SpeechType.Say, 
+                packet.Message, 
+                player.Tile.Location, 
+                ChatChannel.None, 
+                0000
+            );
             Send(outMessage);
         }
 
         public void Send(NetworkMessage message)
         {
+            Send(message, true);
+        }
+
+        public void Send(NetworkMessage message, bool useEncryption)
+        {
+            if (useEncryption)
+                message.PrepareToSend(xteaKey);
+            else
+                message.PrepareToSendWithoutEncryption();
+
             stream.BeginWrite(message.Buffer, 0, message.Length, null, null);
         }
     }
