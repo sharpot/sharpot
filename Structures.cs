@@ -3,64 +3,6 @@ using System.Collections.Generic;
 
 namespace SharpOT
 {
-    public class Location
-    {
-        public int X;
-        public int Y;
-        public int Z;
-
-        public Location(int x, int y, int z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-        }
-
-        public override string ToString()
-        {
-            return X + ", " + Y + ", " + Z;
-        }
-
-        public Location Offset(Direction direction)
-        {
-            int x = X, y = Y, z = Z;
-
-            switch (direction)
-            {
-                case Direction.North:
-                    y--;
-                    break;
-                case Direction.South:
-                    y++;
-                    break;
-                case Direction.West:
-                    x--;
-                    break;
-                case Direction.East:
-                    x++;
-                    break;
-                case Direction.NorthWest:
-                    x--;
-                    y--;
-                    break;
-                case Direction.SouthWest:
-                    x--;
-                    y++;
-                    break;
-                case Direction.NorthEast:
-                    x++;
-                    y--;
-                    break;
-                case Direction.SouthEast:
-                    x++;
-                    y++;
-                    break;
-            }
-
-            return new Location(x, y, z);
-        }
-    }
-
     public class Outfit
     {
         public UInt16 LookType;
@@ -94,14 +36,6 @@ namespace SharpOT
         }
     }
 
-    public class Tile
-    {
-        public Location Location;
-        public Item Ground = new Item();
-        public List<Item> Items = new List<Item>();
-        public List<Creature> Creatures = new List<Creature>();
-    }
-
     public class Item
     {
         public ushort Id;
@@ -126,8 +60,13 @@ namespace SharpOT
 
         public override string ToString()
         {
-            return Name + "[" + Id + "]";
+            return Name + " [" + Id + "]";
         }
+    }
+
+    public class Player : Creature
+    {
+        public Connection Connection;
     }
 
     public class CharacterListItem

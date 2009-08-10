@@ -46,7 +46,7 @@ namespace SharpOT.Packets
             {
                 for (int ny = 0; ny < height; ny++)
                 {
-                    tile = Map.Instance.GetTile(x + nx + offset, y + ny + offset, z);
+                    tile = connection.Game.Map.GetTile(x + nx + offset, y + ny + offset, z);
                     if (tile != null)
                     {
                         if (skip >= 0)
