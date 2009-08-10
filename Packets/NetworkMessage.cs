@@ -50,13 +50,31 @@ namespace SharpOT.Packets
         #region Constructors
 
         public NetworkMessage()
-            : this(8) {}
+        {
+            Reset();
+        }
 
         public NetworkMessage(int startingIndex)
+        {
+            Reset(startingIndex);
+        }
+
+        public NetworkMessage(NetworkMessage message)
+            : this(0)
+        {
+            AddBytes(message.GetData());
+        }
+
+        public void Reset(int startingIndex)
         {
             buffer = new byte[bufferSize];
             length = startingIndex;
             position = startingIndex;
+        }
+
+        public void Reset()
+        {
+            Reset(8);
         }
 
         #endregion

@@ -14,6 +14,8 @@ namespace SharpOT
             new Server().Run();
         }
 
+        Game game;
+
         TcpListener clientLoginListener = new TcpListener(IPAddress.Any, 7171);
         TcpListener clientGameListener = new TcpListener(IPAddress.Any, 7172);
 
@@ -21,16 +23,18 @@ namespace SharpOT
 
         void Run()
         {
-            Start("Loading map");
-            Map.Instance.Load();
-            Done();
+            game = new Game();
 
-            Start("Listening for clients");
+            LogStart("Loading map");
+            game.Map.Load();
+            LogDone();
+
+            LogStart("Listening for clients");
             clientLoginListener.Start();
             clientLoginListener.BeginAcceptSocket(new AsyncCallback(LoginListenerCallback), clientLoginListener);
             clientGameListener.Start();
             clientGameListener.BeginAcceptSocket(new AsyncCallback(GameListenerCallback), clientGameListener);
-            Done();
+            LogDone();
 
             Console.ReadLine();
             connections.ForEach(c => c.Close());
@@ -38,24 +42,24 @@ namespace SharpOT
             clientLoginListener.Stop();
         }
 
-        void Start(string text)
+        public static void LogStart(string text)
         {
             Console.Write(DateTime.Now + ": " + text + "...");
         }
 
-        void Done()
+        public static void LogDone()
         {
             Console.WriteLine("Done");
         }
 
-        void Log(string text)
+        public static void Log(string text)
         {
             Console.WriteLine(DateTime.Now + ": " + text);
         }
 
         private void LoginListenerCallback(IAsyncResult ar)
         {
-            Connection connection = new Connection();
+            Connection connection = new Connection(game);
             connection.LoginListenerCallback(ar);
             connections.Add(connection);
 
@@ -65,7 +69,7 @@ namespace SharpOT
 
         private void GameListenerCallback(IAsyncResult ar)
         {
-            Connection connection = new Connection();
+            Connection connection = new Connection(game);
             connection.GameListenerCallback(ar);
             connections.Add(connection);
 

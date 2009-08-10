@@ -12,32 +12,34 @@ namespace SharpOT
     {
         Socket socket;
         NetworkStream stream;
-        NetworkMessage message = new NetworkMessage(0);
+        NetworkMessage inMessage = new NetworkMessage(0);
         uint[] xteaKey = new uint[4];
         bool remove = false;
-        Creature player;
+        Player player;
         HashSet<uint> knownCreatures = new HashSet<uint>();
+        Random random = new Random();
 
-        public bool IsCreatureKnown(uint id, out uint removeId)
+        #region Constructor
+
+        public Connection(Game game)
         {
-            if (knownCreatures.Contains(id))
-            {
-                removeId = 0;
-                return true;
-            }
-            else
-            {
-                // TODO: Fix this logic, as it is it never removes
-                knownCreatures.Add(id);
-                removeId = 0;
-                return false;
-            }
+            this.Game = game;
         }
+
+        #endregion
+
+        #region Properties
+
+        public Game Game { get; set; }
 
         public bool ShouldRemove
         {
             get { return remove; }
         }
+
+        #endregion
+
+        #region Callbacks
 
         public void LoginListenerCallback(IAsyncResult ar)
         {
@@ -45,7 +47,7 @@ namespace SharpOT
             socket = clientListener.EndAcceptSocket(ar);
             stream = new NetworkStream(socket);
 
-            stream.BeginRead(message.Buffer, 0, 2,
+            stream.BeginRead(inMessage.Buffer, 0, 2,
                 new AsyncCallback(ClientReadFirstCallBack), null);
         }
 
@@ -57,7 +59,7 @@ namespace SharpOT
 
             SendConnectionPacket();
 
-            stream.BeginRead(message.Buffer, 0, 2,
+            stream.BeginRead(inMessage.Buffer, 0, 2,
                 new AsyncCallback(ClientReadFirstCallBack), null);
         }
 
@@ -65,25 +67,22 @@ namespace SharpOT
         {
             if (!EndRead(ar)) return;
 
-            byte protocol = message.GetByte(); // protocol id (1 = login, 2 = game)
+            byte protocol = inMessage.GetByte(); // protocol id (1 = login, 2 = game)
 
             if (protocol == 0x01)
             {
-                AccountPacket accountPacket = AccountPacket.Parse(message);
+                AccountPacket accountPacket = AccountPacket.Parse(inMessage);
                 xteaKey = accountPacket.XteaKey;
 
-                SendCharacterList();
+                SendCharacterList(accountPacket);
 
                 Close();
             }
             else if (protocol == 0x0A)
             {
-                LoginPacket loginPacket = LoginPacket.Parse(message);
-                xteaKey = loginPacket.XteaKey;
+                ParseLoginPacket(inMessage);
 
-                SendInitialPacket();
-
-                stream.BeginRead(message.Buffer, 0, 2,
+                stream.BeginRead(inMessage.Buffer, 0, 2,
                     new AsyncCallback(ClientReadCallBack), null);
             }
         }
@@ -92,86 +91,16 @@ namespace SharpOT
         {
             if (!EndRead(ar)) return;
 
-            message.XteaDecrypt(xteaKey);
-            ushort length = message.GetUInt16();
-            byte type = message.GetByte();
+            inMessage.XteaDecrypt(xteaKey);
+            ushort length = inMessage.GetUInt16();
+            byte type = inMessage.GetByte();
 
-            ParseClientPacket((ClientPacketType)type, message);
+            ParseClientPacket((ClientPacketType)type, inMessage);
             
             if (!remove)
             {
-                stream.BeginRead(message.Buffer, 0, 2,
+                stream.BeginRead(inMessage.Buffer, 0, 2,
                     new AsyncCallback(ClientReadCallBack), null);
-            }
-        }
-
-        private void ParseClientPacket(ClientPacketType type, NetworkMessage message)
-        {
-            switch (type)
-            {
-                case ClientPacketType.Logout:
-                    ParseLogout(message);
-                    break;
-                case ClientPacketType.ItemMove:
-                case ClientPacketType.ShopBuy:
-                case ClientPacketType.ShopSell:
-                case ClientPacketType.ShopClose:
-                case ClientPacketType.ItemUse:
-                case ClientPacketType.ItemUseOn:
-                case ClientPacketType.ItemRotate:
-                case ClientPacketType.LookAt:
-                case ClientPacketType.PlayerSpeech:
-                    ParsePlayerSpeech(message);
-                    break;
-                case ClientPacketType.ChannelList:
-                case ClientPacketType.ChannelOpen:
-                case ClientPacketType.ChannelClose:
-                case ClientPacketType.Attack:
-                case ClientPacketType.Follow:
-                case ClientPacketType.CancelMove:
-                case ClientPacketType.ItemUseBattlelist:
-                case ClientPacketType.ContainerClose:
-                case ClientPacketType.ContainerOpenParent:
-                case ClientPacketType.TurnUp:
-                case ClientPacketType.TurnRight:
-                case ClientPacketType.TurnDown:
-                case ClientPacketType.TurnLeft:
-                case ClientPacketType.AutoWalk:
-                case ClientPacketType.AutoWalkCancel:
-                case ClientPacketType.VipAdd:
-                case ClientPacketType.VipRemove:
-                case ClientPacketType.SetOutfit:
-                case ClientPacketType.Ping:
-                case ClientPacketType.FightModes:
-                case ClientPacketType.ContainerUpdate:
-                case ClientPacketType.TileUpdate:
-                case ClientPacketType.PrivateChannelOpen:
-                case ClientPacketType.NpcChannelClose:
-                    break;
-                case ClientPacketType.MoveNorth:
-                    ParseMove(message, Direction.North);
-                    break;
-                case ClientPacketType.MoveEast:
-                    ParseMove(message, Direction.East);
-                    break;
-                case ClientPacketType.MoveSouth:
-                    ParseMove(message, Direction.South);
-                    break;
-                case ClientPacketType.MoveWest:
-                    ParseMove(message, Direction.West);
-                    break;
-                case ClientPacketType.MoveNorthEast:
-                    ParseMove(message, Direction.NorthEast);
-                    break;
-                case ClientPacketType.MoveSouthEast:
-                    ParseMove(message, Direction.SouthEast);
-                    break;
-                case ClientPacketType.MoveSouthWest:
-                    ParseMove(message, Direction.SouthWest);
-                    break;
-                case ClientPacketType.MoveNorthWest:
-                    ParseMove(message, Direction.NorthWest);
-                    break;
             }
         }
 
@@ -185,23 +114,164 @@ namespace SharpOT
                 Close();
                 return false;
             }
-            
-            int size = (int)BitConverter.ToUInt16(message.Buffer, 0) + 2;
+
+            int size = (int)BitConverter.ToUInt16(inMessage.Buffer, 0) + 2;
 
             while (read < size)
             {
                 if (stream.CanRead)
-                    read += stream.Read(message.Buffer, read, size - read);
+                    read += stream.Read(inMessage.Buffer, read, size - read);
             }
-            message.Length = size;
+            inMessage.Length = size;
 
-            message.Position = 0;
+            inMessage.Position = 0;
 
-            message.GetUInt16(); // total length
-            message.GetUInt32(); // adler
+            inMessage.GetUInt16(); // total length
+            inMessage.GetUInt32(); // adler
 
             return true;
         }
+
+        #endregion
+
+        #region Parse
+
+        private void ParseLoginPacket(NetworkMessage message)
+        {
+
+            LoginPacket loginPacket = LoginPacket.Parse(message);
+            xteaKey = loginPacket.XteaKey;
+
+            SendInitialPacket(loginPacket);
+
+            // Show the other players
+            var spectators = Game.GetSpectatorPlayers(player.Tile.Location);
+
+            foreach (Player spectator in spectators)
+            {
+                if (spectator != player)
+                {
+                    var outMessage = new NetworkMessage();
+                    uint removeKnown;
+                    bool known = spectator.Connection.IsCreatureKnown(player.Id, out removeKnown);
+
+                    TileAddCreaturePacket.Add(
+                        outMessage,
+                        player.Tile.Location,
+                        1,
+                        player, known, removeKnown);
+
+                    spectator.Connection.Send(outMessage);
+                }
+            }
+        }
+
+        private void ParseClientPacket(ClientPacketType type, NetworkMessage message)
+        {
+            switch (type)
+            {
+                case ClientPacketType.Logout:
+                    ParseLogout(message);
+                    break;
+                //case ClientPacketType.ItemMove:
+                //case ClientPacketType.ShopBuy:
+                //case ClientPacketType.ShopSell:
+                //case ClientPacketType.ShopClose:
+                //case ClientPacketType.ItemUse:
+                //case ClientPacketType.ItemUseOn:
+                //case ClientPacketType.ItemRotate:
+                //case ClientPacketType.LookAt:
+                case ClientPacketType.PlayerSpeech:
+                    ParsePlayerSpeech(message);
+                    break;
+                //case ClientPacketType.ChannelList:
+                //case ClientPacketType.ChannelOpen:
+                //case ClientPacketType.ChannelClose:
+                //case ClientPacketType.Attack:
+                //case ClientPacketType.Follow:
+                //case ClientPacketType.CancelMove:
+                //case ClientPacketType.ItemUseBattlelist:
+                //case ClientPacketType.ContainerClose:
+                //case ClientPacketType.ContainerOpenParent:
+                //case ClientPacketType.TurnUp:
+                //case ClientPacketType.TurnRight:
+                //case ClientPacketType.TurnDown:
+                //case ClientPacketType.TurnLeft:
+                //case ClientPacketType.AutoWalk:
+                //case ClientPacketType.AutoWalkCancel:
+                //case ClientPacketType.VipAdd:
+                //case ClientPacketType.VipRemove:
+                //case ClientPacketType.SetOutfit:
+                //case ClientPacketType.Ping:
+                //case ClientPacketType.FightModes:
+                //case ClientPacketType.ContainerUpdate:
+                //case ClientPacketType.TileUpdate:
+                //case ClientPacketType.PrivateChannelOpen:
+                //case ClientPacketType.NpcChannelClose:
+                //    break;
+                case ClientPacketType.MoveNorth:
+                    Game.CreatureMove(player,  Direction.North);
+                    break;
+                case ClientPacketType.MoveEast:
+                    Game.CreatureMove(player,  Direction.East);
+                    break;
+                case ClientPacketType.MoveSouth:
+                    Game.CreatureMove(player,  Direction.South);
+                    break;
+                case ClientPacketType.MoveWest:
+                    Game.CreatureMove(player,  Direction.West);
+                    break;
+                case ClientPacketType.MoveNorthEast:
+                    Game.CreatureMove(player,  Direction.NorthEast);
+                    break;
+                case ClientPacketType.MoveSouthEast:
+                    Game.CreatureMove(player,  Direction.SouthEast);
+                    break;
+                case ClientPacketType.MoveSouthWest:
+                    Game.CreatureMove(player,  Direction.SouthWest);
+                    break;
+                case ClientPacketType.MoveNorthWest:
+                    Game.CreatureMove(player,  Direction.NorthWest);
+                    break;
+                default:
+                    Server.Log("Unhandled packet from " + player + ": " + type);
+                    break;
+            }
+        }
+
+        public void ParseLogout(NetworkMessage message)
+        {
+            Close();
+            player.Tile.Creatures.Remove(player);
+            Game.RemoveCreature(player);
+            // TODO: tell everyone who can see
+        }
+
+        public void ParsePlayerSpeech(NetworkMessage message)
+        {
+            PlayerSpeechPacket packet = PlayerSpeechPacket.Parse(message);
+            NetworkMessage outMessage = new NetworkMessage();
+            CreatureSpeechPacket.Add(
+                outMessage,
+                player.Name,
+                1,
+                SpeechType.Say,
+                packet.Message,
+                player.Tile.Location,
+                ChatChannel.None,
+                0000
+            );
+
+            // TODO: this should only send to players who can see this player speak (same floor)
+            foreach (Player spectator in Game.GetSpectatorPlayers(player.Tile.Location))
+            {
+                spectator.Connection.Send(new NetworkMessage(outMessage));
+            }
+        }
+
+        #endregion
+
+        #region Send
 
         private void SendConnectionPacket()
         {
@@ -212,7 +282,7 @@ namespace SharpOT
             Send(message, false);
         }
 
-        private void SendCharacterList()
+        private void SendCharacterList(AccountPacket accountPacket)
         {
             NetworkMessage message = new NetworkMessage();
 
@@ -233,20 +303,22 @@ namespace SharpOT
             Send(message);
         }
 
-        private void SendInitialPacket()
+        private void SendInitialPacket(LoginPacket loginPacket)
         {
             NetworkMessage message = new NetworkMessage();
 
             Location playerLocation = new Location(50, 50, 7);
-            player = new Creature();
-            player.Id = 0x01020304;
-            player.Name = "Ian";
+            player = new Player();
+            player.Connection = this;
+            player.Id = 0x01000000 + (uint)random.Next(0xFFFFFF);
+            player.Name = loginPacket.CharacterName;
             player.Health = 100;
             player.MaxHealth = 100;
             player.Speed = 600;
-            Tile tile = Map.Instance.GetTile(playerLocation);
-            tile.Creatures.Add(player);
+            Tile tile = Game.Map.GetTile(playerLocation);
             player.Tile = tile;
+            tile.Creatures.Add(player);
+            Game.AddCreature(player);
 
             SelfAppearPacket.Add(
                 message,
@@ -313,75 +385,38 @@ namespace SharpOT
             Send(message);
         }
 
-        public void Close()
+        public void SendCreatureMove(Location fromLocation, Location toLocation)
         {
-            remove = true;
-            stream.Close();
-            socket.Close();
-        }
-
-        public void ParseMove(NetworkMessage message, Direction direction)
-        {
+            Server.Log(player + ": CreatureMove From:" + fromLocation + " To:" + toLocation);
             NetworkMessage outMessage = new NetworkMessage();
-            Location fromLocation = player.Tile.Location;
-            Location toLocation = player.Tile.Location.Offset(direction);
-            Tile toTile = Map.Instance.GetTile(toLocation);
 
-            player.Tile.Creatures.Remove(player);
-            toTile.Creatures.Add(player);
-            player.Tile = toTile;
-
-            // TODO: calculate new direction
-
-            outMessage.AddByte(0x6D);
-            outMessage.AddLocation(fromLocation);
-            outMessage.AddByte(1); // from stack location
-            outMessage.AddLocation(toLocation);
-            
-            if (fromLocation.Y > toLocation.Y)
-            { // north, for old x
-                outMessage.AddByte(0x65);
-                MapPacket.AddMapDescription(this, outMessage, fromLocation.X - 8, toLocation.Y - 6, toLocation.Z, 18, 1);
-            }
-            else if (fromLocation.Y < toLocation.Y)
-            { // south, for old x
-                outMessage.AddByte(0x67);
-                MapPacket.AddMapDescription(this, outMessage, fromLocation.X - 8, toLocation.Y + 7, toLocation.Z, 18, 1);
-            }
-
-            if (fromLocation.X < toLocation.X)
-            { // east, [with new y]
-                outMessage.AddByte(0x66);
-                MapPacket.AddMapDescription(this, outMessage, toLocation.X + 9, toLocation.Y - 6, toLocation.Z, 1, 14);
-            }
-            else if (fromLocation.X > toLocation.X)
-            { // west, [with new y]
-                outMessage.AddByte(0x68);
-                MapPacket.AddMapDescription(this, outMessage, toLocation.X - 8, toLocation.Y - 6, toLocation.Z, 1, 14);
-            }
-
-            Send(outMessage);
-        }
-
-        public void ParseLogout(NetworkMessage message)
-        {
-            Close();
-        }
-
-        public void ParsePlayerSpeech(NetworkMessage message)
-        {
-            PlayerSpeechPacket packet = PlayerSpeechPacket.Parse(message);
-            NetworkMessage outMessage = new NetworkMessage();
-            CreatureSpeechPacket.Add(
-                outMessage, 
-                player.Name, 
-                1, 
-                SpeechType.Say, 
-                packet.Message, 
-                player.Tile.Location, 
-                ChatChannel.None, 
-                0000
+            CreatureMovePacket.Add(
+                outMessage,
+                fromLocation,
+                1,
+                toLocation
             );
+        }
+
+        public void SendPlayerMove(Location fromLocation, Location toLocation)
+        {
+            Server.Log(player + ": PlayerMove From:" + fromLocation + " To:" + toLocation);
+            NetworkMessage outMessage = new NetworkMessage();
+
+            CreatureMovePacket.Add(
+                outMessage,
+                fromLocation,
+                1,
+                toLocation
+            );
+
+            MapSlicePacket.Add(
+                this,
+                outMessage,
+                fromLocation,
+                toLocation
+            );
+
             Send(outMessage);
         }
 
@@ -399,5 +434,34 @@ namespace SharpOT
 
             stream.BeginWrite(message.Buffer, 0, message.Length, null, null);
         }
+
+        #endregion
+
+        #region Other
+
+        public bool IsCreatureKnown(uint id, out uint removeId)
+        {
+            if (knownCreatures.Contains(id))
+            {
+                removeId = 0;
+                return true;
+            }
+            else
+            {
+                // TODO: Fix this logic, as it is it never removes
+                knownCreatures.Add(id);
+                removeId = 0;
+                return false;
+            }
+        }
+
+        public void Close()
+        {
+            remove = true;
+            stream.Close();
+            socket.Close();
+        }
+
+        #endregion
     }
 }

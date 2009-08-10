@@ -46,7 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Tile.cs" />
+    <Compile Include="Location.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Packets\AdlerChecksum.cs" />
     <Compile Include="Packets\Client\AccountPacket.cs" />
@@ -54,6 +57,9 @@
     <Compile Include="Packets\Client\LoginPacket.cs" />
     <Compile Include="Packets\Packet.cs" />
     <Compile Include="Packets\Server\CharacterListPacket.cs" />
+    <Compile Include="Packets\Server\MapSlicePacket.cs" />
+    <Compile Include="Packets\Server\CreatureMovePacket.cs" />
+    <Compile Include="Packets\Server\TileAddCreaturePacket.cs" />
     <Compile Include="Packets\Server\CreatureSpeechPacket.cs" />
     <Compile Include="Packets\Server\MapPacket.cs" />
     <Compile Include="Packets\Server\PlayerStatusPacket.cs" />

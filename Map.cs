@@ -5,26 +5,8 @@ using System.Text;
 
 namespace SharpOT
 {
-    // Singleton pattern from http://www.yoda.arachsys.com/csharp/singleton.html
     public class Map
     {
-        #region Singleton Pattern
-
-        static readonly Map instance = new Map();
-
-        // Explicit static constructor to tell C# compiler
-        // not to mark type as beforefieldinit
-        static Map() { }
-
-        Map() { }
-
-        public static Map Instance
-        {
-            get { return instance; }
-        }
-
-        #endregion
-
         public const int Size = 100;
 
         Tile[,] tiles = new Tile[Size, Size];
