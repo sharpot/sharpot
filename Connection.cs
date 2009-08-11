@@ -302,12 +302,12 @@ namespace SharpOT
 
             Send(message);
         }
-
+        static int x = 50;
         private void SendInitialPacket(LoginPacket loginPacket)
         {
             NetworkMessage message = new NetworkMessage();
 
-            Location playerLocation = new Location(50, 50, 7);
+            Location playerLocation = new Location(50, x++, 7);
             player = new Player();
             player.Connection = this;
             player.Id = 0x01000000 + (uint)random.Next(0xFFFFFF);
@@ -396,6 +396,8 @@ namespace SharpOT
                 1,
                 toLocation
             );
+
+            Send(outMessage);
         }
 
         public void SendPlayerMove(Location fromLocation, Location toLocation)

@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Packets\Server\TileRemoveThingPacket.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="Enums.cs" />
