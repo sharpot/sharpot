@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SharpOT.Packets;
 
 namespace SharpOT
 {
@@ -60,9 +61,25 @@ namespace SharpOT
                     {
                         player.Connection.SendPlayerMove(fromLocation, toLocation);
                     }
-                    else
+                    else if (player.Tile.Location.CanSee(fromLocation) && player.Tile.Location.CanSee(toLocation))
                     {
                         player.Connection.SendCreatureMove(fromLocation, toLocation);
+                    }
+                    else if (player.Tile.Location.CanSee(fromLocation))
+                    {
+                        // Remove tile item
+                        NetworkMessage message = new NetworkMessage();
+                        TileRemoveThingPacket.Add(message, fromLocation, 1);
+                        player.Connection.Send(message);
+                    }
+                    else if (player.Tile.Location.CanSee(toLocation))
+                    {
+                        // Add tile creature
+                        NetworkMessage message = new NetworkMessage();
+                        uint remove;
+                        bool known = player.Connection.IsCreatureKnown(creature.Id, out remove);
+                        TileAddCreaturePacket.Add(message, toLocation, 1, creature, known, remove);
+                        player.Connection.Send(message);
                     }
                 }
             }
