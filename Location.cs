@@ -72,16 +72,16 @@ namespace SharpOT
 	        else if(Z >= 8){
 		        //we are underground (8 -> 15)
 		        //view is +/- 2 from the floor we stand on
-		        if(Math.Abs(loc.Z - Z) > 2){
+		        if(Math.Abs(Z - loc.Z) > 2){
 			        return false;
 		        }
 	        }
 
 	        //negative offset means that the action taken place is on a lower floor than ourself
-	        int offsetz = loc.Z - Z;
+	        int offsetz = Z - loc.Z;
 
-	        if ((X >= loc.X - 8 + offsetz) && (X <= loc.X + 9 + offsetz) &&
-		        (Y >= loc.Y - 6 + offsetz) && (Y <= loc.Y + 7 + offsetz))
+            if ((loc.X >= X - 8 + offsetz) && (loc.X <= X + 9 + offsetz) &&
+                (loc.Y >= Y - 6 + offsetz) && (loc.Y <= Y + 7 + offsetz))
 		        return true;
 
 	        return false;
