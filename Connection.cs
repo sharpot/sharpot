@@ -144,26 +144,7 @@ namespace SharpOT
 
             SendInitialPacket(loginPacket);
 
-            // Show the other players
-            var spectators = Game.GetSpectatorPlayers(player.Tile.Location);
-
-            foreach (Player spectator in spectators)
-            {
-                if (spectator != player)
-                {
-                    var outMessage = new NetworkMessage();
-                    uint removeKnown;
-                    bool known = spectator.Connection.IsCreatureKnown(player.Id, out removeKnown);
-
-                    TileAddCreaturePacket.Add(
-                        outMessage,
-                        player.Tile.Location,
-                        1,
-                        player, known, removeKnown);
-
-                    spectator.Connection.Send(outMessage);
-                }
-            }
+            Game.PlayerLogin(player);
         }
 
         private void ParseClientPacket(ClientPacketType type, NetworkMessage message)
@@ -241,32 +222,13 @@ namespace SharpOT
 
         public void ParseLogout(NetworkMessage message)
         {
-            Close();
-            player.Tile.Creatures.Remove(player);
-            Game.RemoveCreature(player);
-            // TODO: tell everyone who can see
+            Game.PlayerLogout(player);
         }
 
         public void ParsePlayerSpeech(NetworkMessage message)
         {
             PlayerSpeechPacket packet = PlayerSpeechPacket.Parse(message);
-            NetworkMessage outMessage = new NetworkMessage();
-            CreatureSpeechPacket.Add(
-                outMessage,
-                player.Name,
-                1,
-                SpeechType.Say,
-                packet.Message,
-                player.Tile.Location,
-                ChatChannel.None,
-                0000
-            );
-
-            // TODO: this should only send to players who can see this player speak (same floor)
-            foreach (Player spectator in Game.GetSpectatorPlayers(player.Tile.Location))
-            {
-                spectator.Connection.Send(new NetworkMessage(outMessage));
-            }
+            Game.CreatureSpeech(player, packet.Message);
         }
 
         #endregion
@@ -307,6 +269,8 @@ namespace SharpOT
         {
             NetworkMessage message = new NetworkMessage();
 
+            // TODO: This should be pulled out into Game
+
             Location playerLocation = new Location(50, x++, 7);
             player = new Player();
             player.Connection = this;
@@ -318,7 +282,6 @@ namespace SharpOT
             Tile tile = Game.Map.GetTile(playerLocation);
             player.Tile = tile;
             tile.Creatures.Add(player);
-            Game.AddCreature(player);
 
             SelfAppearPacket.Add(
                 message,
@@ -400,6 +363,24 @@ namespace SharpOT
             Send(outMessage);
         }
 
+        public void SendTileRemoveThing(Location fromLocation, byte fromStackPosition)
+        {
+
+            NetworkMessage message = new NetworkMessage();
+            TileRemoveThingPacket.Add(message, fromLocation, fromStackPosition);
+
+            Send(message);
+        }
+
+        public void SendTileAddCreature(Creature creature, Location toLocation, byte toStackPosition)
+        {
+            NetworkMessage message = new NetworkMessage();
+            uint remove;
+            bool known = IsCreatureKnown(creature.Id, out remove);
+            TileAddCreaturePacket.Add(message, toLocation, toStackPosition, creature, known, remove);
+            Send(message);
+        }
+
         public void SendPlayerMove(Location fromLocation, Location toLocation)
         {
             Server.Log(player + ": PlayerMove From:" + fromLocation + " To:" + toLocation);
@@ -419,6 +400,23 @@ namespace SharpOT
                 toLocation
             );
 
+            Send(outMessage);
+        }
+
+        public void SendCreatureSpeech(Creature creature, string message)
+        {
+
+            NetworkMessage outMessage = new NetworkMessage();
+            CreatureSpeechPacket.Add(
+                outMessage,
+                creature.Name,
+                1,
+                SpeechType.Say,
+                message,
+                creature.Tile.Location,
+                ChatChannel.None,
+                0000
+            );
             Send(outMessage);
         }
 

@@ -16,27 +16,27 @@ namespace SharpOT
             Map = new Map();
         }
 
-        public void AddCreature(Creature creature)
+        private void AddCreature(Creature creature)
         {
             creatures.Add(creature.Id, creature);
         }
 
-        public void RemoveCreature(Creature creature)
+        private void RemoveCreature(Creature creature)
         {
             creatures.Remove(creature.Id);
         }
 
-        public IEnumerable<Creature> GetSpectators(Location location)
+        private IEnumerable<Creature> GetSpectators(Location location)
         {
             return creatures.Values.Where(creature => creature.Tile.Location.CanSee(location));
         }
 
-        public IEnumerable<Player> GetSpectatorPlayers(Location location)
+        private IEnumerable<Player> GetSpectatorPlayers(Location location)
         {
             return GetSpectators(location).OfType<Player>();
         }
 
-        public IEnumerable<Player> GetPlayers()
+        private IEnumerable<Player> GetPlayers()
         {
             return creatures.Values.OfType<Player>();
         }
@@ -55,7 +55,7 @@ namespace SharpOT
 
                 // TODO: Calculate new direction
 
-                foreach (var player in GetSpectatorPlayers(fromLocation).Union(GetSpectatorPlayers(toLocation)))
+                foreach (var player in GetPlayers())
                 {
                     if (player == creature)
                     {
@@ -67,21 +67,56 @@ namespace SharpOT
                     }
                     else if (player.Tile.Location.CanSee(fromLocation))
                     {
-                        // Remove tile item
-                        NetworkMessage message = new NetworkMessage();
-                        TileRemoveThingPacket.Add(message, fromLocation, 1);
-                        player.Connection.Send(message);
+                        player.Connection.SendTileRemoveThing(fromLocation, 1);
                     }
                     else if (player.Tile.Location.CanSee(toLocation))
                     {
-                        // Add tile creature
-                        NetworkMessage message = new NetworkMessage();
-                        uint remove;
-                        bool known = player.Connection.IsCreatureKnown(creature.Id, out remove);
-                        TileAddCreaturePacket.Add(message, toLocation, 1, creature, known, remove);
-                        player.Connection.Send(message);
+                        player.Connection.SendTileAddCreature(creature, toLocation, 1);
                     }
                 }
+            }
+        }
+
+        public void PlayerLogin(Player player)
+        {
+            AddCreature(player);
+
+            var spectators = GetSpectatorPlayers(player.Tile.Location);
+
+            foreach (Player spectator in spectators)
+            {
+                if (spectator != player)
+                {
+                    spectator.Connection.SendTileAddCreature(player, player.Tile.Location, 1);
+                }
+            }
+        }
+
+        public void PlayerLogout(Player player)
+        {
+            // TODO: Make sure the player can logout
+            player.Connection.Close();
+            player.Tile.Creatures.Remove(player);
+            RemoveCreature(player);
+
+            var spectators = GetSpectatorPlayers(player.Tile.Location);
+
+            foreach (Player spectator in spectators)
+            {
+                if (spectator != player)
+                {
+                    // TODO: Send a poof
+                    spectator.Connection.SendTileRemoveThing(player.Tile.Location, 1);
+                }
+            }
+        }
+
+        public void CreatureSpeech(Creature creature, string message)
+        {
+            // TODO: this should only send to players who can see this player speak (same floor)
+            foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
+            {
+                spectator.Connection.SendCreatureSpeech(creature, message);
             }
         }
     }
