@@ -46,6 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Packets\Client\ChangeOutfitPacket.cs" />
+    <Compile Include="Packets\Server\CreatureChangeOutfitPacket.cs" />
+    <Compile Include="Packets\Server\OutfitWindowPacket.cs" />
+    <Compile Include="Packets\Server\CreatureTurnPacket.cs" />
     <Compile Include="Packets\Server\TileRemoveThingPacket.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Location.cs" />

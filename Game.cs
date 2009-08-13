@@ -8,13 +8,23 @@ namespace SharpOT
 {
     public class Game
     {
+        #region Variables
+
         public Map Map { get; private set; }
         public Dictionary<uint, Creature> creatures = new Dictionary<uint, Creature>();
+
+        #endregion
+
+        #region Constructor
 
         public Game()
         {
             Map = new Map();
         }
+
+        #endregion
+
+        #region Private Helpers
 
         private void AddCreature(Creature creature)
         {
@@ -33,12 +43,37 @@ namespace SharpOT
 
         private IEnumerable<Player> GetSpectatorPlayers(Location location)
         {
-            return GetSpectators(location).OfType<Player>();
+            return GetPlayers().Where(player => player.Tile.Location.CanSee(location));
         }
 
         private IEnumerable<Player> GetPlayers()
         {
             return creatures.Values.OfType<Player>();
+        }
+
+        #endregion
+
+        #region Public Actions
+
+        public void CreatureTurn(Creature creature, Direction direction)
+        {
+            if (creature.Direction != direction)
+            {
+                creature.Direction = direction;
+                foreach (var player in GetSpectatorPlayers(creature.Tile.Location))
+                {
+                    player.Connection.SendCreatureTurn(creature);
+                }
+            }
+        }
+
+        public void CreatureChangeOutfit(Creature creature, Outfit outfit)
+        {
+            creature.Outfit = outfit;
+            foreach (var player in GetSpectatorPlayers(creature.Tile.Location))
+            {
+                player.Connection.SendCreatureChangeOutfit(creature);
+            }
         }
 
         public void CreatureMove(Creature creature, Direction direction)
@@ -53,7 +88,14 @@ namespace SharpOT
                 toTile.Creatures.Add(creature);
                 creature.Tile = toTile;
 
-                // TODO: Calculate new direction
+                if (fromLocation.Y > toLocation.Y)
+                    creature.Direction = Direction.North;
+                else if (fromLocation.Y < toLocation.Y)
+                    creature.Direction = Direction.South;
+                if (fromLocation.X < toLocation.X)
+                    creature.Direction = Direction.East;
+                else if (fromLocation.X > toLocation.X)
+                    creature.Direction = Direction.West;
 
                 foreach (var player in GetPlayers())
                 {
@@ -119,5 +161,7 @@ namespace SharpOT
                 spectator.Connection.SendCreatureSpeech(creature, message);
             }
         }
+
+        #endregion
     }
 }
