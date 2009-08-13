@@ -10,6 +10,8 @@ namespace SharpOT
 {
     public class Connection
     {
+        #region Variables
+
         Socket socket;
         NetworkStream stream;
         NetworkMessage inMessage = new NetworkMessage(0);
@@ -18,6 +20,8 @@ namespace SharpOT
         Player player;
         HashSet<uint> knownCreatures = new HashSet<uint>();
         Random random = new Random();
+
+        #endregion
 
         #region Constructor
 
@@ -174,15 +178,28 @@ namespace SharpOT
                 //case ClientPacketType.ItemUseBattlelist:
                 //case ClientPacketType.ContainerClose:
                 //case ClientPacketType.ContainerOpenParent:
-                //case ClientPacketType.TurnUp:
-                //case ClientPacketType.TurnRight:
-                //case ClientPacketType.TurnDown:
-                //case ClientPacketType.TurnLeft:
+                case ClientPacketType.TurnNorth:
+                    Game.CreatureTurn(player, Direction.North);
+                    break;
+                case ClientPacketType.TurnWest:
+                    Game.CreatureTurn(player, Direction.East);
+                    break;
+                case ClientPacketType.TurnSouth:
+                    Game.CreatureTurn(player, Direction.South);
+                    break;
+                case ClientPacketType.TurnEast:
+                    Game.CreatureTurn(player, Direction.West);
+                    break;
                 //case ClientPacketType.AutoWalk:
                 //case ClientPacketType.AutoWalkCancel:
                 //case ClientPacketType.VipAdd:
                 //case ClientPacketType.VipRemove:
-                //case ClientPacketType.SetOutfit:
+                case ClientPacketType.RequestOutfit:
+                    SendOutfitWindow();
+                    break;
+                case ClientPacketType.ChangeOutfit:
+                    ParseChangeOutfit(message);
+                    break;
                 //case ClientPacketType.Ping:
                 //case ClientPacketType.FightModes:
                 //case ClientPacketType.ContainerUpdate:
@@ -229,6 +246,12 @@ namespace SharpOT
         {
             PlayerSpeechPacket packet = PlayerSpeechPacket.Parse(message);
             Game.CreatureSpeech(player, packet.Message);
+        }
+
+        public void ParseChangeOutfit(NetworkMessage message)
+        {
+            ChangeOutfitPacket packet = ChangeOutfitPacket.Parse(message);
+            Game.CreatureChangeOutfit(player, packet.Outfit);
         }
 
         #endregion
@@ -348,9 +371,32 @@ namespace SharpOT
             Send(message);
         }
 
+        public void SendOutfitWindow()
+        {
+            NetworkMessage message = new NetworkMessage();
+
+            OutfitWindowPacket.Add(
+                message   ,
+                player
+            );
+
+            Send(message);
+        }
+
+        public void SendCreatureChangeOutfit(Creature creature)
+        {
+            NetworkMessage message = new NetworkMessage();
+
+            CreatureChangeOutfitPacket.Add(
+                message,
+                creature
+            );
+
+            Send(message);
+        }
+
         public void SendCreatureMove(Location fromLocation, Location toLocation)
         {
-            Server.Log(player + ": CreatureMove From:" + fromLocation + " To:" + toLocation);
             NetworkMessage outMessage = new NetworkMessage();
 
             CreatureMovePacket.Add(
@@ -383,7 +429,6 @@ namespace SharpOT
 
         public void SendPlayerMove(Location fromLocation, Location toLocation)
         {
-            Server.Log(player + ": PlayerMove From:" + fromLocation + " To:" + toLocation);
             NetworkMessage outMessage = new NetworkMessage();
 
             CreatureMovePacket.Add(
@@ -418,6 +463,17 @@ namespace SharpOT
                 0000
             );
             Send(outMessage);
+        }
+
+        public void SendCreatureTurn(Creature creature)
+        {
+
+            NetworkMessage message = new NetworkMessage();
+            CreatureTurnPacket.Add(
+                message,
+                creature
+            );
+            Send(message);
         }
 
         public void Send(NetworkMessage message)
