@@ -12,6 +12,7 @@ namespace SharpOT
 
         public Map Map { get; private set; }
         public Dictionary<uint, Creature> creatures = new Dictionary<uint, Creature>();
+        Random random = new Random();
 
         #endregion
 
@@ -113,15 +114,37 @@ namespace SharpOT
                     }
                     else if (player.Tile.Location.CanSee(toLocation))
                     {
-                        player.Connection.SendTileAddCreature(creature, toLocation, 1);
+                        player.Connection.SendTileAddCreature(creature);
                     }
                 }
             }
         }
 
-        public void PlayerLogin(Player player)
+        private int x = 50;
+        public void ProcessLogin(Connection connection, LoginPacket loginPacket)
+        {
+            Player player;
+            Location playerLocation = new Location(x++, 50, 7);
+            player = new Player();
+            player.Id = 0x01000000 + (uint)random.Next(0xFFFFFF);
+            player.Name = loginPacket.CharacterName;
+            player.Health = 100;
+            player.MaxHealth = 100;
+            player.Speed = 600;
+            Tile tile = Map.GetTile(playerLocation);
+            player.Tile = tile;
+            tile.Creatures.Add(player);
+            connection.Player = player;
+            player.Connection = connection;
+
+            PlayerLogin(player);
+        }
+
+        private void PlayerLogin(Player player)
         {
             AddCreature(player);
+
+            player.Connection.SendInitialPacket();
 
             var spectators = GetSpectatorPlayers(player.Tile.Location);
 
@@ -129,7 +152,7 @@ namespace SharpOT
             {
                 if (spectator != player)
                 {
-                    spectator.Connection.SendTileAddCreature(player, player.Tile.Location, 1);
+                    spectator.Connection.SendCreatureAppear(player);
                 }
             }
         }
@@ -147,8 +170,7 @@ namespace SharpOT
             {
                 if (spectator != player)
                 {
-                    // TODO: Send a poof
-                    spectator.Connection.SendTileRemoveThing(player.Tile.Location, 1);
+                    spectator.Connection.SendCreatureLogout(player);
                 }
             }
         }

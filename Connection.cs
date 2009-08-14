@@ -17,9 +17,7 @@ namespace SharpOT
         NetworkMessage inMessage = new NetworkMessage(0);
         uint[] xteaKey = new uint[4];
         bool remove = false;
-        Player player;
         HashSet<uint> knownCreatures = new HashSet<uint>();
-        Random random = new Random();
 
         #endregion
 
@@ -33,6 +31,8 @@ namespace SharpOT
         #endregion
 
         #region Properties
+
+        public Player Player { get; set; }
 
         public Game Game { get; set; }
 
@@ -146,9 +146,8 @@ namespace SharpOT
             LoginPacket loginPacket = LoginPacket.Parse(message);
             xteaKey = loginPacket.XteaKey;
 
-            SendInitialPacket(loginPacket);
+            Game.ProcessLogin(this, loginPacket);
 
-            Game.PlayerLogin(player);
         }
 
         private void ParseClientPacket(ClientPacketType type, NetworkMessage message)
@@ -179,16 +178,16 @@ namespace SharpOT
                 //case ClientPacketType.ContainerClose:
                 //case ClientPacketType.ContainerOpenParent:
                 case ClientPacketType.TurnNorth:
-                    Game.CreatureTurn(player, Direction.North);
+                    Game.CreatureTurn(Player, Direction.North);
                     break;
                 case ClientPacketType.TurnWest:
-                    Game.CreatureTurn(player, Direction.East);
+                    Game.CreatureTurn(Player, Direction.East);
                     break;
                 case ClientPacketType.TurnSouth:
-                    Game.CreatureTurn(player, Direction.South);
+                    Game.CreatureTurn(Player, Direction.South);
                     break;
                 case ClientPacketType.TurnEast:
-                    Game.CreatureTurn(player, Direction.West);
+                    Game.CreatureTurn(Player, Direction.West);
                     break;
                 //case ClientPacketType.AutoWalk:
                 //case ClientPacketType.AutoWalkCancel:
@@ -208,50 +207,50 @@ namespace SharpOT
                 //case ClientPacketType.NpcChannelClose:
                 //    break;
                 case ClientPacketType.MoveNorth:
-                    Game.CreatureMove(player,  Direction.North);
+                    Game.CreatureMove(Player,  Direction.North);
                     break;
                 case ClientPacketType.MoveEast:
-                    Game.CreatureMove(player,  Direction.East);
+                    Game.CreatureMove(Player,  Direction.East);
                     break;
                 case ClientPacketType.MoveSouth:
-                    Game.CreatureMove(player,  Direction.South);
+                    Game.CreatureMove(Player,  Direction.South);
                     break;
                 case ClientPacketType.MoveWest:
-                    Game.CreatureMove(player,  Direction.West);
+                    Game.CreatureMove(Player,  Direction.West);
                     break;
                 case ClientPacketType.MoveNorthEast:
-                    Game.CreatureMove(player,  Direction.NorthEast);
+                    Game.CreatureMove(Player,  Direction.NorthEast);
                     break;
                 case ClientPacketType.MoveSouthEast:
-                    Game.CreatureMove(player,  Direction.SouthEast);
+                    Game.CreatureMove(Player,  Direction.SouthEast);
                     break;
                 case ClientPacketType.MoveSouthWest:
-                    Game.CreatureMove(player,  Direction.SouthWest);
+                    Game.CreatureMove(Player,  Direction.SouthWest);
                     break;
                 case ClientPacketType.MoveNorthWest:
-                    Game.CreatureMove(player,  Direction.NorthWest);
+                    Game.CreatureMove(Player,  Direction.NorthWest);
                     break;
                 default:
-                    Server.Log("Unhandled packet from " + player + ": " + type);
+                    Server.Log("Unhandled packet from " + Player + ": " + type);
                     break;
             }
         }
 
         public void ParseLogout(NetworkMessage message)
         {
-            Game.PlayerLogout(player);
+            Game.PlayerLogout(Player);
         }
 
         public void ParsePlayerSpeech(NetworkMessage message)
         {
             PlayerSpeechPacket packet = PlayerSpeechPacket.Parse(message);
-            Game.CreatureSpeech(player, packet.Message);
+            Game.CreatureSpeech(Player, packet.Message);
         }
 
         public void ParseChangeOutfit(NetworkMessage message)
         {
             ChangeOutfitPacket packet = ChangeOutfitPacket.Parse(message);
-            Game.CreatureChangeOutfit(player, packet.Outfit);
+            Game.CreatureChangeOutfit(Player, packet.Outfit);
         }
 
         #endregion
@@ -287,41 +286,27 @@ namespace SharpOT
 
             Send(message);
         }
-        static int x = 50;
-        private void SendInitialPacket(LoginPacket loginPacket)
+
+        public void SendInitialPacket()
         {
             NetworkMessage message = new NetworkMessage();
 
-            // TODO: This should be pulled out into Game
-
-            Location playerLocation = new Location(50, x++, 7);
-            player = new Player();
-            player.Connection = this;
-            player.Id = 0x01000000 + (uint)random.Next(0xFFFFFF);
-            player.Name = loginPacket.CharacterName;
-            player.Health = 100;
-            player.MaxHealth = 100;
-            player.Speed = 600;
-            Tile tile = Game.Map.GetTile(playerLocation);
-            player.Tile = tile;
-            tile.Creatures.Add(player);
-
             SelfAppearPacket.Add(
                 message,
-                player.Id,
+                Player.Id,
                 true
             );
 
             MapDescriptionPacket.Add(
                 this,
                 message,
-                playerLocation
+                Player.Tile.Location
             );
 
             EffectPacket.Add(
                 message,
                 Effect.EnergyDamage,
-                playerLocation
+                Player.Tile.Location
             );
 
             // Inventory
@@ -335,7 +320,7 @@ namespace SharpOT
 
             CreatureLightPacket.Add(
                 message,
-                player.Id,
+                Player.Id,
                 LightLevel.None,
                 LightColor.None
             );
@@ -377,7 +362,7 @@ namespace SharpOT
 
             OutfitWindowPacket.Add(
                 message   ,
-                player
+                Player
             );
 
             Send(message);
@@ -409,21 +394,70 @@ namespace SharpOT
             Send(outMessage);
         }
 
+        public void SendCreatureLogout(Creature creature)
+        {
+            NetworkMessage message = new NetworkMessage();
+            EffectPacket.Add(
+                message,
+                Effect.Puff, // TODO: find the new value for poof
+                creature.Tile.Location
+            );
+            TileRemoveThingPacket.Add(
+                message,
+                creature.Tile.Location,
+                1
+            );
+            Send(message);
+        }
+
         public void SendTileRemoveThing(Location fromLocation, byte fromStackPosition)
         {
-
             NetworkMessage message = new NetworkMessage();
-            TileRemoveThingPacket.Add(message, fromLocation, fromStackPosition);
+            TileRemoveThingPacket.Add(
+                message, 
+                fromLocation, 
+                fromStackPosition
+            );
+            Send(message);
+        }
+
+        public void SendCreatureAppear(Creature creature)
+        {
+            NetworkMessage message = new NetworkMessage();
+
+            EffectPacket.Add(
+                message,
+                Effect.EnergyDamage,
+                creature.Tile.Location
+            );
+
+            uint remove;
+            bool known = IsCreatureKnown(creature.Id, out remove);
+            TileAddCreaturePacket.Add(
+                message, 
+                creature.Tile.Location, 
+                1, 
+                creature, 
+                known, 
+                remove
+            );
 
             Send(message);
         }
 
-        public void SendTileAddCreature(Creature creature, Location toLocation, byte toStackPosition)
+        public void SendTileAddCreature(Creature creature)
         {
             NetworkMessage message = new NetworkMessage();
             uint remove;
             bool known = IsCreatureKnown(creature.Id, out remove);
-            TileAddCreaturePacket.Add(message, toLocation, toStackPosition, creature, known, remove);
+            TileAddCreaturePacket.Add(
+                message, 
+                creature.Tile.Location, 
+                1, 
+                creature, 
+                known, 
+                remove
+            );
             Send(message);
         }
 
