@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data.SQLite;
 
 namespace SharpOT
 {
     public class Map
     {
-        public const int Size = 100;
+        public const int Size = 1024;
 
         Tile[,] tiles = new Tile[Size, Size];
 
@@ -25,6 +26,25 @@ namespace SharpOT
 
                     tile.Location = new Location(x, y, 7);
 
+                    tiles[x, y] = tile;
+                }
+            }
+
+            using (SQLiteConnection conn = new SQLiteConnection(SharpOT.Properties.Settings.Default.Database))
+            using (SQLiteCommand cmd = new SQLiteCommand(conn))
+            {
+                conn.Open();
+                cmd.CommandText = "select * from Tile";
+                SQLiteDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    Tile tile = new Tile();
+                    tile.Ground = new Item();
+                    int x = reader.GetInt32(0);
+                    int y = reader.GetInt32(1);
+                    int z = reader.GetInt32(2);
+                    tile.Ground.Id = (ushort)reader.GetInt16(3);
+                    tile.Location = new Location(x, y, z);
                     tiles[x, y] = tile;
                 }
             }
