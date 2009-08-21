@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpOTMapTracker", "SharpOTMapTracker.csproj", "{7272B921-F4EF-472F-860E-3FA9A489B988}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TibiaAPI", "..\..\tibiaapi\tibiaapi\TibiaAPI.csproj", "{4D132EB7-B97D-461D-85CF-949FF5A7BA96}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7272B921-F4EF-472F-860E-3FA9A489B988}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7272B921-F4EF-472F-860E-3FA9A489B988}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7272B921-F4EF-472F-860E-3FA9A489B988}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7272B921-F4EF-472F-860E-3FA9A489B988}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D132EB7-B97D-461D-85CF-949FF5A7BA96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D132EB7-B97D-461D-85CF-949FF5A7BA96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D132EB7-B97D-461D-85CF-949FF5A7BA96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D132EB7-B97D-461D-85CF-949FF5A7BA96}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
