@@ -120,11 +120,11 @@ namespace SharpOT
             }
         }
 
-        private int x = 50;
+        private int x = 95;
         public void ProcessLogin(Connection connection, LoginPacket loginPacket)
         {
             Player player;
-            Location playerLocation = new Location(x++, 50, 7);
+            Location playerLocation = new Location(x++, 200, 7);
             player = new Player();
             player.Id = 0x01000000 + (uint)random.Next(0xFFFFFF);
             player.Name = loginPacket.CharacterName;
