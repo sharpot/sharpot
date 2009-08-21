@@ -26,7 +26,7 @@ namespace SharpOT.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("data source=E:\\dev\\tibia\\SharpOT\\Data\\sharpot.sqlite;synchronous=Full")]
+        [global::System.Configuration.DefaultSettingValueAttribute("data source=Data\\sharpot.sqlite;synchronous=Full")]
         public string ConnectionString {
             get {
                 return ((string)(this["ConnectionString"]));

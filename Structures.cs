@@ -39,6 +39,7 @@ namespace SharpOT
     public class Item
     {
         public ushort Id;
+        public byte Extra;
     }
 
     public class Creature

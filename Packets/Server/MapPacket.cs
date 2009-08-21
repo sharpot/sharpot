@@ -85,14 +85,11 @@ namespace SharpOT.Packets
                     message.AddUInt16(tile.Ground.Id);
                     count++;
                 }
-                /*
-		        if(tile.Items != null)
+
+                foreach (Item item in tile.Items)
                 {
-			        for(it = items->getBeginTopItem(); ((it != items->getEndTopItem()) && (count < 10)); ++it){
-				        msg->AddItem(*it);
-				        count++;
-			        }
-		        }*/
+                    message.AddItem(item);
+                }
 
                 foreach (Creature creature in tile.Creatures)
                 {
