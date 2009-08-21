@@ -56,6 +56,11 @@ namespace SharpOT
 
         #region Public Actions
 
+        public void WalkCancel(Player player)
+        {
+            player.Connection.SendCancelWalk();
+        }
+
         public void CreatureTurn(Creature creature, Direction direction)
         {
             if (creature.Direction != direction)
@@ -83,7 +88,7 @@ namespace SharpOT
             Location toLocation = creature.Tile.Location.Offset(direction);
             Tile toTile = Map.GetTile(toLocation);
 
-            if (toTile.IsWalkable())
+            if (toTile != null && toTile.IsWalkable)
             {
                 creature.Tile.Creatures.Remove(creature);
                 toTile.Creatures.Add(creature);
@@ -120,11 +125,11 @@ namespace SharpOT
             }
         }
 
-        private int x = 95;
+        private int x = 97;
         public void ProcessLogin(Connection connection, LoginPacket loginPacket)
         {
             Player player;
-            Location playerLocation = new Location(x++, 200, 7);
+            Location playerLocation = new Location(x++, 205, 7);
             player = new Player();
             player.Id = 0x01000000 + (uint)random.Next(0xFFFFFF);
             player.Name = loginPacket.CharacterName;

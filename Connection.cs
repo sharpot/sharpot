@@ -190,7 +190,9 @@ namespace SharpOT
                     Game.CreatureTurn(Player, Direction.West);
                     break;
                 //case ClientPacketType.AutoWalk:
-                //case ClientPacketType.AutoWalkCancel:
+                case ClientPacketType.AutoWalkCancel:
+                    Game.WalkCancel(Player);
+                    break;
                 //case ClientPacketType.VipAdd:
                 //case ClientPacketType.VipRemove:
                 case ClientPacketType.RequestOutfit:
@@ -501,11 +503,20 @@ namespace SharpOT
 
         public void SendCreatureTurn(Creature creature)
         {
-
             NetworkMessage message = new NetworkMessage();
             CreatureTurnPacket.Add(
                 message,
                 creature
+            );
+            Send(message);
+        }
+
+        public void SendCancelWalk()
+        {
+            NetworkMessage message = new NetworkMessage();
+            PlayerWalkCancelPacket.Add(
+                message,
+                Player.Direction
             );
             Send(message);
         }

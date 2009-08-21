@@ -15,12 +15,9 @@ namespace SharpOT
             Ground = new Item();
             Items = new List<Item>();
             Creatures = new List<Creature>();
+            IsWalkable = true;
         }
 
-        public bool IsWalkable()
-        {
-            // TODO: Flesh this out
-            return true;
-        }
+        public bool IsWalkable { get; set; }
     }
 }

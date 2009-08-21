@@ -240,6 +240,22 @@ namespace SharpOT.Packets
             AddByte((byte)creature.Party);
         }
 
+        public void AddItem(Item item)
+        {
+            AddUInt16(item.Id);
+
+            // TODO
+            //if (it.stackable || it.isRune())
+            //{
+            //    AddByte(count);
+            //}
+            //else if (it.isSplash() || it.isFluidContainer())
+            //{
+            //    uint32_t fluidIndex = count % 8;
+            //    AddByte(fluidMap[fluidIndex]);
+            //}
+        }
+
         public void AddPaddingBytes(int count)
         {
             position += count;
