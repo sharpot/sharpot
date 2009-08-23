@@ -156,10 +156,12 @@ namespace SharpOTMapTracker
                             stack.Value = i;
                             id.Value = item.ItemId;
                             extra.Value = item.Extra;
+                            itemInsertCmd.ExecuteNonQuery();
                             i++;
                         }
                     }
                     transaction.Commit();
+                    Log("Wrote map information to file.");
                 }
             }
         }
