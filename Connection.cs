@@ -382,14 +382,14 @@ namespace SharpOT
             Send(message);
         }
 
-        public void SendCreatureMove(Location fromLocation, Location toLocation)
+        public void SendCreatureMove(Location fromLocation, byte fromStackPosition, Location toLocation)
         {
             NetworkMessage outMessage = new NetworkMessage();
 
             CreatureMovePacket.Add(
                 outMessage,
                 fromLocation,
-                1,
+                fromStackPosition,
                 toLocation
             );
 
@@ -407,7 +407,7 @@ namespace SharpOT
             TileRemoveThingPacket.Add(
                 message,
                 creature.Tile.Location,
-                1
+                creature.Tile.GetStackPosition(creature)
             );
             Send(message);
         }
@@ -438,7 +438,7 @@ namespace SharpOT
             TileAddCreaturePacket.Add(
                 message, 
                 creature.Tile.Location, 
-                1, 
+                creature.Tile.GetStackPosition(creature), 
                 creature, 
                 known, 
                 remove
@@ -455,7 +455,7 @@ namespace SharpOT
             TileAddCreaturePacket.Add(
                 message, 
                 creature.Tile.Location, 
-                1, 
+                creature.Tile.GetStackPosition(creature), 
                 creature, 
                 known, 
                 remove
@@ -463,14 +463,14 @@ namespace SharpOT
             Send(message);
         }
 
-        public void SendPlayerMove(Location fromLocation, Location toLocation)
+        public void SendPlayerMove(Location fromLocation, byte fromStackPosition, Location toLocation)
         {
             NetworkMessage outMessage = new NetworkMessage();
 
             CreatureMovePacket.Add(
                 outMessage,
                 fromLocation,
-                1,
+                fromStackPosition,
                 toLocation
             );
 

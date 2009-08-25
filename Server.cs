@@ -25,6 +25,10 @@ namespace SharpOT
         {
             game = new Game();
 
+            LogStart("Loading data");
+            DatReader.Load();
+            LogDone();
+
             LogStart("Loading map");
             game.Map.Load();
             LogDone();
