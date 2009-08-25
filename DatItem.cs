@@ -38,6 +38,7 @@ namespace SharpOT
         public bool HasIdleAnimation = false;
         public bool IsMinimap = false;
         public bool HasHelpByte = false;
+        public bool IsSeeThrough = false;
         public bool IsGround = false;
 
         public bool HasExtraByte = false;

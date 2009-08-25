@@ -24,10 +24,10 @@ namespace SharpOT
             long numberOfIds = numberOfItems + numberOfCreatures + numberOfEffects + numberOfMissiles - (IdOffset - 1);
 
             uint id = IdOffset;
-            byte option = reader.ReadByte();
             while (id < IdOffset + numberOfIds)
             {
                 items[id] = new DatItem();
+                byte option = reader.ReadByte();
                 while (option != 0xFF)
                 {
                     switch (option)
@@ -131,9 +131,13 @@ namespace SharpOT
                         case 0x1E:
                             items[id].HasHelpByte = true;
                             reader.ReadByte(); // Help byte
+                            reader.ReadByte();
                             break;
                         case 0x1F:
                             items[id].IsGround = true;
+                            break;
+                        case 0x20:
+                            items[id].IsSeeThrough = true;
                             break;
                         default:
                             break;
@@ -157,7 +161,9 @@ namespace SharpOT
                 int yRepeat = reader.ReadByte();
                 int zRepeat = reader.ReadByte();
                 int animations = reader.ReadByte();
+
                 reader.ReadBytes(width * height * blendFrames * xRepeat * yRepeat * zRepeat * animations * 2);
+
                 ++id;
             }
         }
