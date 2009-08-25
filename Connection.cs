@@ -93,7 +93,12 @@ namespace SharpOT
 
         private void ClientReadCallBack(IAsyncResult ar)
         {
-            if (!EndRead(ar)) return;
+            if (!EndRead(ar))
+            {
+                // Client crashed or disconnected
+                Game.PlayerLogout(Player);
+                return;
+            }
 
             inMessage.XteaDecrypt(xteaKey);
             ushort length = inMessage.GetUInt16();
@@ -155,7 +160,7 @@ namespace SharpOT
             switch (type)
             {
                 case ClientPacketType.Logout:
-                    ParseLogout(message);
+                    ParseLogout();
                     break;
                 //case ClientPacketType.ItemMove:
                 //case ClientPacketType.ShopBuy:
@@ -238,7 +243,7 @@ namespace SharpOT
             }
         }
 
-        public void ParseLogout(NetworkMessage message)
+        public void ParseLogout()
         {
             Game.PlayerLogout(Player);
         }
