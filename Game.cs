@@ -85,6 +85,7 @@ namespace SharpOT
         public void CreatureMove(Creature creature, Direction direction)
         {
             Location fromLocation = creature.Tile.Location;
+            byte fromStackPosition = creature.Tile.GetStackPosition(creature);
             Location toLocation = creature.Tile.Location.Offset(direction);
             Tile toTile = Map.GetTile(toLocation);
 
@@ -107,15 +108,15 @@ namespace SharpOT
                 {
                     if (player == creature)
                     {
-                        player.Connection.SendPlayerMove(fromLocation, creature.Tile.GetStackPosition(creature), toLocation);
+                        player.Connection.SendPlayerMove(fromLocation, fromStackPosition, toLocation);
                     }
                     else if (player.Tile.Location.CanSee(fromLocation) && player.Tile.Location.CanSee(toLocation))
                     {
-                        player.Connection.SendCreatureMove(fromLocation, creature.Tile.GetStackPosition(creature), toLocation);
+                        player.Connection.SendCreatureMove(fromLocation, fromStackPosition, toLocation);
                     }
                     else if (player.Tile.Location.CanSee(fromLocation))
                     {
-                        player.Connection.SendTileRemoveThing(fromLocation, creature.Tile.GetStackPosition(creature));
+                        player.Connection.SendTileRemoveThing(fromLocation, fromStackPosition);
                     }
                     else if (player.Tile.Location.CanSee(toLocation))
                     {
