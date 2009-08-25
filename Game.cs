@@ -107,15 +107,15 @@ namespace SharpOT
                 {
                     if (player == creature)
                     {
-                        player.Connection.SendPlayerMove(fromLocation, toLocation);
+                        player.Connection.SendPlayerMove(fromLocation, creature.Tile.GetStackPosition(creature), toLocation);
                     }
                     else if (player.Tile.Location.CanSee(fromLocation) && player.Tile.Location.CanSee(toLocation))
                     {
-                        player.Connection.SendCreatureMove(fromLocation, toLocation);
+                        player.Connection.SendCreatureMove(fromLocation, creature.Tile.GetStackPosition(creature), toLocation);
                     }
                     else if (player.Tile.Location.CanSee(fromLocation))
                     {
-                        player.Connection.SendTileRemoveThing(fromLocation, 1);
+                        player.Connection.SendTileRemoveThing(fromLocation, creature.Tile.GetStackPosition(creature));
                     }
                     else if (player.Tile.Location.CanSee(toLocation))
                     {

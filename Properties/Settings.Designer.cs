@@ -32,5 +32,17 @@ namespace SharpOT.Properties {
                 return ((string)(this["ConnectionString"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data\\Tibia.dat")]
+        public string ItemDataFile {
+            get {
+                return ((string)(this["ItemDataFile"]));
+            }
+            set {
+                this["ItemDataFile"] = value;
+            }
+        }
     }
 }

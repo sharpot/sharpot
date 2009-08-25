@@ -10,5 +10,8 @@
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
       <Value Profile="(Default)">data source=Data\sharpot.sqlite;synchronous=Full</Value>
     </Setting>
+    <Setting Name="ItemDataFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data\Tibia.dat</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

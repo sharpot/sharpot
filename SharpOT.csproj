@@ -58,6 +58,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Outfit.cs" />
+    <Compile Include="Thing.cs" />
+    <Compile Include="Item.cs" />
+    <Compile Include="Creature.cs" />
+    <Compile Include="DatItem.cs" />
+    <Compile Include="DatReader.cs" />
     <Compile Include="Packets\Client\ChangeOutfitPacket.cs" />
     <Compile Include="Packets\Server\PlayerWalkCancelPacket.cs" />
     <Compile Include="Packets\Server\CreatureChangeOutfitPacket.cs" />
@@ -96,7 +102,7 @@
     <Compile Include="Packets\Server\GameServerConnectPacket.cs" />
     <Compile Include="Util\BigInteger.cs" />
     <Compile Include="Connection.cs" />
-    <Compile Include="Structures.cs" />
+    <Compile Include="CharacterListItem.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Packets\NetworkMessage.cs" />
     <Compile Include="Server.cs" />
@@ -109,6 +115,9 @@
     <None Include="Data\sharpot.sqlite">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Data\Tibia.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -116,6 +125,12 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TibiaAPI\tibiaapi\TibiaAPI.csproj">
+      <Project>{4D132EB7-B97D-461D-85CF-949FF5A7BA96}</Project>
+      <Name>TibiaAPI</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
