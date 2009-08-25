@@ -28,6 +28,8 @@ namespace SharpOT
             {
                 items[id] = new DatItem();
                 byte option = reader.ReadByte();
+                byte b;
+                ushort s;
                 while (option != 0xFF)
                 {
                     switch (option)
@@ -62,11 +64,11 @@ namespace SharpOT
                             break;
                         case 0x09:
                             items[id].IsWriteable = true;
-                            reader.ReadUInt16();
+                            s = reader.ReadUInt16();
                             break;
                         case 0x0A:
                             items[id].IsReadable = true;
-                            reader.ReadUInt16();
+                            s = reader.ReadUInt16();
                             break;
                         case 0x0B:
                             items[id].IsFluidContainer = true;
@@ -103,20 +105,20 @@ namespace SharpOT
                             break;
                         case 0x16:
                             items[id].IsLightSource = true;
-                            reader.ReadUInt16(); // Radius
-                            reader.ReadUInt16(); // Color
+                            s = reader.ReadUInt16(); // Radius
+                            s = reader.ReadUInt16(); // Color
                             break;
                         case 0x18:
                             items[id].IsFloorChange = true;
                             break;
                         case 0x19:
                             items[id].IsOffset = true;
-                            reader.ReadUInt16(); // offset x
-                            reader.ReadUInt16(); // offset y
+                            s = reader.ReadUInt16(); // offset x
+                            s = reader.ReadUInt16(); // offset y
                             break;
                         case 0x1A:
                             items[id].IsRaised = true;
-                            reader.ReadUInt16(); // height
+                            s = reader.ReadUInt16(); // height
                             break;
                         case 0x1B:
                             items[id].IsLayer = true;
@@ -126,12 +128,12 @@ namespace SharpOT
                             break;
                         case 0x1D:
                             items[id].IsMinimap = true;
-                            reader.ReadUInt16(); // Minimap color
+                            s = reader.ReadUInt16(); // Minimap color
                             break;
                         case 0x1E:
                             items[id].HasHelpByte = true;
-                            reader.ReadByte(); // Help byte
-                            reader.ReadByte();
+                            b = reader.ReadByte(); // Help byte
+                            b = reader.ReadByte();
                             break;
                         case 0x1F:
                             items[id].IsGround = true;
