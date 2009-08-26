@@ -38,7 +38,7 @@ namespace SharpOT
             {
                 // check all top items
                 // or increment by top item count
-                n += Items.Where(i => i.GetOrder() < 5).Count();
+                n += Items.Where(i => i.GetOrder() < 4).Count();
             }
 
             if (Creatures.Count > 0)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using SharpOT.Util;
 
 namespace SharpOT
 {
@@ -21,24 +22,34 @@ namespace SharpOT
 
         List<Connection> connections = new List<Connection>();
 
+        static int startTimeInMillis = 0;
+        static int startTextLength = 0;
+
         void Run()
         {
             game = new Game();
 
-            LogStart("Loading data");
-            DatReader.Load();
-            LogDone();
+            try
+            {
+                LogStart("Loading data");
+                DatReader.Load();
+                LogDone();
 
-            LogStart("Loading map");
-            game.Map.Load();
-            LogDone();
+                LogStart("Loading map");
+                game.Map.Load();
+                LogDone();
 
-            LogStart("Listening for clients");
-            clientLoginListener.Start();
-            clientLoginListener.BeginAcceptSocket(new AsyncCallback(LoginListenerCallback), clientLoginListener);
-            clientGameListener.Start();
-            clientGameListener.BeginAcceptSocket(new AsyncCallback(GameListenerCallback), clientGameListener);
-            LogDone();
+                LogStart("Listening for clients");
+                clientLoginListener.Start();
+                clientLoginListener.BeginAcceptSocket(new AsyncCallback(LoginListenerCallback), clientLoginListener);
+                clientGameListener.Start();
+                clientGameListener.BeginAcceptSocket(new AsyncCallback(GameListenerCallback), clientGameListener);
+                LogDone();
+            }
+            catch (Exception e)
+            {
+                LogError(e.ToString());
+            }
 
             Console.ReadLine();
             connections.ForEach(c => c.Close());
@@ -48,12 +59,44 @@ namespace SharpOT
 
         public static void LogStart(string text)
         {
-            Console.Write(DateTime.Now + ": " + text + "...");
+            string s = DateTime.Now + ": " + text + "...";
+            Console.Write(s);
+            startTextLength = s.Length;
+            startTimeInMillis = System.Environment.TickCount;
         }
 
         public static void LogDone()
         {
-            Console.WriteLine("Done");
+            int elapsed = System.Environment.TickCount - startTimeInMillis;
+            string done = "Done";
+            string doneTime = "";
+
+            if (elapsed < 1000)
+            {
+                doneTime = String.Format("({0} ms)", elapsed);
+            }
+            else
+            {
+                doneTime = String.Format("({0:0.00} s)", elapsed / 1000.0);
+            }
+
+            Console.Write(".".Repeat(Console.WindowWidth - startTextLength - done.Length - 12));
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write(done);
+            Console.ResetColor();
+            Console.Write(" ".Repeat(11 - doneTime.Length));
+            Console.Write(doneTime);
+            Console.WriteLine();
+        }
+
+        public static void LogError(string errorText)
+        {
+            string error = "Error";
+            Console.Write(".".Repeat(Console.WindowWidth - startTextLength - error.Length - 12));
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(error);
+            Console.ResetColor();
+            Console.WriteLine(errorText);
         }
 
         public static void Log(string text)
