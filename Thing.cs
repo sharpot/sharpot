@@ -22,7 +22,7 @@ namespace SharpOT
 
             DatItem di = DatReader.GetItem(id);
 
-            if (di.IsGround) return 0;
+            if (di.IsGroundTile) return 0;
             else if (di.TopOrder1) return 1;
             else if (di.TopOrder2) return 2;
             else if (di.TopOrder3) return 3;
