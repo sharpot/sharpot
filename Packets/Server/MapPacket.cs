@@ -86,7 +86,7 @@ namespace SharpOT.Packets
                     count++;
                 }
 
-                foreach (Item item in tile.Items)
+                foreach (Item item in tile.GetTopItems())
                 {
                     message.AddItem(item);
                 }
@@ -102,13 +102,10 @@ namespace SharpOT.Packets
                     }
                 }
 
-                /*
-		        if(items){
-			        for(it = items->getBeginDownItem(); ((it != items->getEndDownItem()) && (count < 10)); ++it){
-				        msg->AddItem(*it);
-				        count++;
-			        }
-		        }*/
+                foreach (Item item in tile.GetDownItems())
+                {
+                    message.AddItem(item);
+                }
             }
         }
     }

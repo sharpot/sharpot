@@ -21,6 +21,16 @@ namespace SharpOT
 
         public bool IsWalkable { get; set; }
 
+        public IEnumerable<Item> GetTopItems()
+        {
+            return Items.Where(i => i.GetOrder() < 4);
+        }
+
+        public IEnumerable<Item> GetDownItems()
+        {
+            return Items.Where(i => i.GetOrder() > 4);
+        }
+
         public byte GetStackPosition(Thing thing)
         {
             int n = -1;
@@ -38,7 +48,7 @@ namespace SharpOT
             {
                 // check all top items
                 // or increment by top item count
-                n += Items.Where(i => i.GetOrder() < 4).Count();
+                n += GetTopItems().Count();
             }
 
             if (Creatures.Count > 0)

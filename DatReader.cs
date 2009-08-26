@@ -136,7 +136,7 @@ namespace SharpOT
                             b = reader.ReadByte();
                             break;
                         case 0x1F:
-                            items[id].IsGround = true;
+                            items[id].IsGroundItem = true;
                             break;
                         case 0x20:
                             items[id].IsSeeThrough = true;

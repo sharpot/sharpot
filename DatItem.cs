@@ -39,7 +39,7 @@ namespace SharpOT
         public bool IsMinimap = false;
         public bool HasHelpByte = false;
         public bool IsSeeThrough = false;
-        public bool IsGround = false;
+        public bool IsGroundItem = false;
 
         public bool HasExtraByte = false;
     }
