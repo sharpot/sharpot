@@ -10,13 +10,8 @@ namespace SharpOT.Packets
         public ushort Os { get; set; }
         public ushort Version { get; set; }
         public uint[] XteaKey { get; set; }
-        public string Account { get; set; }
+        public string Name { get; set; }
         public string Password { get; set; }
-
-        public static void Add(NetworkMessage message)
-        {
-            
-        }
 
         public static AccountPacket Parse(NetworkMessage message)
         {
@@ -39,7 +34,7 @@ namespace SharpOT.Packets
             packet.XteaKey[2] = message.GetUInt32();
             packet.XteaKey[3] = message.GetUInt32();
 
-            packet.Account = message.GetString(); // account name
+            packet.Name = message.GetString(); // account name
             packet.Password = message.GetString(); // password
 
             return packet;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SharpOT.Packets;
+using System.Data.SQLite;
 
 namespace SharpOT
 {
@@ -187,6 +188,54 @@ namespace SharpOT
             foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
             {
                 spectator.Connection.SendCreatureSpeech(creature, message);
+            }
+        }
+
+        public bool CreateAccount(string name, string password)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection(SharpOT.Properties.Settings.Default.ConnectionString))
+            using (SQLiteCommand cmd = new SQLiteCommand(conn))
+            {
+                conn.Open();
+                cmd.CommandText = "insert into Account (Name, Password) values (@name, @password)";
+                SQLiteParameter nameParam = new SQLiteParameter("name", name);
+                SQLiteParameter passwordParam = new SQLiteParameter("password", Util.Hash.SHA256Hash(password));
+                cmd.Parameters.Add(nameParam);
+                cmd.Parameters.Add(passwordParam);
+                return (1 == cmd.ExecuteNonQuery());
+            }
+        }
+
+        public void CheckAccount(Connection connection, AccountPacket accountPacket)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection(SharpOT.Properties.Settings.Default.ConnectionString))
+            using (SQLiteCommand cmd = new SQLiteCommand(conn))
+            {
+                conn.Open();
+                cmd.CommandText = "select Id from Account where Name = @name and Password = @Password";
+                SQLiteParameter nameParam = new SQLiteParameter("name", accountPacket.Name);
+                SQLiteParameter passwordParam = new SQLiteParameter("password", Util.Hash.SHA256Hash(accountPacket.Password));
+                cmd.Parameters.Add(nameParam);
+                cmd.Parameters.Add(passwordParam);
+
+                var result = cmd.ExecuteScalar();
+                if (result == null)
+                {
+                    connection.SendDisconnect("Account name or password incorrect.");
+                    return;
+                }
+
+                connection.AccountNumber = (long)result;
+
+                connection.SendCharacterList(
+                    "1\nWelcome to Utopia!",
+                    999,
+                    new CharacterListItem[] {
+                        new CharacterListItem("Ian", "Utopia", new byte[] { 127, 0, 0, 1 }, 7172),
+                        new CharacterListItem("Vura", "Utopia", new byte[] { 127, 0, 0, 1 }, 7172),
+                        new CharacterListItem("God", "Utopia", new byte[] { 127, 0, 0, 1 }, 7172)
+                    }
+                );
             }
         }
 
