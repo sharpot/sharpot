@@ -4,6 +4,7 @@ namespace SharpOT
 {
     public enum ServerPacketType : byte
     {
+        Disconnect = 0x0A,
         MessageOfTheDay = 0x14,
         CharacterList = 0x64,
 

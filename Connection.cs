@@ -36,6 +36,8 @@ namespace SharpOT
 
         public Game Game { get; set; }
 
+        public long AccountNumber { get; set; }
+
         public bool ShouldRemove
         {
             get { return remove; }
@@ -78,7 +80,7 @@ namespace SharpOT
                 AccountPacket accountPacket = AccountPacket.Parse(inMessage);
                 xteaKey = accountPacket.XteaKey;
 
-                SendCharacterList(accountPacket);
+                Game.CheckAccount(this, accountPacket);
 
                 Close();
             }
@@ -147,12 +149,10 @@ namespace SharpOT
 
         private void ParseLoginPacket(NetworkMessage message)
         {
-
             LoginPacket loginPacket = LoginPacket.Parse(message);
             xteaKey = loginPacket.XteaKey;
 
             Game.ProcessLogin(this, loginPacket);
-
         }
 
         private void ParseClientPacket(ClientPacketType type, NetworkMessage message)
@@ -273,22 +273,18 @@ namespace SharpOT
             Send(message, false);
         }
 
-        private void SendCharacterList(AccountPacket accountPacket)
+        public void SendCharacterList(string motd, ushort premiumDays, CharacterListItem[] chars)
         {
             NetworkMessage message = new NetworkMessage();
 
             MessageOfTheDayPacket.Add(
                 message,
-                "1\nWelcome to Utopia!"
+                motd
             );
             CharacterListPacket.Add(
                 message,
-                new CharacterListItem[] {
-                    new CharacterListItem("Ian", "Utopia", new byte[] { 127, 0, 0, 1 }, 7172),
-                    new CharacterListItem("Vura", "Utopia", new byte[] { 127, 0, 0, 1 }, 7172),
-                    new CharacterListItem("God", "Utopia", new byte[] { 127, 0, 0, 1 }, 7172)
-                },
-                999
+                chars,
+                premiumDays
             );
 
             Send(message);
@@ -523,6 +519,14 @@ namespace SharpOT
                 message,
                 Player.Direction
             );
+            Send(message);
+        }
+
+        public void SendDisconnect(string reason)
+        {
+            NetworkMessage message = new NetworkMessage();
+            message.AddByte((byte)ServerPacketType.Disconnect);
+            message.AddString(reason);
             Send(message);
         }
 
