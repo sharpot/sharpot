@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SharpOT.Packets;
 using System.Data.SQLite;
+using System.Net;
 
 namespace SharpOT
 {
@@ -128,16 +129,11 @@ namespace SharpOT
         }
 
         private int x = 97;
-        public void ProcessLogin(Connection connection, LoginPacket loginPacket)
+        public void ProcessLogin(Connection connection, string characterName)
         {
-            Player player;
+            Player player = GetPlayer(connection.AccountId, characterName);
             Location playerLocation = new Location(x++, 205, 7);
-            player = new Player();
             player.Id = 0x01000000 + (uint)random.Next(0xFFFFFF);
-            player.Name = loginPacket.CharacterName;
-            player.Health = 100;
-            player.MaxHealth = 100;
-            player.Speed = 600;
             Tile tile = Map.GetTile(playerLocation);
             player.Tile = tile;
             tile.Creatures.Add(player);
@@ -198,7 +194,7 @@ namespace SharpOT
             {
                 conn.Open();
                 cmd.CommandText = "insert into Account (Name, Password) values (@name, @password)";
-                SQLiteParameter nameParam = new SQLiteParameter("name", name);
+                SQLiteParameter nameParam = new SQLiteParameter("name", name.ToLower());
                 SQLiteParameter passwordParam = new SQLiteParameter("password", Util.Hash.SHA256Hash(password));
                 cmd.Parameters.Add(nameParam);
                 cmd.Parameters.Add(passwordParam);
@@ -206,15 +202,105 @@ namespace SharpOT
             }
         }
 
-        public void CheckAccount(Connection connection, AccountPacket accountPacket)
+        public bool CreatePlayer(long accountId, string name)
         {
             using (SQLiteConnection conn = new SQLiteConnection(SharpOT.Properties.Settings.Default.ConnectionString))
             using (SQLiteCommand cmd = new SQLiteCommand(conn))
             {
                 conn.Open();
-                cmd.CommandText = "select Id from Account where Name = @name and Password = @Password";
-                SQLiteParameter nameParam = new SQLiteParameter("name", accountPacket.Name);
-                SQLiteParameter passwordParam = new SQLiteParameter("password", Util.Hash.SHA256Hash(accountPacket.Password));
+                cmd.CommandText = "insert into Player (AccountId, Name) values (@accountId, @name)";
+                SQLiteParameter accountIdParam = new SQLiteParameter("accountId", accountId);
+                SQLiteParameter nameParam = new SQLiteParameter("name", name);
+                cmd.Parameters.Add(accountIdParam);
+                cmd.Parameters.Add(nameParam);
+                return (1 == cmd.ExecuteNonQuery());
+            }
+        }
+
+        public List<CharacterListItem> GetCharacterList(long accountId)
+        {
+            List<CharacterListItem> chars = new List<CharacterListItem>();
+
+            var ipAddress = IPAddress.Parse(SharpOT.Properties.Settings.Default.Ip);
+            var ipBytes = ipAddress.GetAddressBytes();
+
+            using (SQLiteConnection conn = new SQLiteConnection(SharpOT.Properties.Settings.Default.ConnectionString))
+            using (SQLiteCommand cmd = new SQLiteCommand(conn))
+            {
+                conn.Open();
+                cmd.CommandText = "select Name from Player where AccountId = @accountId";
+                SQLiteParameter accountIdParam = new SQLiteParameter("accountId", accountId);
+                cmd.Parameters.Add(accountIdParam);
+
+                SQLiteDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    chars.Add(new CharacterListItem(
+                        reader.GetString(0),
+                        SharpOT.Properties.Settings.Default.WorldName,
+                        ipBytes,
+                        SharpOT.Properties.Settings.Default.Port
+                    ));
+                }
+            }
+            return chars;
+        }
+
+        public Player GetPlayer(long accountId, string name)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection(SharpOT.Properties.Settings.Default.ConnectionString))
+            using (SQLiteCommand cmd = new SQLiteCommand(conn))
+            {
+                conn.Open();
+                cmd.CommandText = @"select Level, MagicLevel, Experience, 
+                                           MaxHealth, MaxMana, Capacity, 
+                                           OutfitLookType, OutfitHead, OutfitBody,
+                                           OutfitLegs, OutfitFeet, OutfitAddons
+                                    from Player
+                                    where AccountId = @accountId and Name = @name";
+                SQLiteParameter accountIdParam = new SQLiteParameter("accountId", accountId);
+                SQLiteParameter nameParam = new SQLiteParameter("name", name);
+                cmd.Parameters.Add(accountIdParam);
+                cmd.Parameters.Add(nameParam);
+
+                SQLiteDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    Player player = new Player();
+                    player.Name = name;
+                    player.Level = (ushort)reader.GetInt16(0);
+                    player.MagicLevel = reader.GetByte(1);
+                    player.Experience = (uint)reader.GetInt32(2);
+                    player.MaxHealth = (ushort)reader.GetInt16(3);
+                    player.MaxMana = (ushort)reader.GetInt16(4);
+                    player.Capacity = (uint)reader.GetInt32(5);
+                    player.Outfit.LookType = (ushort)reader.GetInt16(6);
+                    player.Outfit.Head = reader.GetByte(7);
+                    player.Outfit.Body = reader.GetByte(8);
+                    player.Outfit.Legs = reader.GetByte(9);
+                    player.Outfit.Feet = reader.GetByte(10);
+                    player.Outfit.Addons = reader.GetByte(11);
+
+                    // TODO: Calculate player speed
+                    player.Speed = 600;
+                    return player;
+                }
+                return null;
+            }
+        }
+
+        public long CheckAccount(Connection connection, string accountName, string password)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection(SharpOT.Properties.Settings.Default.ConnectionString))
+            using (SQLiteCommand cmd = new SQLiteCommand(conn))
+            {
+                conn.Open();
+                cmd.CommandText = @"select Id
+                                    from Account
+                                    where Name = @name
+                                    and Password = @Password";
+                SQLiteParameter nameParam = new SQLiteParameter("name", accountName.ToLower());
+                SQLiteParameter passwordParam = new SQLiteParameter("password", Util.Hash.SHA256Hash(password));
                 cmd.Parameters.Add(nameParam);
                 cmd.Parameters.Add(passwordParam);
 
@@ -222,20 +308,10 @@ namespace SharpOT
                 if (result == null)
                 {
                     connection.SendDisconnect("Account name or password incorrect.");
-                    return;
+                    return -1;
                 }
 
-                connection.AccountNumber = (long)result;
-
-                connection.SendCharacterList(
-                    "1\nWelcome to Utopia!",
-                    999,
-                    new CharacterListItem[] {
-                        new CharacterListItem("Ian", "Utopia", new byte[] { 127, 0, 0, 1 }, 7172),
-                        new CharacterListItem("Vura", "Utopia", new byte[] { 127, 0, 0, 1 }, 7172),
-                        new CharacterListItem("God", "Utopia", new byte[] { 127, 0, 0, 1 }, 7172)
-                    }
-                );
+                return (long)result;
             }
         }
 

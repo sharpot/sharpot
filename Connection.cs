@@ -36,7 +36,7 @@ namespace SharpOT
 
         public Game Game { get; set; }
 
-        public long AccountNumber { get; set; }
+        public long AccountId { get; set; }
 
         public bool ShouldRemove
         {
@@ -80,7 +80,17 @@ namespace SharpOT
                 AccountPacket accountPacket = AccountPacket.Parse(inMessage);
                 xteaKey = accountPacket.XteaKey;
 
-                Game.CheckAccount(this, accountPacket);
+                long accountId = Game.CheckAccount(this, accountPacket.Name, accountPacket.Password);
+
+                if (accountId >= 0)
+                {
+                    this.AccountId = accountId;
+                    SendCharacterList(
+                        "1\n" + SharpOT.Properties.Settings.Default.MessageOfTheDay,
+                        999,
+                        Game.GetCharacterList(accountId)
+                    );
+                }
 
                 Close();
             }
@@ -152,7 +162,13 @@ namespace SharpOT
             LoginPacket loginPacket = LoginPacket.Parse(message);
             xteaKey = loginPacket.XteaKey;
 
-            Game.ProcessLogin(this, loginPacket);
+            long accountId = Game.CheckAccount(this, loginPacket.AccountName, loginPacket.Password);
+
+            if (accountId >= 0)
+            {
+                this.AccountId = accountId;
+                Game.ProcessLogin(this, loginPacket.CharacterName);
+            }
         }
 
         private void ParseClientPacket(ClientPacketType type, NetworkMessage message)
@@ -273,7 +289,7 @@ namespace SharpOT
             Send(message, false);
         }
 
-        public void SendCharacterList(string motd, ushort premiumDays, CharacterListItem[] chars)
+        public void SendCharacterList(string motd, ushort premiumDays, IList<CharacterListItem> chars)
         {
             NetworkMessage message = new NetworkMessage();
 
@@ -336,15 +352,15 @@ namespace SharpOT
 
             PlayerStatusPacket.Add(
                 message,
-                100,
-                100,
-                100,
-                100,
-                1,
-                0,
-                100,
-                100,
-                0,
+                Player.Health,
+                Player.MaxHealth,
+                Player.Capacity,
+                Player.Experience,
+                Player.Level,
+                0, // TODO: level system
+                Player.Mana,
+                Player.MaxMana,
+                Player.MagicLevel,
                 0,
                 0,
                 0

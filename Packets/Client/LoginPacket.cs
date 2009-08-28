@@ -11,7 +11,7 @@ namespace SharpOT.Packets
         public ushort Version { get; set; }
         public uint[] XteaKey { get; set; }
         public byte GmMode { get; set; }
-        public string Account { get; set; }
+        public string AccountName { get; set; }
         public string CharacterName { get; set; }
         public string Password { get; set; }
 
@@ -37,7 +37,7 @@ namespace SharpOT.Packets
             packet.XteaKey[3] = message.GetUInt32();
 
             packet.GmMode = message.GetByte();
-            packet.Account = message.GetString();
+            packet.AccountName = message.GetString();
             packet.CharacterName = message.GetString();
             packet.Password = message.GetString();
 

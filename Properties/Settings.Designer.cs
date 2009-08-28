@@ -44,5 +44,53 @@ namespace SharpOT.Properties {
                 this["ItemDataFile"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Utopia")]
+        public string WorldName {
+            get {
+                return ((string)(this["WorldName"]));
+            }
+            set {
+                this["WorldName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
+        public string Ip {
+            get {
+                return ((string)(this["Ip"]));
+            }
+            set {
+                this["Ip"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("7172")]
+        public ushort Port {
+            get {
+                return ((ushort)(this["Port"]));
+            }
+            set {
+                this["Port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MessageOfTheDay {
+            get {
+                return ((string)(this["MessageOfTheDay"]));
+            }
+            set {
+                this["MessageOfTheDay"] = value;
+            }
+        }
     }
 }
