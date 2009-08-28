@@ -13,5 +13,17 @@
     <Setting Name="ItemDataFile" Type="System.String" Scope="User">
       <Value Profile="(Default)">Data\Tibia.dat</Value>
     </Setting>
+    <Setting Name="WorldName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Utopia</Value>
+    </Setting>
+    <Setting Name="Ip" Type="System.String" Scope="User">
+      <Value Profile="(Default)">127.0.0.1</Value>
+    </Setting>
+    <Setting Name="Port" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">7172</Value>
+    </Setting>
+    <Setting Name="MessageOfTheDay" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

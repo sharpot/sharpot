@@ -7,10 +7,10 @@ namespace SharpOT
     {
         public uint Id;
         public string Name;
-        public uint Health = 100;
-        public uint MaxHealth = 100;
-        public uint Mana = 100;
-        public uint MaxMana = 100;
+        public ushort Health = 100;
+        public ushort MaxHealth = 100;
+        public ushort Mana = 100;
+        public ushort MaxMana = 100;
         public Outfit Outfit = new Outfit(128, 0);
         public Direction Direction = Direction.North;
         public byte LightLevel = 0;
@@ -34,5 +34,9 @@ namespace SharpOT
     public class Player : Creature
     {
         public Connection Connection;
+        public ushort Level;
+        public byte MagicLevel;
+        public uint Experience;
+        public uint Capacity;
     }
 }
