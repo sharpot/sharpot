@@ -88,7 +88,7 @@ namespace SharpOT
                     SendCharacterList(
                         "1\n" + SharpOT.Properties.Settings.Default.MessageOfTheDay,
                         999,
-                        Game.GetCharacterList(accountId)
+                        Database.GetCharacterList(accountId)
                     );
                 }
 
@@ -168,6 +168,10 @@ namespace SharpOT
             {
                 this.AccountId = accountId;
                 Game.ProcessLogin(this, loginPacket.CharacterName);
+            }
+            else
+            {
+                Close();
             }
         }
 
@@ -273,7 +277,7 @@ namespace SharpOT
         public void ParseChangeOutfit(NetworkMessage message)
         {
             ChangeOutfitPacket packet = ChangeOutfitPacket.Parse(message);
-            Game.CreatureChangeOutfit(Player, packet.Outfit);
+            Game.PlayerChangeOutfit(Player, packet.Outfit);
         }
 
         #endregion
