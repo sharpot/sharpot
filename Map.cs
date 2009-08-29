@@ -50,6 +50,7 @@ namespace SharpOT
                     tile.Location = new Location(x, y, z);
                     tiles[x, y, z] = tile;
                 }
+                reader.Close();
             }
         }
 
@@ -77,6 +78,7 @@ namespace SharpOT
                         tiles[x, y, z].Items.Add(item);
                     }
                 }
+                reader.Close();
             }
         }
 
