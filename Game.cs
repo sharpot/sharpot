@@ -83,7 +83,7 @@ namespace SharpOT
             {
                 spectator.Connection.SendCreatureChangeOutfit(player);
             }
-            Database.UpdatePlayer(player);
+            Database.SavePlayer(player);
         }
 
         public void CreatureMove(Creature creature, Direction direction)
@@ -130,13 +130,15 @@ namespace SharpOT
             }
         }
 
-        private int x = 97;
         public void ProcessLogin(Connection connection, string characterName)
         {
             Player player = Database.GetPlayer(connection.AccountId, characterName);
-            Location playerLocation = new Location(x++, 205, 7);
+            if (player.SavedLocation == null || Map.GetTile(player.SavedLocation) == null)
+            {
+                player.SavedLocation = new Location(97, 205, 7);
+            }
             player.Id = 0x01000000 + (uint)random.Next(0xFFFFFF);
-            Tile tile = Map.GetTile(playerLocation);
+            Tile tile = Map.GetTile(player.SavedLocation);
             player.Tile = tile;
             tile.Creatures.Add(player);
             connection.Player = player;
@@ -178,6 +180,8 @@ namespace SharpOT
                     spectator.Connection.SendCreatureLogout(player);
                 }
             }
+
+            Database.SavePlayer(player);
         }
 
         public void CreatureSpeech(Creature creature, string message)

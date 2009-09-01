@@ -30,13 +30,4 @@ namespace SharpOT
             return Name + " [" + Id + "]";
         }
     }
-
-    public class Player : Creature
-    {
-        public Connection Connection;
-        public ushort Level;
-        public byte MagicLevel;
-        public uint Experience;
-        public uint Capacity;
-    }
 }

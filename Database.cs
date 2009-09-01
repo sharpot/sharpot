@@ -20,8 +20,16 @@ namespace SharpOT
         );
 
         private static SQLiteCommand insertPlayerCommand = new SQLiteCommand(
-            @"insert into Player (AccountId, Name)
-              values (@accountId, @name)",
+            @"insert into Player (AccountId, Name, Level,
+                                  MagicLevel, Experience, MaxHealth, 
+                                  MaxMana, Capacity, OutfitLookType,
+                                  OutfitHead, OutfitBody, OutfitLegs,
+                                  OutfitFeet, OutfitAddons)
+              values (@accountId, @name, @level, 
+                      @magicLevel, @experience, @maxHealth, 
+                      @maxMana, @capacity, @outfitLookType,
+                      @outfitHead, @outfitBody, @outfitLegs,
+                      @outfitFeet, @outfitAddons)",
             connection
         );
 
@@ -44,7 +52,9 @@ namespace SharpOT
             @"select Level, MagicLevel, Experience, 
                   MaxHealth, MaxMana, Capacity, 
                   OutfitLookType, OutfitHead, OutfitBody,
-                  OutfitLegs, OutfitFeet, OutfitAddons
+                  OutfitLegs, OutfitFeet, OutfitAddons,
+                  LocationX, LocationY, LocationZ,
+                  Direction
               from Player
               where AccountId = @accountId and Name = @name",
             connection
@@ -64,7 +74,11 @@ namespace SharpOT
                   OutfitBody = @outfitBody,
                   OutfitLegs = @outfitLegs,
                   OutfitFeet = @outfitFeet,
-                  OutfitAddons = @outfitAddons
+                  OutfitAddons = @outfitAddons,
+                  LocationX = @locationX,
+                  LocationY = @locationY,
+                  LocationZ = @locationZ,
+                  Direction = @direction
               where AccountId = @accountId and Name = @name",
             connection
         );
@@ -86,6 +100,10 @@ namespace SharpOT
         private static SQLiteParameter outfitLegsParam = new SQLiteParameter("outfitLegs");
         private static SQLiteParameter outfitFeetParam = new SQLiteParameter("outfitFeet");
         private static SQLiteParameter outfitAddonsParam = new SQLiteParameter("outfitAddons");
+        private static SQLiteParameter locationXParam = new SQLiteParameter("locationX");
+        private static SQLiteParameter locationYParam = new SQLiteParameter("locationY");
+        private static SQLiteParameter locationZParam = new SQLiteParameter("locationZ");
+        private static SQLiteParameter directionParam = new SQLiteParameter("direction");
 
         static Database()
         {
@@ -96,6 +114,18 @@ namespace SharpOT
 
             insertPlayerCommand.Parameters.Add(accountIdParam);
             insertPlayerCommand.Parameters.Add(nameParam);
+            insertPlayerCommand.Parameters.Add(levelParam);
+            insertPlayerCommand.Parameters.Add(magicLevelParam);
+            insertPlayerCommand.Parameters.Add(experienceParam);
+            insertPlayerCommand.Parameters.Add(maxHealthParam);
+            insertPlayerCommand.Parameters.Add(maxManaParam);
+            insertPlayerCommand.Parameters.Add(capacityParam);
+            insertPlayerCommand.Parameters.Add(outfitLookTypeParam);
+            insertPlayerCommand.Parameters.Add(outfitHeadParam);
+            insertPlayerCommand.Parameters.Add(outfitBodyParam);
+            insertPlayerCommand.Parameters.Add(outfitLegsParam);
+            insertPlayerCommand.Parameters.Add(outfitFeetParam);
+            insertPlayerCommand.Parameters.Add(outfitAddonsParam);
 
             selectAccountIdCommand.Parameters.Add(accountNameParam);
             selectAccountIdCommand.Parameters.Add(passwordParam);
@@ -119,6 +149,10 @@ namespace SharpOT
             updatePlayerCommand.Parameters.Add(outfitAddonsParam);
             updatePlayerCommand.Parameters.Add(accountIdParam);
             updatePlayerCommand.Parameters.Add(nameParam);
+            updatePlayerCommand.Parameters.Add(locationXParam);
+            updatePlayerCommand.Parameters.Add(locationYParam);
+            updatePlayerCommand.Parameters.Add(locationZParam);
+            updatePlayerCommand.Parameters.Add(directionParam);
         }
 
         public static void Close()
@@ -130,14 +164,40 @@ namespace SharpOT
         {
             accountNameParam.Value = name;
             passwordParam.Value = password;
-            return (1 == insertAccountCommand.ExecuteNonQuery());
+            try
+            {
+                return (1 == insertAccountCommand.ExecuteNonQuery());
+            }
+            catch (SQLiteException)
+            {
+                return false;
+            }
         }
 
         public static bool CreatePlayer(long accountId, string name)
         {
             accountIdParam.Value = accountId;
             nameParam.Value = name;
-            return (1 == insertPlayerCommand.ExecuteNonQuery());
+            levelParam.Value = 1;
+            magicLevelParam.Value = 0;
+            experienceParam.Value = 0;
+            maxHealthParam.Value = 100;
+            maxManaParam.Value = 0;
+            capacityParam.Value = 100;
+            outfitLookTypeParam.Value = 128;
+            outfitHeadParam.Value = 0;
+            outfitBodyParam.Value = 0;
+            outfitLegsParam.Value = 0;
+            outfitFeetParam.Value = 0;
+            outfitAddonsParam.Value = 0;
+            try
+            {
+                return (1 == insertPlayerCommand.ExecuteNonQuery());
+            }
+            catch (SQLiteException)
+            {
+                return false;
+            }
         }
 
         public static List<CharacterListItem> GetCharacterList(long accountId)
@@ -185,6 +245,14 @@ namespace SharpOT
                 player.Outfit.Legs = reader.GetByte(9);
                 player.Outfit.Feet = reader.GetByte(10);
                 player.Outfit.Addons = reader.GetByte(11);
+                if (!reader.IsDBNull(12))
+                {
+                    int x = reader.GetInt32(12);
+                    int y = reader.GetInt32(13);
+                    int z = reader.GetInt32(14);
+                    player.SavedLocation = new Location(x, y, z);
+                    player.Direction = (Direction)reader.GetByte(15);
+                }
                 reader.Close();
 
                 // TODO: Calculate player speed
@@ -206,7 +274,7 @@ namespace SharpOT
             return (long)result;
         }
 
-        public static bool UpdatePlayer(Player player)
+        public static bool SavePlayer(Player player)
         {
             levelParam.Value = player.Level;
             magicLevelParam.Value = player.MagicLevel;
@@ -220,7 +288,10 @@ namespace SharpOT
             outfitLegsParam.Value = player.Outfit.Legs;
             outfitFeetParam.Value = player.Outfit.Feet;
             outfitAddonsParam.Value = player.Outfit.Addons;
-
+            locationXParam.Value = player.Tile.Location.X;
+            locationYParam.Value = player.Tile.Location.Y;
+            locationZParam.Value = player.Tile.Location.Z;
+            directionParam.Value = player.Direction;
             accountIdParam.Value = player.Connection.AccountId;
 
             return (1 == updatePlayerCommand.ExecuteNonQuery());

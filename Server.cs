@@ -28,7 +28,7 @@ namespace SharpOT
         void Run()
         {
             game = new Game();
-
+            
             try
             {
                 LogStart("Loading data");
