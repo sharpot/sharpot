@@ -244,16 +244,10 @@ namespace SharpOT.Packets
         {
             AddUInt16(item.Id);
 
-            // TODO
-            //if (it.stackable || it.isRune())
-            //{
-            //    AddByte(count);
-            //}
-            //else if (it.isSplash() || it.isFluidContainer())
-            //{
-            //    uint32_t fluidIndex = count % 8;
-            //    AddByte(fluidMap[fluidIndex]);
-            //}
+            if (item.Data.HasExtraByte)
+            {
+                AddByte(item.Extra);
+            }
         }
 
         public void AddPaddingBytes(int count)

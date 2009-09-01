@@ -12,5 +12,13 @@ namespace SharpOT
         {
             return Id;
         }
+
+        public DatItem Data
+        {
+            get
+            {
+                return DatReader.GetItem(Id);
+            }
+        }
     }
 }
