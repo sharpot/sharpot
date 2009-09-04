@@ -7,15 +7,19 @@ namespace SharpOT.Packets
 {
     public class OutfitWindowPacket : Packet
     {
-        public static void Add(NetworkMessage message, Player player)
+        public static void Add(NetworkMessage message, Player player, IEnumerable<Outfit> outfits)
         {
             message.AddByte((byte)ServerPacketType.OutfitWindow);
             message.AddOutfit(player.Outfit);
             //TODO: send list of outfits
-            message.AddByte(1);
-            message.AddUInt16((ushort)player.Outfit.LookType);
-            message.AddString("");
-            message.AddByte(player.Outfit.Addons);
+            message.AddByte((byte)outfits.Count());
+
+            foreach (Outfit outfit in outfits)
+            {
+                message.AddUInt16((ushort)outfit.LookType);
+                message.AddString(outfit.Name);
+                message.AddByte(outfit.Addons);
+            }
         }
     }
 }
