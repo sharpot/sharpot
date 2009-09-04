@@ -86,7 +86,7 @@ namespace SharpOT
                 {
                     this.AccountId = accountId;
                     SendCharacterList(
-                        "1\n" + SharpOT.Properties.Settings.Default.MessageOfTheDay,
+                        SharpOT.Properties.Settings.Default.MessageOfTheDay,
                         999,
                         Database.GetCharacterList(accountId)
                     );
@@ -297,10 +297,13 @@ namespace SharpOT
         {
             NetworkMessage message = new NetworkMessage();
 
-            MessageOfTheDayPacket.Add(
-                message,
-                motd
-            );
+            if (motd != string.Empty)
+            {
+                MessageOfTheDayPacket.Add(
+                    message,
+                    motd
+                );
+            }
             CharacterListPacket.Add(
                 message,
                 chars,
@@ -383,9 +386,69 @@ namespace SharpOT
         {
             NetworkMessage message = new NetworkMessage();
 
+            // TODO: put somewhere else, xml?
+            List<Outfit> outfits;
+            // TODO: player sex
+            outfits = new List<Outfit>
+            {
+                new Outfit("Citizen", 128, 7),
+                new Outfit("Hunter", 129, 7),
+                new Outfit("Mage", 130, 7),
+                new Outfit("Knight", 131, 7),
+                new Outfit("Nobleman", 132, 7),
+                new Outfit("Summoner", 133, 7),
+                new Outfit("Warrior", 134, 7),
+                new Outfit("Barbarian", 143, 7),
+                new Outfit("Druid", 144, 7),
+                new Outfit("Wizard", 145, 7),
+                new Outfit("Oriental", 146, 7),
+                new Outfit("Pirate", 151, 7),
+                new Outfit("Assassin", 152, 7),
+                new Outfit("Beggar", 153, 7),
+                new Outfit("Shaman", 154, 7),
+                new Outfit("Norseman", 251, 7),
+                new Outfit("Nightmare", 268, 7),
+                new Outfit("Jester", 273, 7),
+                new Outfit("Brotherhood", 278, 7),
+                new Outfit("Demonhunter", 289, 7),
+                new Outfit("Yalaharian", 325, 7),
+                new Outfit("Wedding", 328, 7),
+                new Outfit("Gamemaster", 75, 7),
+                new Outfit("Old Com. Manager", 266, 7),
+                new Outfit("Com. Manager", 302, 7)
+            };
+            //outfits = new List<Outfit>
+            //{
+            //    new Outfit("Citizen", 136, 7),
+            //    new Outfit("Hunter", 137, 7),
+            //    new Outfit("Mage", 138, 7),
+            //    new Outfit("Knight", 139, 7),
+            //    new Outfit("Noblewoman", 140, 7),
+            //    new Outfit("Summoner", 141, 7),
+            //    new Outfit("Warrior", 142, 7),
+            //    new Outfit("Barbarian", 147, 7),
+            //    new Outfit("Druid", 148, 7),
+            //    new Outfit("Wizard", 149, 7),
+            //    new Outfit("Oriental", 150, 7),
+            //    new Outfit("Pirate", 155, 7),
+            //    new Outfit("Assassin", 156, 7),
+            //    new Outfit("Beggar", 157, 7),
+            //    new Outfit("Shaman", 158, 7),
+            //    new Outfit("Norsewoman", 252, 7),
+            //    new Outfit("Nightmare", 269, 7),
+            //    new Outfit("Jester", 270, 7),
+            //    new Outfit("Brotherhood", 279, 7),
+            //    new Outfit("Demonhunter", 288, 7),
+            //    new Outfit("Yalaharian", 324, 7),
+            //    new Outfit("Wedding", 329, 7),
+            //    new Outfit("Gamemaster", 75, 7),
+            //    new Outfit("Old Com. Manager", 266, 7),
+            //    new Outfit("Com. Manager", 302, 0)
+            //};
             OutfitWindowPacket.Add(
-                message   ,
-                Player
+                message,
+                Player,
+                outfits
             );
 
             Send(message);

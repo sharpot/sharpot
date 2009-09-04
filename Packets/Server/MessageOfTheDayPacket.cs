@@ -10,7 +10,7 @@ namespace SharpOT.Packets
         public static void Add(NetworkMessage message, string messageOfTheDay)
         {
             message.AddByte((byte)ServerPacketType.MessageOfTheDay);
-            message.AddString(messageOfTheDay);
+            message.AddString("1\n" + messageOfTheDay);
         }
 
         public MessageOfTheDayPacket Parse(NetworkMessage message)

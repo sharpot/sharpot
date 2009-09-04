@@ -12,6 +12,7 @@ namespace SharpOT
         public byte Legs;
         public byte Feet;
         public byte Addons;
+        public string Name = "";
 
         public Outfit(UInt16 lookType, byte head, byte body, byte legs, byte feet, byte addons)
         {
@@ -33,6 +34,13 @@ namespace SharpOT
             Legs = 0;
             Feet = 0;
             Addons = 0;
+        }
+
+        public Outfit(string name, UInt16 lookType, byte addons)
+        {
+            Name = name;
+            LookType = lookType;
+            Addons = addons;
         }
     }
 }
