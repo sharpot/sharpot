@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data.SQLite;
 using System.Net;
+using System.Security.Cryptography;
 
 namespace SharpOT
 {
@@ -163,7 +164,7 @@ namespace SharpOT
         public static bool CreateAccount(string name, string password)
         {
             accountNameParam.Value = name;
-            passwordParam.Value = password;
+            passwordParam.Value = Util.Hash.SHA256Hash(password);
             try
             {
                 return (1 == insertAccountCommand.ExecuteNonQuery());
@@ -265,7 +266,7 @@ namespace SharpOT
         public static long GetAccountId(string accountName, string password)
         {
             accountNameParam.Value = accountName;
-            passwordParam.Value = password;
+            passwordParam.Value = Util.Hash.SHA256Hash(password);
             var result = selectAccountIdCommand.ExecuteScalar();
             if (result == null)
             {

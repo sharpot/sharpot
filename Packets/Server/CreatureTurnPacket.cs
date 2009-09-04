@@ -16,7 +16,7 @@ namespace SharpOT.Packets
             message.AddByte((byte)ServerPacketType.TileTransformThing);
 
             message.AddLocation(creature.Tile.Location);
-            message.AddByte(1);
+            message.AddByte(creature.Tile.GetStackPosition(creature));
             message.AddUInt16(0x63);
             message.AddUInt32(creature.Id);
             message.AddByte((byte)creature.Direction);
