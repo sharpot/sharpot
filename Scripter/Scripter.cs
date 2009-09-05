@@ -6,13 +6,16 @@ using System.Text;
 namespace SharpOT.Scripter
 {
     //This is all being coded as psuedo ATM, this isnt made to be functional yet
-    //I know C# but have been working mostly in VB/C++ so excuse me for any errors
  
     class Scripter
     {
+        List<Script> Scripts;
         public bool RaiseEvent(string EventName, object[] Args)
         {
+            foreach (Script S in Scripts) 
+            {
 
+            }
             return true;
         }
     }

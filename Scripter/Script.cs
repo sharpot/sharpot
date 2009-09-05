@@ -7,5 +7,6 @@ namespace SharpOT.Scripter
 {
     class Script
     {
+
     }
 }
