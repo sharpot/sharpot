@@ -61,6 +61,8 @@
     <Compile Include="Player.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Outfit.cs" />
+    <Compile Include="Scripter\Script.cs" />
+    <Compile Include="Scripter\Scripter.cs" />
     <Compile Include="Thing.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="Creature.cs" />

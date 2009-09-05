@@ -2,6 +2,28 @@
 
 namespace SharpOT
 {
+#region "Scripting"
+    public enum EventType : byte
+    {
+        //Items
+        OnItemUse = 0x01,
+        OnItemLook = 0x02,
+        OnItemMapRelocate = 0x03,
+        OnItemInventoryRelocate = 0x04, //Only to handles containers
+        OnItemDrop = 0x05,
+        OnItemPickup = 0x06, //Only handles from containers
+        OnItemEquip = 0x07,
+        OnIemUnEquip = 0x08,
+        //Creatures
+        OnCreatureLook = 0x09,
+        OnCreatureTarget = 0x0A,
+        OnCreatureAttack = 0x0B,
+        OnCreateCreated = 0x0C, //Monsters and NPCs only
+        
+    }
+#endregion
+
+#region "Packets"
     public enum ServerPacketType : byte
     {
         Disconnect = 0x0A,
@@ -128,79 +150,9 @@ namespace SharpOT
         PrivateChannelOpen = 0x9A,
         NpcChannelClose = 0x9E,
     }
+#endregion
 
-    public enum Effect : byte
-    {
-        DrawBlood = 0x00,
-        LoseEnergy = 0x01,
-        Puff = 0x02,
-        BlockHit = 0x03,
-        ExplosionArea = 0x04,
-        ExplosionDamage = 0x05,
-        FireArea = 0x06,
-        YellowRings = 0x07,
-        PoisonRings = 0x08,
-        HitArea = 0x09,
-        Teleport = 0x0A, 
-        EnergyDamage = 0x0B, 
-        MagicEnergy = 0x0C, 
-        MagicBlood = 0x0D, 
-        MagicPoison = 0x0E, 
-        HitByFire = 0x0F, 
-        Poison = 0x10, 
-        MortArea = 0x11, 
-        SoundGreen = 0x12, 
-        SoundRed = 0x13, 
-        PoisonArea = 0x14, 
-        SoundYellow = 0x15, 
-        SoundPurple = 0x16, 
-        SoundBlue = 0x17, 
-        SoundWhite = 0x18, 
-        Bubbles = 0x19, 
-        Craps = 0x1A, 
-        GiftWraps = 0x1B, 
-        FireworkYellow = 0x1C, 
-        FireworkRed = 0x1D, 
-        FireworkBlue = 0x1E, 
-        Stun = 0x1F, 
-        Sleep = 0x20, 
-        WaterCreature = 0x21, 
-        Groundshaker= 0x22, 
-        Hearts = 0x23, 
-        FireAttack = 0x24, 
-        EnergyArea = 0x25, 
-        SmallClouds= 0x26, 
-        HolyDamage = 0x27, 
-        BigClouds = 0x28, 
-        IceArea = 0x29, 
-        IceTornado = 0x2A, 
-        IceAttack = 0x2B, 
-        Stones = 0x2C, 
-        SmallPlants = 0x2D, 
-        Carniphilia = 0x2E, 
-        PurpleEnergy = 0x2F,
-        YellowEnergy = 0x30, 
-        HolyArea = 0x31, 
-        BigPlants = 0x32,
-        Cake = 0x33,
-        GiantIce = 0x34, 
-        WaterSplash = 0x35, 
-        PlantAttack = 0x36, 
-        TutorialArrow = 0x37, 
-        TutorialSquare = 0x38, 
-        MirrorHorizontal = 0x39, 
-        MirrorVerticle = 0x3A, 
-        SkullHorizontal = 0x3B, 
-        SkullVertical = 0x3C,
-        Assassin = 0x3D, 
-        StepsHorizontal = 0x3E, 
-        BloodySteps = 0x3F, 
-        StepsVertical = 0x40, 
-        YalahariGhost = 0x41, 
-        Bats = 0x42,
-        Smoke = 0x43
-    }
-
+#region "Chat/Speech"
     public enum TextMessageType : byte
     {
         ConsoleRed = 0x12, //Red message in the console
@@ -213,57 +165,6 @@ namespace SharpOT
         DescriptionGreen = 0x19, //Green message in game window and in the console
         StatusSmall = 0x1A, //White message at the bottom of the game window"
         ConsoleBlue = 0x1B, //Blue message in the console
-    }
-
-    public static class LightLevel
-    {
-        public static byte None = 0;
-        public static byte Torch = 7;
-        public static byte Full = 27;
-        public static byte World = 255;
-    }
-
-    public static class LightColor
-    {
-        public static byte None = 0;
-        public static byte Default = 206; // default light color
-        public static byte Orange = Default;
-        public static byte White = 215;
-    }
-
-    public enum Direction : byte
-    {
-        North = 0,
-        East,
-        South,
-        West,
-        NorthEast,
-        SouthEast,
-        NorthWest,
-        SouthWest
-    }
-
-    public enum Skull : byte
-    {
-        None = 0,
-        Yellow = 1,
-        Green = 2,
-        White = 3,
-        Red = 4,
-        Black = 5
-    }
-
-    public enum Party
-    {
-        None = 0,
-        Host = 1,
-        Guest = 2,
-        Member = 3,
-        Leader = 4,
-        MemberSharedExp = 5,
-        LeaderSharedExp = 6,
-        MemberSharedExpInactive = 7,
-        LeaderSharedExpInactive = 8
     }
 
     public enum SpeechType : byte
@@ -316,4 +217,130 @@ namespace SharpOT
         Private = 0xFFFF,
         None = 0xAAAA
     }
+#endregion
+
+#region "Other"
+    public enum Effect : byte
+    {
+        DrawBlood = 0x00,
+        LoseEnergy = 0x01,
+        Puff = 0x02,
+        BlockHit = 0x03,
+        ExplosionArea = 0x04,
+        ExplosionDamage = 0x05,
+        FireArea = 0x06,
+        YellowRings = 0x07,
+        PoisonRings = 0x08,
+        HitArea = 0x09,
+        Teleport = 0x0A,
+        EnergyDamage = 0x0B,
+        MagicEnergy = 0x0C,
+        MagicBlood = 0x0D,
+        MagicPoison = 0x0E,
+        HitByFire = 0x0F,
+        Poison = 0x10,
+        MortArea = 0x11,
+        SoundGreen = 0x12,
+        SoundRed = 0x13,
+        PoisonArea = 0x14,
+        SoundYellow = 0x15,
+        SoundPurple = 0x16,
+        SoundBlue = 0x17,
+        SoundWhite = 0x18,
+        Bubbles = 0x19,
+        Craps = 0x1A,
+        GiftWraps = 0x1B,
+        FireworkYellow = 0x1C,
+        FireworkRed = 0x1D,
+        FireworkBlue = 0x1E,
+        Stun = 0x1F,
+        Sleep = 0x20,
+        WaterCreature = 0x21,
+        Groundshaker = 0x22,
+        Hearts = 0x23,
+        FireAttack = 0x24,
+        EnergyArea = 0x25,
+        SmallClouds = 0x26,
+        HolyDamage = 0x27,
+        BigClouds = 0x28,
+        IceArea = 0x29,
+        IceTornado = 0x2A,
+        IceAttack = 0x2B,
+        Stones = 0x2C,
+        SmallPlants = 0x2D,
+        Carniphilia = 0x2E,
+        PurpleEnergy = 0x2F,
+        YellowEnergy = 0x30,
+        HolyArea = 0x31,
+        BigPlants = 0x32,
+        Cake = 0x33,
+        GiantIce = 0x34,
+        WaterSplash = 0x35,
+        PlantAttack = 0x36,
+        TutorialArrow = 0x37,
+        TutorialSquare = 0x38,
+        MirrorHorizontal = 0x39,
+        MirrorVerticle = 0x3A,
+        SkullHorizontal = 0x3B,
+        SkullVertical = 0x3C,
+        Assassin = 0x3D,
+        StepsHorizontal = 0x3E,
+        BloodySteps = 0x3F,
+        StepsVertical = 0x40,
+        YalahariGhost = 0x41,
+        Bats = 0x42,
+        Smoke = 0x43
+    }
+
+    public static class LightLevel
+    {
+        public static byte None = 0;
+        public static byte Torch = 7;
+        public static byte Full = 27;
+        public static byte World = 255;
+    }
+
+    public static class LightColor
+    {
+        public static byte None = 0;
+        public static byte Default = 206; // default light color
+        public static byte Orange = Default;
+        public static byte White = 215;
+    }
+
+    public enum Direction : byte
+    {
+        North = 0,
+        East,
+        South,
+        West,
+        NorthEast,
+        SouthEast,
+        NorthWest,
+        SouthWest
+    }
+
+    public enum Skull : byte
+    {
+        None = 0,
+        Yellow = 1,
+        Green = 2,
+        White = 3,
+        Red = 4,
+        Black = 5
+    }
+
+    public enum Party
+    {
+        None = 0,
+        Host = 1,
+        Guest = 2,
+        Member = 3,
+        Leader = 4,
+        MemberSharedExp = 5,
+        LeaderSharedExp = 6,
+        MemberSharedExpInactive = 7,
+        LeaderSharedExpInactive = 8
+    }
+#endregion
 }
