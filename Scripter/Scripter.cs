@@ -21,10 +21,14 @@ namespace SharpOT
 
             //This is the test for the creature say function
             //Saying TextNukka with anything following it will return false, meaning you wont say it
-            Script New = new Script(EventType.OnCreatureSay, new List<UInt32>(), new List<UInt16>(), new List<UInt16>(), "TestNukka");
-            New.LoadScript("function OnCreatureSay(text) return false end");
+            Script New = new Script(EventType.OnPlayerSay, new List<UInt32>(), new List<UInt16>(), new List<UInt16>(), "TestNukka");
+            New.LoadScript("function OnPlayerSay(text) return false end");
             Scripts.Add(New);
             //More test to come
+
+            New = new Script(EventType.OnPlayerLogin, new List<UInt32>(), new List<UInt16>(), new List<UInt16>(), string.Empty);
+            New.LoadScript("function OnPlayerLogin() return false end");
+            Scripts.Add(New);
         }
         
         public bool RaiseEvent(EventType Event, EventProperties Properties, object[] EventArgs)

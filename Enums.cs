@@ -18,8 +18,9 @@ namespace SharpOT
         OnCreatureTarget = 0x09,
         OnCreatureAttacked = 0x0A,
         OnCreatureCreated = 0x0B, //Monsters and NPCs only
-        //
-        OnCreatureSay = 0x99
+        //player
+        OnPlayerLogin =0x98,
+        OnPlayerSay = 0x99
     }
 #endregion
 
