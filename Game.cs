@@ -12,11 +12,10 @@ namespace SharpOT
     public class Game
     {
         #region Variables
-
         public Map Map { get; private set; }
         public Dictionary<uint, Creature> creatures = new Dictionary<uint, Creature>();
+        public Scripter Scripter;
         Random random = new Random();
-
         #endregion
 
         #region Constructor
@@ -24,6 +23,7 @@ namespace SharpOT
         public Game()
         {
             Map = new Map();
+            Scripter = new Scripter();
         }
 
         #endregion

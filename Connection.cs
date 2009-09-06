@@ -271,7 +271,10 @@ namespace SharpOT
         public void ParsePlayerSpeech(NetworkMessage message)
         {
             PlayerSpeechPacket packet = PlayerSpeechPacket.Parse(message);
-            Game.CreatureSpeech(Player, packet.Message);
+            if (Game.Scripter.RaiseEvent(EventType.OnCreatureSay, new EventProperties(0, 0, 0, packet.Message), new object[] {packet.Message}))
+            {
+                Game.CreatureSpeech(Player, packet.Message);
+            }
         }
 
         public void ParseChangeOutfit(NetworkMessage message)

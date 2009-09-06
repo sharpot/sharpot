@@ -39,6 +39,10 @@ namespace SharpOT
                 game.Map.Load();
                 LogDone();
 
+                LogStart("Loading scripts");
+                game.Scripter.Load();
+                LogDone();
+
                 LogStart("Listening for clients");
                 clientLoginListener.Start();
                 clientLoginListener.BeginAcceptSocket(new AsyncCallback(LoginListenerCallback), clientLoginListener);
