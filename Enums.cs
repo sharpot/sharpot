@@ -8,18 +8,18 @@ namespace SharpOT
         //Items
         OnItemUse = 0x01,
         OnItemLook = 0x02,
-        OnItemMapRelocate = 0x03,
-        OnItemInventoryRelocate = 0x04, //Only to handles containers
-        OnItemDrop = 0x05,
-        OnItemPickup = 0x06, //Only handles from containers
-        OnItemEquip = 0x07,
-        OnIemUnEquip = 0x08,
+        OnItemRelocate = 0x03,
+        OnItemDrop = 0x04,
+        OnItemPickup = 0x05,
+        OnItemEquip = 0x06,
+        OnIemUnEquip = 0x07,
         //Creatures
-        OnCreatureLook = 0x09,
-        OnCreatureTarget = 0x0A,
-        OnCreatureAttack = 0x0B,
-        OnCreateCreated = 0x0C, //Monsters and NPCs only
-        
+        OnCreatureLook = 0x08,
+        OnCreatureTarget = 0x09,
+        OnCreatureAttacked = 0x0A,
+        OnCreatureCreated = 0x0B, //Monsters and NPCs only
+        //
+        OnCreatureSay = 0x99
     }
 #endregion
 
