@@ -184,12 +184,12 @@ namespace SharpOT
             Database.SavePlayer(player);
         }
 
-        public void CreatureSpeech(Creature creature, string message)
+        public void CreatureSpeech(Creature creature, SpeechType Type, string message)
         {
             // TODO: this should only send to players who can see this player speak (same floor)
             foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
             {
-                spectator.Connection.SendCreatureSpeech(creature, message);
+                spectator.Connection.SendCreatureSpeech(creature, Type, message);
             }
         }        
 

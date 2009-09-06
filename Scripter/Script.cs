@@ -34,24 +34,20 @@ namespace SharpOT
 
 #region "Events"
         public bool ShouldRaise(EventType Event, EventProperties P) {
-            if (Event == this.EventType && this.EventType != EventType.OnCreatureSay)//Item or creature event
-            {
-                if (P.ItemID == 0 || EventItemIDs.Contains(P.ItemID))
-                {
-                    if (P.ActionID == 0 || EventActionIDs.Contains(P.ActionID))
-                    {
-                        if (P.UniqueID == 0 || EventUniqueIDs.Contains(P.UniqueID))
-                        {
-                            return true;
-                        }
+            if (Event == EventType.OnPlayerSay && Event == this.EventType){//Player Say
+                if (P.Text.Trim() != string.Empty){
+                    if (P.Text.ToLower().StartsWith(EventText.Trim().ToLower())){
+                        return true;
                     }
                 }
-            }else if (Event == EventType.OnCreatureSay){//Player Say
-                if (P.Text.Trim() != string.Empty)
-                {
-                    if (P.Text.ToLower().StartsWith(EventText.Trim().ToLower()))
-                    {
-                        return true;
+            }else if (Event == EventType.OnPlayerLogin && Event == this.EventType){//Player Login
+                return true;
+            }else if (Event == this.EventType){ //Item or creature event
+                if (P.ItemID == 0 || EventItemIDs.Contains(P.ItemID)){
+                    if (P.ActionID == 0 || EventActionIDs.Contains(P.ActionID)){
+                        if (P.UniqueID == 0 || EventUniqueIDs.Contains(P.UniqueID)){
+                            return true;
+                        }
                     }
                 }
             }
@@ -61,7 +57,10 @@ namespace SharpOT
         public bool Raise(object[] Args){
             EventDelegate Event;
             Event = lua.GetFunction(typeof(EventDelegate), System.Enum.GetName(typeof(EventType), this.EventType)) as EventDelegate;
-            return Event.Invoke(Args);
+            if (Event != null)
+                return Event.Invoke(Args);
+
+            return true;
         }
 #endregion
 
