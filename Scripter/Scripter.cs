@@ -7,11 +7,11 @@ namespace SharpOT
 {
     public class Scripter
     {
-        List<Script> Scripts;
+        private List<Script> scripts;
 
         public Scripter()
         {
-            Scripts = new List<Script>();
+            scripts = new List<Script>();
         }
 
         public void Load()
@@ -21,23 +21,23 @@ namespace SharpOT
 
             //This is the test for the creature say function
             //Saying TextNukka with anything following it will return false, meaning you wont say it
-            Script New = new Script(EventType.OnPlayerSay, new List<UInt32>(), new List<UInt16>(), new List<UInt16>(), "TestNukka");
-            New.LoadScript("function OnPlayerSay(text) return false end");
-            Scripts.Add(New);
+            Script testScript = new Script(EventType.OnPlayerSay, new List<UInt32>(), new List<UInt16>(), new List<UInt16>(), "TestNukka");
+            testScript.LoadScript("function OnPlayerSay(text) return false end");
+            scripts.Add(testScript);
             //More test to come
 
-            New = new Script(EventType.OnPlayerLogin, new List<UInt32>(), new List<UInt16>(), new List<UInt16>(), string.Empty);
-            New.LoadScript("function OnPlayerLogin() return false end");
-            Scripts.Add(New);
+            testScript = new Script(EventType.OnPlayerLogin, new List<UInt32>(), new List<UInt16>(), new List<UInt16>(), string.Empty);
+            testScript.LoadScript("function OnPlayerLogin() return false end");
+            scripts.Add(testScript);
         }
         
-        public bool RaiseEvent(EventType Event, EventProperties Properties, object[] EventArgs)
+        public bool RaiseEvent(EventType eventType, EventProperties eventProperties, object[] eventArgs)
         {
-            foreach (Script S in Scripts)
+            foreach (Script script in scripts)
             {
-                if (S.ShouldRaise(Event, Properties))
+                if (script.ShouldRaise(eventType, eventProperties))
                 {
-                    if (S.Raise(EventArgs) == false) {return false;}
+                    if (script.Raise(eventArgs) == false) {return false;}
                 }
             }
             return true;
@@ -46,11 +46,11 @@ namespace SharpOT
 
     public struct EventProperties
     {
-        public EventProperties(UInt32 ItemID, UInt16 UniqueID, UInt16 Actionid, string text)
+        public EventProperties(UInt32 itemID, UInt16 uniqueID, UInt16 actionid, string text)
         {
-            this.ItemID = ItemID;
-            this.ActionID = Actionid;
-            this.UniqueID = UniqueID;
+            this.ItemID = itemID;
+            this.ActionID = actionid;
+            this.UniqueID = uniqueID;
             this.Text = text;
         }
 
