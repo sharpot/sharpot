@@ -12,10 +12,17 @@ namespace SharpOT
     public class Game
     {
         #region Variables
-        public Map Map { get; private set; }
-        public Dictionary<uint, Creature> creatures = new Dictionary<uint, Creature>();
-        public Scripter Scripter;
+        
+        private Dictionary<uint, Creature> creatures = new Dictionary<uint, Creature>();
         Random random = new Random();
+
+        #endregion
+
+        #region Properties
+
+        public Map Map { get; private set; }
+        public Scripter Scripter { get; private set; }
+
         #endregion
 
         #region Constructor
@@ -184,12 +191,17 @@ namespace SharpOT
             Database.SavePlayer(player);
         }
 
-        public void CreatureSpeech(Creature creature, SpeechType Type, string message)
+        public void CreatureSpeech(Creature creature, SpeechType speechType, string message)
         {
+            // TODO: Add exhaustion for yelling, and checks to make sure the player has the
+            // permission to use the selected speech type
             // TODO: this should only send to players who can see this player speak (same floor)
-            foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
+            if (Scripter.RaiseEvent(EventType.OnPlayerSay, new EventProperties(0, 0, 0, message), new object[] { message }))
             {
-                spectator.Connection.SendCreatureSpeech(creature, Type, message);
+                foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
+                {
+                    spectator.Connection.SendCreatureSpeech(creature, speechType, message);
+                }
             }
         }        
 

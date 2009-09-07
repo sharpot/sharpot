@@ -9,43 +9,58 @@ namespace SharpOT
     public class Script
     {
         public delegate bool EventDelegate(object[] args);//Our delegate for events
-        EventType EventType;//The type of event which raises this script
-        List<UInt32> EventItemIDs;//All the items supported by this event
-        List<UInt16> EventUniqueIDs;//All the unique IDs supported by this event
-        List<UInt16> EventActionIDs;//All the action IDs supported by this event
-        string EventText;//The text supported by this event (If its a command)
-        Lua lua;//The LUA object
+        private EventType eventType;//The type of event which raises this script
+        private List<UInt32> eventItemIDs;//All the items supported by this event
+        private List<UInt16> eventUniqueIDs;//All the unique IDs supported by this event
+        private List<UInt16> eventActionIDs;//All the action IDs supported by this event
+        private string eventText;//The text supported by this event (If its a command)
+        private Lua lua;//The LUA object
 
-#region "Construct"
-        public Script(EventType Event, List<UInt32> EventItemIDs, List<UInt16> EventUniqueIDs, List<UInt16> EventActionIDs, string EventText)
+        #region Constructor
+
+        public Script(EventType eventType, List<UInt32> eventItemIds, List<UInt16> eventUniqueIDs, List<UInt16> eventActionIDs, string eventText)
         {
-            this.EventItemIDs = EventItemIDs;
-            this.EventUniqueIDs = EventUniqueIDs;
-            this.EventActionIDs = EventActionIDs;
-            this.EventText = EventText;
-            this.EventType = Event;
+            this.eventItemIDs = eventItemIds;
+            this.eventUniqueIDs = eventUniqueIDs;
+            this.eventActionIDs = eventActionIDs;
+            this.eventText = eventText;
+            this.eventType = eventType;
             this.lua = new Lua();
         }
 
-        public void LoadScript(String script){
+        public void LoadScript(String script)
+        {
             this.lua.DoString(script);
         }
-#endregion
 
-#region "Events"
-        public bool ShouldRaise(EventType Event, EventProperties P) {
-            if (Event == EventType.OnPlayerSay && Event == this.EventType){//Player Say
-                if (P.Text.Trim() != string.Empty){
-                    if (P.Text.ToLower().StartsWith(EventText.Trim().ToLower())){
+        #endregion
+
+        #region Events
+
+        public bool ShouldRaise(EventType eventType, EventProperties eventProperties)
+        {
+            if (eventType == EventType.OnPlayerSay && eventType == this.eventType)
+            {//Player Say
+                if (eventProperties.Text.Trim() != string.Empty)
+                {
+                    if (eventProperties.Text.ToLower().StartsWith(eventText.Trim().ToLower()))
+                    {
                         return true;
                     }
                 }
-            }else if (Event == EventType.OnPlayerLogin && Event == this.EventType){//Player Login
+            }
+            else if (eventType == EventType.OnPlayerLogin && eventType == this.eventType)
+            {//Player Login
                 return true;
-            }else if (Event == this.EventType){ //Item or creature event
-                if (P.ItemID == 0 || EventItemIDs.Contains(P.ItemID)){
-                    if (P.ActionID == 0 || EventActionIDs.Contains(P.ActionID)){
-                        if (P.UniqueID == 0 || EventUniqueIDs.Contains(P.UniqueID)){
+            }
+            else if (eventType == this.eventType)
+            { //Item or creature event
+                if (eventProperties.ItemID == 0 || eventItemIDs.Contains(eventProperties.ItemID))
+                {
+                    if (eventProperties.ActionID == 0 || eventActionIDs.Contains(eventProperties.ActionID))
+                    {
+                        if (eventProperties.UniqueID == 0 || eventUniqueIDs.Contains(eventProperties.UniqueID))
+                        {
                             return true;
                         }
                     }
@@ -54,15 +69,19 @@ namespace SharpOT
             return false;
         }
 
-        public bool Raise(object[] Args){
-            EventDelegate Event;
-            Event = lua.GetFunction(typeof(EventDelegate), System.Enum.GetName(typeof(EventType), this.EventType)) as EventDelegate;
-            if (Event != null)
-                return Event.Invoke(Args);
+        public bool Raise(object[] args)
+        {
+            EventDelegate eventDelegate;
+            eventDelegate = lua.GetFunction(typeof(EventDelegate), System.Enum.GetName(typeof(EventType), this.eventType)) as EventDelegate;
+            if (eventDelegate != null)
+            {
+                return eventDelegate.Invoke(args);
+            }
 
             return true;
         }
-#endregion
+
+        #endregion
 
     }
 }

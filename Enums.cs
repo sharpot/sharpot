@@ -2,7 +2,8 @@
 
 namespace SharpOT
 {
-#region "Scripting"
+    #region Scripting
+
     public enum EventType : byte
     {
         //Items
@@ -22,9 +23,11 @@ namespace SharpOT
         OnPlayerLogin =0x98,
         OnPlayerSay = 0x99
     }
-#endregion
 
-#region "Packets"
+    #endregion
+
+    #region Packets
+
     public enum ServerPacketType : byte
     {
         Disconnect = 0x0A,
@@ -151,9 +154,11 @@ namespace SharpOT
         PrivateChannelOpen = 0x9A,
         NpcChannelClose = 0x9E,
     }
-#endregion
 
-#region "Chat/Speech"
+    #endregion
+
+    #region Speech
+
     public enum TextMessageType : byte
     {
         ConsoleRed = 0x12, //Red message in the console
@@ -218,9 +223,11 @@ namespace SharpOT
         Private = 0xFFFF,
         None = 0xAAAA
     }
-#endregion
 
-#region "Other"
+    #endregion
+
+    #region Other
+
     public enum Effect : byte
     {
         DrawBlood = 0x00,
@@ -343,5 +350,6 @@ namespace SharpOT
         MemberSharedExpInactive = 7,
         LeaderSharedExpInactive = 8
     }
-#endregion
+
+    #endregion
 }

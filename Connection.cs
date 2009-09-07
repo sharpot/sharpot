@@ -270,13 +270,8 @@ namespace SharpOT
 
         public void ParsePlayerSpeech(NetworkMessage message)
         {
-            //TODO: Add exhaustion for yellin, and checks to make sure the player has the
-            //permission to use the selected speech type
             PlayerSpeechPacket packet = PlayerSpeechPacket.Parse(message);
-            if (Game.Scripter.RaiseEvent(EventType.OnPlayerSay, new EventProperties(0, 0, 0, packet.Message), new object[] {packet.Message}))
-            {
-                Game.CreatureSpeech(Player, packet.SpeechType, packet.Message);
-            }
+            Game.CreatureSpeech(Player, packet.SpeechType, packet.Message);
         }
 
         public void ParseChangeOutfit(NetworkMessage message)
@@ -574,7 +569,7 @@ namespace SharpOT
             Send(outMessage);
         }
 
-        public void SendCreatureSpeech(Creature creature, SpeechType SpeechType, string message)
+        public void SendCreatureSpeech(Creature creature, SpeechType speechType, string message)
         {
 
             NetworkMessage outMessage = new NetworkMessage();
@@ -582,7 +577,7 @@ namespace SharpOT
                 outMessage,
                 creature.Name,
                 1,
-                SpeechType,
+                speechType,
                 message,
                 creature.Tile.Location,
                 ChatChannel.None,
