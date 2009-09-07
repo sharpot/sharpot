@@ -13,5 +13,19 @@ namespace SharpOT
         public uint Experience;
         public uint Capacity;
         public Location SavedLocation = null;
+        public List<Channel> ChannelList;
+        public List<Channel> OpenedChannelList;
+        public FightModes FightMode;
+        public bool ChaseMode;
+        public bool SafeMode;
+
+        public Player()
+        {
+            ChannelList = new List<Channel>();
+            OpenedChannelList = new List<Channel>();
+            ChannelList.Add(new Channel(5, "Game-Chat", 0));
+            ChannelList.Add(new Channel(8, "RL-Chat", 0));
+            ChannelList.Add(new Channel(9, "Help", 0));
+        }
     }
 }

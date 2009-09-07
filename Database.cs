@@ -68,6 +68,12 @@ namespace SharpOT
             connection
         );
 
+        private static SQLiteCommand selectAllPlayersCommand = new SQLiteCommand(
+            @"select Name
+            from Player",
+            connection
+        );
+
         private static SQLiteCommand updatePlayerCommand = new SQLiteCommand(
             @"update Player
               set
@@ -279,6 +285,24 @@ namespace SharpOT
                 return player;
             }
             return null;
+        }
+
+        public static List<string> GetAllPlayerNames()
+        {
+            SQLiteDataReader reader = selectAllPlayersCommand.ExecuteReader();
+            List<string> names = new List<string>();
+            try
+            {
+                while (reader.Read())
+                {
+                    names.Add(reader.GetString(0));
+                }
+            }
+            finally
+            {
+                reader.Close();
+            }
+            return names;
         }
 
         public static long GetAccountId(string accountName, string password)
