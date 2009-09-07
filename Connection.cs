@@ -558,12 +558,46 @@ namespace SharpOT
         {
             NetworkMessage outMessage = new NetworkMessage();
 
-            CreatureMovePacket.Add(
-                outMessage,
-                fromLocation,
-                fromStackPosition,
-                toLocation
-            );
+            if (fromLocation.Z == 7 && toLocation.Z >= 8)
+            {
+                TileRemoveThingPacket.Add(
+                    outMessage, 
+                    fromLocation, 
+                    fromStackPosition
+                );
+            }
+            else
+            {
+                CreatureMovePacket.Add(
+                    outMessage,
+                    fromLocation,
+                    fromStackPosition,
+                    toLocation
+                );
+            }
+
+            //floor change down
+            if (toLocation.Z > fromLocation.Z)
+            {
+                MapFloorChangeDownPacket.Add(
+                    this,
+                    outMessage,
+                    fromLocation,
+                    fromStackPosition,
+                    toLocation
+                );
+            }
+            //floor change up
+            else if (toLocation.Z < fromLocation.Z)
+            {
+                MapFloorChangeUpPacket.Add(
+                    this,
+                    outMessage, 
+                    fromLocation, 
+                    fromStackPosition, 
+                    toLocation
+                );
+            }
 
             MapSlicePacket.Add(
                 this,

@@ -28,7 +28,13 @@ namespace SharpOT
         void Run()
         {
             game = new Game();
-            
+
+            if (-1 == Database.GetAccountId("1", "1"))
+            {
+                Database.CreateAccount("1", "1");
+                Database.CreatePlayer(1, "God");
+            }
+
             try
             {
                 LogStart("Loading data");
