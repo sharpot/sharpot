@@ -351,5 +351,17 @@ namespace SharpOT
         LeaderSharedExpInactive = 8
     }
 
+    public enum Gender
+    {
+        Male,
+        Female
+    }
+
+    // TODO: dynamic?
+    public enum Vocation
+    {
+        None
+    }
+
     #endregion
 }

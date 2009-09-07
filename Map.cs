@@ -31,62 +31,11 @@ namespace SharpOT
             }
         }
 
-        private void LoadTilesFromDB()
-        {
-            using (SQLiteConnection conn = new SQLiteConnection(SharpOT.Properties.Settings.Default.ConnectionString))
-            using (SQLiteCommand cmd = new SQLiteCommand(conn))
-            {
-                conn.Open();
-                cmd.CommandText = "select * from MapTile where Z";
-                SQLiteDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    Tile tile = new Tile();
-                    tile.Ground = new Item();
-                    int x = reader.GetInt32(0) - 32000;
-                    int y = reader.GetInt32(1) - 32000;
-                    int z = reader.GetInt32(2);
-                    tile.Ground.Id = (ushort)reader.GetInt16(3);
-                    tile.Location = new Location(x, y, z);
-                    tiles[x, y, z] = tile;
-                }
-                reader.Close();
-            }
-        }
-
-        private void LoadItemsFromDB()
-        {
-            using (SQLiteConnection conn = new SQLiteConnection(SharpOT.Properties.Settings.Default.ConnectionString))
-            using (SQLiteCommand cmd = new SQLiteCommand(conn))
-            {
-                conn.Open();
-                cmd.CommandText = "select * from MapItem order by StackPosition";
-                SQLiteDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    int x = reader.GetInt32(0) - 32000;
-                    int y = reader.GetInt32(1) - 32000;
-                    int z = reader.GetInt32(2);
-                    ushort id = (ushort)reader.GetInt16(4);
-                    byte extra = reader.GetByte(5);
-
-                    if (tiles[x, y, z] != null)
-                    {
-                        Item item = new Item();
-                        item.Id = id;
-                        item.Extra = extra;
-                        tiles[x, y, z].Items.Add(item);
-                    }
-                }
-                reader.Close();
-            }
-        }
-
         public void Load()
         {
             // FillTiles(4526);
-            LoadTilesFromDB();
-            LoadItemsFromDB();
+            Database.GetMapTiles(this);
+            Database.GetMapItems(this);
         }
 
         public Tile GetTile(Location location)
@@ -108,6 +57,19 @@ namespace SharpOT
             }
 
             return tiles[x, y, z];
+        }
+
+        public bool SetTile(Location location, Tile tile)
+        {
+            if (location.X < 0 || location.X >= Size ||
+                location.Y < 0 || location.Y >= Size ||
+                location.Z < 0 || location.Z >= 14)
+            {
+                return false;
+            }
+            tile.Location = location;
+            tiles[location.X, location.Y, location.Z] = tile;
+            return true;
         }
     }
 }
