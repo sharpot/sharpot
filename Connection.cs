@@ -43,6 +43,14 @@ namespace SharpOT
             get { return remove; }
         }
 
+        public string Ip
+        {
+            get
+            {
+                return socket.RemoteEndPoint.ToString();
+            }
+        }
+
         #endregion
 
         #region Callbacks
@@ -193,9 +201,15 @@ namespace SharpOT
                 case ClientPacketType.PlayerSpeech:
                     ParsePlayerSpeech(message);
                     break;
-                //case ClientPacketType.ChannelList:
-                //case ClientPacketType.ChannelOpen:
-                //case ClientPacketType.ChannelClose:
+                case ClientPacketType.ChannelList:
+                    SendChannelList(Player);
+                    break;
+                case ClientPacketType.ClientChannelOpen:
+                    ParseClientChannelOpen(message);
+                    break;
+                case ClientPacketType.ChannelClose:
+                    ParseChannelClose(message);
+                    break;
                 //case ClientPacketType.Attack:
                 //case ClientPacketType.Follow:
                 //case ClientPacketType.CancelMove:
@@ -227,10 +241,14 @@ namespace SharpOT
                     ParseChangeOutfit(message);
                     break;
                 //case ClientPacketType.Ping:
-                //case ClientPacketType.FightModes:
+                case ClientPacketType.FightModes:
+                    ParseFightModes(message);
+                    break;
                 //case ClientPacketType.ContainerUpdate:
                 //case ClientPacketType.TileUpdate:
-                //case ClientPacketType.PrivateChannelOpen:
+                case ClientPacketType.PrivateChannelOpen:
+                    ParsePrivateChannelOpen(message);
+                    break;
                 //case ClientPacketType.NpcChannelClose:
                 //    break;
                 case ClientPacketType.MoveNorth:
@@ -271,7 +289,27 @@ namespace SharpOT
         public void ParsePlayerSpeech(NetworkMessage message)
         {
             PlayerSpeechPacket packet = PlayerSpeechPacket.Parse(message);
-            Game.CreatureSpeech(Player, packet.SpeechType, packet.Message);
+            switch (packet.SpeechType)
+            {
+                case SpeechType.Say:
+                    Game.CreatureSaySpeech(Player, packet.SpeechType, packet.Message);
+                    break;
+                case SpeechType.Whisper:
+                    Game.CreatureWhisperSpeech(Player, packet.SpeechType, packet.Message);
+                    break;
+                case SpeechType.Yell:
+                    Game.CreatureYellSpeech(Player, packet.SpeechType, packet.Message);
+                    break;
+                case SpeechType.Private:
+                    Game.CreaturePrivateSpeech(Player, packet.Receiver, packet.Message);
+                    break;
+                case SpeechType.ChannelOrange:
+                case SpeechType.ChannelRed:
+                case SpeechType.ChannelWhite:
+                case SpeechType.ChannelYellow:
+                    Game.CreatureChannelSpeech(Player.Name, packet.SpeechType, packet.ChannelId, packet.Message);
+                    break;
+            }
         }
 
         public void ParseChangeOutfit(NetworkMessage message)
@@ -280,6 +318,31 @@ namespace SharpOT
             Game.PlayerChangeOutfit(Player, packet.Outfit);
         }
 
+        public void ParsePrivateChannelOpen(NetworkMessage message)
+        {
+            PrivateChannelOpenPacket packet = PrivateChannelOpenPacket.Parse(message);
+            Game.PrivateChannelOpen(Player, packet.Receiver);
+        }
+
+        public void ParseClientChannelOpen(NetworkMessage message)
+        {
+            ClientChannelOpenPacket packet = ClientChannelOpenPacket.Parse(message);
+            Game.ChannelOpen(Player, packet.ChannelId);
+        }
+
+        public void ParseChannelClose(NetworkMessage message)
+        {
+            ChannelClosePacket packet = ChannelClosePacket.Parse(message);
+            Game.ChannelClose(Player, packet.ChannelId);
+        }
+
+        public void ParseFightModes(NetworkMessage message)
+        {
+            FightModesPacket packet = FightModesPacket.Parse(message);
+            Player.FightMode = (FightModes)packet.FightMode;
+            Player.ChaseMode = packet.ChaseMode;
+            Player.SafeMode = packet.SafeMode;
+        }
         #endregion
 
         #region Send
@@ -609,7 +672,7 @@ namespace SharpOT
             Send(outMessage);
         }
 
-        public void SendCreatureSpeech(Creature creature, SpeechType speechType, string message)
+        public void SendCreatureDefaultSpeech(Creature creature, SpeechType speechType, string message)
         {
 
             NetworkMessage outMessage = new NetworkMessage();
@@ -625,6 +688,27 @@ namespace SharpOT
             );
             Send(outMessage);
         }
+
+        public void SendCreaturePrivateSpeech(Creature creature, SpeechType speechType, string message)
+        {
+            SendCreatureDefaultSpeech(creature, speechType, message);
+        }
+
+        public void SendChannelSpeech(string sender, SpeechType type, ChatChannel channelId, string message)
+        {
+            NetworkMessage outMessage = new NetworkMessage();
+            CreatureSpeechPacket.Add(
+                outMessage,
+                sender,
+                1,
+                type,
+                message,
+                null,
+                channelId,
+                0
+            );
+            Send(outMessage);
+        }   
 
         public void SendCreatureTurn(Creature creature)
         {
@@ -651,6 +735,48 @@ namespace SharpOT
             NetworkMessage message = new NetworkMessage();
             message.AddByte((byte)ServerPacketType.Disconnect);
             message.AddString(reason);
+            Send(message);
+        }
+
+        public void SendChannelOpenPrivate(string name)
+        {
+            NetworkMessage message = new NetworkMessage();
+            ChannelOpenPrivatePacket.Add(
+                message,
+                name
+            );
+            Send(message);
+        }
+
+        public void SendChannelList(Player player)
+        {
+            NetworkMessage message = new NetworkMessage();
+            ChannelListPacket.Add(
+                message,
+                player.ChannelList
+            );
+            Send(message);
+        }
+
+        public void SendChannelOpen(Channel channel)
+        {
+            NetworkMessage message = new NetworkMessage();
+            ChannelOpenPacket.Add(
+                message,
+                channel.Id,
+                channel.Name
+            );
+            Send(message);
+        }
+
+        public void SendTextMessage(TextMessageType type, string text)
+        {
+            NetworkMessage message = new NetworkMessage();
+            TextMessagePacket.Add(
+                message,
+                type,
+                text
+            );
             Send(message);
         }
 

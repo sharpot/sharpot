@@ -86,5 +86,18 @@ namespace SharpOT
 
 	        return false;
         }
+
+        public bool IsInRange(Location second, bool sameFloor, double range)
+        {
+            return IsInRange(this, second, sameFloor, range);
+        }
+
+        public static bool IsInRange(Location first, Location second, bool sameFloor, double range)
+        {
+            if (sameFloor && first.Z != second.Z) return false;
+            int dx = first.X - second.X;
+            int dy = first.Y - second.Y;
+            return Math.Sqrt(Math.Pow(dx, 2.0) + Math.Pow(dy, 2.0)) <= range;
+        }
     }
 }

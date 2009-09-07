@@ -75,6 +75,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Channel.cs" />
+    <Compile Include="Packets\Client\ChannelClosePacket.cs" />
+    <Compile Include="Packets\Client\ClientChannelOpenPacket.cs" />
+    <Compile Include="Packets\Client\FightModesPacket.cs" />
+    <Compile Include="Packets\Client\PrivateChannelOpenPacket.cs" />
+    <Compile Include="Packets\Server\ChannelListPacket.cs" />
+    <Compile Include="Packets\Server\ChannelOpenPacket.cs" />
+    <Compile Include="Packets\Server\ChannelOpenPrivatePacket.cs" />
     <Compile Include="Packets\Server\MapFloorChangeDownPacket.cs" />
     <Compile Include="Packets\Server\MapFloorChangeUpPacket.cs" />
     <Compile Include="Player.cs" />

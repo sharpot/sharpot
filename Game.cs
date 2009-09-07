@@ -93,6 +93,112 @@ namespace SharpOT
             Database.SavePlayer(player);
         }
 
+        public void PrivateChannelOpen(Player player, string receiver)
+        {
+            string selected = Database.GetAllPlayerNames().FirstOrDefault(name => name.ToLower() == receiver.ToLower());
+            if (selected != null)
+            {
+                player.Connection.SendChannelOpenPrivate(selected);
+            }
+            else
+            {
+                player.Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name does not exit.");
+            }
+        }
+
+        public void CreaturePrivateSpeech(Player player, string receiver, string message)
+        {
+            Player selected = GetPlayers().FirstOrDefault(p => p.Name == receiver);
+            if (selected != null)
+            {
+                selected.Connection.SendCreaturePrivateSpeech(player, SpeechType.Private, message);
+                player.Connection.SendTextMessage(TextMessageType.StatusSmall, "Message sent to " + receiver + ".");
+            }
+            else
+            {
+                player.Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name is not online.");
+            }
+        }
+
+        public void ChannelOpen(Player player, ChatChannel channel)
+        {
+            Channel selected = player.ChannelList.FirstOrDefault(c => c.Id == (ushort)channel);
+            if (selected != null)
+            {
+                if (!player.OpenedChannelList.Contains(selected))
+                {
+                    player.OpenedChannelList.Add(selected);
+                }
+                else
+                {
+                    //shouldn't happen
+
+                }
+                player.Connection.SendChannelOpen(selected);
+            }
+            else
+            {
+                //shouldn't happen
+            }
+        }
+
+        public void ChannelClose(Player player, ushort channelId)
+        {
+            Channel selected = player.OpenedChannelList.FirstOrDefault(c => c.Id == channelId);
+            if (selected != null)
+            {
+                player.OpenedChannelList.Remove(selected);
+            }
+            else
+            {
+                //shouldn't happen
+            }
+        }
+
+        public void CreatureChannelSpeech(string sender, SpeechType type, ChatChannel channelId, string message)
+        {
+            GetPlayers().Where(player => player.OpenedChannelList.Any(channel => channel.Id == (ushort)channelId)).ToList().
+                ForEach(selected => selected.Connection.SendChannelSpeech(sender, type, channelId, message));
+        }
+
+        public void CreatureSaySpeech(Creature creature, SpeechType speechType, string message)
+        {
+            // TODO: Add exhaustion for yelling, and checks to make sure the player has the
+            // permission to use the selected speech type
+            // TODO: this should only send to players who can see this player speak (same floor)
+            if (Scripter.RaiseEvent(EventType.OnPlayerSay, new EventProperties(0, 0, 0, message), new object[] { message }))
+            {
+                foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
+                {
+                    spectator.Connection.SendCreatureDefaultSpeech(creature, speechType, message);
+                }
+            }
+        }
+
+        public void CreatureYellSpeech(Creature creature, SpeechType speechType, string message)
+        {
+            bool sameFloor = creature.Tile.Location.Z > 7;
+            foreach (Player player in GetPlayers().Where(p => p.Tile.Location.IsInRange(creature.Tile.Location, sameFloor, 50)))
+            {
+                player.Connection.SendCreatureDefaultSpeech(creature, speechType, message);
+            }
+        }
+
+        public void CreatureWhisperSpeech(Creature creature, SpeechType speechType, string message)
+        {
+            foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
+            {
+                if (spectator.Tile.Location.IsInRange(creature.Tile.Location, true, 1.42))
+                {
+                    spectator.Connection.SendCreatureDefaultSpeech(creature, speechType, message);
+                }
+                else
+                {
+                    spectator.Connection.SendCreatureDefaultSpeech(creature, speechType, "pspsps");
+                }
+            }
+        }       
+
         public void CreatureMove(Creature creature, Direction direction)
         {
             Location fromLocation = creature.Tile.Location;
@@ -190,20 +296,6 @@ namespace SharpOT
 
             Database.SavePlayer(player);
         }
-
-        public void CreatureSpeech(Creature creature, SpeechType speechType, string message)
-        {
-            // TODO: Add exhaustion for yelling, and checks to make sure the player has the
-            // permission to use the selected speech type
-            // TODO: this should only send to players who can see this player speak (same floor)
-            if (Scripter.RaiseEvent(EventType.OnPlayerSay, new EventProperties(0, 0, 0, message), new object[] { message }))
-            {
-                foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
-                {
-                    spectator.Connection.SendCreatureSpeech(creature, speechType, message);
-                }
-            }
-        }        
 
         public long CheckAccount(Connection connection, string accountName, string password)
         {

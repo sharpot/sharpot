@@ -121,7 +121,7 @@ namespace SharpOT
         LookAt = 0x8C,
         PlayerSpeech = 0x96,
         ChannelList = 0x97,
-        ChannelOpen = 0x98,
+        ClientChannelOpen = 0x98,
         ChannelClose = 0x99,
         Attack = 0xA1,
         Follow = 0xA2,
@@ -197,17 +197,18 @@ namespace SharpOT
         MonsterYell = 0x14,	//Yell orange
     }
 
+
     public enum ChatChannel : ushort
     {
         Guild = 0x00,
-        Gamemaster = 0x01,
+        Party = 0x01,
+        //?Gamemaster = 0x01,
         Tutor = 0x02,
         RuleReport = 0x03,
-        Game = 0x04,
-        Trade = 0x05,
-        RealLife = 0x06,
+        Game = 0x05,
+        Trade = 0x06,
         TradeRook = 0x07,
-        Party = 0x08,
+        RealLife = 0x08,
         Help = 0x09,
         OwnPrivate = 0x0E,
         Custom = 0xA0,
@@ -361,6 +362,13 @@ namespace SharpOT
     public enum Vocation
     {
         None
+    }
+
+    public enum FightModes
+    {
+        FullAttack = 1,
+        Balanced = 2,
+        FullDefense = 3
     }
 
     #endregion
