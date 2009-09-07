@@ -6,6 +6,8 @@ namespace SharpOT
     public class Player : Creature
     {
         public Connection Connection;
+        public Gender Gender = Gender.Male;
+        public Vocation Vocation = Vocation.None;
         public ushort Level;
         public byte MagicLevel;
         public uint Experience;
