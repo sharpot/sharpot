@@ -75,6 +75,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Packets\Server\MapFloorChangeDownPacket.cs" />
+    <Compile Include="Packets\Server\MapFloorChangeUpPacket.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Outfit.cs" />
@@ -134,7 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Data\sharpot.sqlite">
+    <None Include="Data\sharpot.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Data\Tibia.dat">
