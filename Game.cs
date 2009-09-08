@@ -92,7 +92,7 @@ namespace SharpOT
             {
                 spectator.Connection.SendCreatureChangeOutfit(player);
             }
-            Database.SavePlayer(player);
+            Database.SavePlayerByName(player);
         }
 
         public void PrivateChannelOpen(Player player, string receiver)
@@ -261,33 +261,32 @@ namespace SharpOT
 
         public void VipAdd(Player player, string buddy)
         {
+            Player selected = Database.GetAllPlayers().FirstOrDefault(p => p.Name.ToLower() == buddy.ToLower());
+            
             if (player.VipList.Count >= 100)
             {
                 player.Connection.SendTextMessage(TextMessageType.StatusSmall, "You cannot add more buddies.");
             }
-            else if(player.VipList.Values.Any(vip=>vip.Name.ToLower()==buddy.ToLower()))
+            else if (selected != null && player.VipList.ContainsKey(selected.Id))
             {
                 player.Connection.SendTextMessage(TextMessageType.StatusSmall, "This player is already in your list.");
             }
+            else if (selected != null)
+            {
+                bool state = GetPlayers().Any(p => p.Id == selected.Id);
+                player.VipList.Add(selected.Id, new Vip
+                {
+                    Id = selected.Id,
+                    Name = selected.Name,
+                    LoggedIn = state
+                });
+                player.Connection.SendVipState(selected.Id, selected.Name, state);
+            }
             else
             {
-                Player selected = Database.GetAllPlayers().FirstOrDefault(p => p.Name.ToLower() == buddy.ToLower());
-                if (selected != null)
-                {
-                    bool state = GetPlayers().Any(p => p.Name.ToLower() == selected.Name.ToLower());
-                    player.VipList.Add(selected.Id, new Vip
-                    {
-                        Id = selected.Id,
-                        Name = selected.Name,
-                        LoggedIn = state
-                    });
-                    player.Connection.SendVipState(selected.Id, selected.Name, state);
-                }
-                else
-                {
-                    player.Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name does not exit.");
-                }
+                player.Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name does not exit.");
             }
+
         }
 
         public void VipRemove(Player player, uint id)
@@ -304,12 +303,12 @@ namespace SharpOT
 
         public void ProcessLogin(Connection connection, string characterName)
         {
-            Player player = Database.GetPlayer(connection.AccountId, characterName);
+            Player player = Database.GetPlayerByName(connection.AccountId, characterName);
             if (player.SavedLocation == null || Map.GetTile(player.SavedLocation) == null)
             {
                 player.SavedLocation = new Location(97, 205, 7);
             }
-            player.Id = 0x01000000 + (uint)random.Next(0xFFFFFF);
+            //player.Id = 0x01000000 + (uint)random.Next(0xFFFFFF);
             Tile tile = Map.GetTile(player.SavedLocation);
             player.Tile = tile;
             tile.Creatures.Add(player);
@@ -331,11 +330,11 @@ namespace SharpOT
                 ForEach(selSpectator => selSpectator.Connection.SendCreatureAppear(player));
 
 
-            /*foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
+            foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
             {
                 p.VipList[player.Id].LoggedIn = true;
                 p.Connection.SendVipLogin(player.Id);
-            }*/
+            }
                         
         }
 
@@ -350,14 +349,14 @@ namespace SharpOT
             RemoveCreature(player);
 
 
-            /*foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
+            foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
             {
                 p.VipList[player.Id].LoggedIn = false;
                 p.Connection.SendVipLogout(player.Id);
-            }*/
+            }
 
 
-            Database.SavePlayer(player);
+            Database.SavePlayerByName(player);
         }
 
         public long CheckAccount(Connection connection, string accountName, string password)
@@ -370,6 +369,31 @@ namespace SharpOT
             }
 
             return accountId;
+        }
+
+        public uint GenerateAvailableId()
+        {
+            List<Player> players = Database.GetAllPlayers();
+            uint baseId = 0x01000000;
+            if (players.Count == 0)
+            {
+                return baseId;
+            }
+            for (uint i = 1; i <= 0xFFFFFF; i++)
+            {
+                baseId |= i;
+                if (!players.Any(p => p.Id == baseId))
+                {
+                    return baseId;
+                }
+            }
+            throw new Exception("No available player ids.");
+            return 0;
+        }
+
+        public bool IsIdAvailable(uint id)
+        {
+            return Database.GetAllPlayers().Any(p => p.Id == id);
         }
 
         #endregion
