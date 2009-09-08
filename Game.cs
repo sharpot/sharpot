@@ -166,7 +166,7 @@ namespace SharpOT
             // TODO: Add exhaustion for yelling, and checks to make sure the player has the
             // permission to use the selected speech type
             // TODO: this should only send to players who can see this player speak (same floor)
-            if (Scripter.RaiseEvent(EventType.OnPlayerSay, new EventProperties(0, 0, 0, message), new object[] { message }))
+            if (Scripter.RaiseEvent(EventType.OnPlayerSay, new EventProperties(0, 0, 0, message), (Player)creature, new object[] {message}))
             {
                 foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
                 {
