@@ -104,7 +104,7 @@ namespace SharpOT
             }
             else
             {
-                player.Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name does not exit.");
+                player.Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name does not exist.");
             }
         }
 
@@ -159,8 +159,13 @@ namespace SharpOT
 
         public void CreatureChannelSpeech(string sender, SpeechType type, ChatChannel channelId, string message)
         {
-            GetPlayers().Where(player => player.OpenedChannelList.Any(channel => channel.Id == (ushort)channelId)).ToList().
-                ForEach(selected => selected.Connection.SendChannelSpeech(sender, type, channelId, message));
+            var channelPlayers = GetPlayers()
+                .Where(player => player.OpenedChannelList.Any(channel => channel.Id == (ushort)channelId));
+
+            foreach (var player in channelPlayers)
+            {
+                player.Connection.SendChannelSpeech(sender, type, channelId, message);
+            }
         }
 
         public void CreatureSaySpeech(Creature creature, SpeechType speechType, string message)
@@ -326,8 +331,11 @@ namespace SharpOT
             player.Connection.SendInitialPacket();
 
 
-            GetSpectatorPlayers(player.Tile.Location).Where(s => s != player).ToList().
-                ForEach(selSpectator => selSpectator.Connection.SendCreatureAppear(player));
+            var spectators = GetSpectatorPlayers(player.Tile.Location).Where(s => s != player);
+            foreach (var spectator in spectators)
+            {
+                spectator.Connection.SendCreatureAppear(player);
+            }
 
 
             foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
@@ -342,8 +350,11 @@ namespace SharpOT
         {
             // TODO: Make sure the player can logout
             player.Connection.Close();
-            GetSpectatorPlayers(player.Tile.Location).Where(s => s != player).ToList().
-                ForEach(selSpectator => selSpectator.Connection.SendCreatureLogout(player));
+            var spectators = GetSpectatorPlayers(player.Tile.Location).Where(s => s != player);
+            foreach (var spectator in spectators)
+            {
+                spectator => selSpectator.Connection.SendCreatureLogout(player);
+            }
 
             player.Tile.Creatures.Remove(player);
             RemoveCreature(player);
