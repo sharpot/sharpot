@@ -315,6 +315,7 @@ namespace SharpOT
             tile.Creatures.Add(player);
             connection.Player = player;
             player.Connection = connection;
+            player.game = this;
 
             PlayerLogin(player);
         }
