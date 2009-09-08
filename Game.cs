@@ -22,15 +22,17 @@ namespace SharpOT
 
         public Map Map { get; private set; }
         public Scripter Scripter { get; private set; }
+        public Server Server { get; private set; }
 
         #endregion
 
         #region Constructor
 
-        public Game()
+        public Game(Server server)
         {
             Map = new Map();
             Scripter = new Scripter();
+            Server = server;
         }
 
         #endregion
@@ -95,7 +97,7 @@ namespace SharpOT
 
         public void PrivateChannelOpen(Player player, string receiver)
         {
-            string selected = Database.GetAllPlayerNames().FirstOrDefault(name => name.ToLower() == receiver.ToLower());
+            string selected = Database.GetAllPlayers().FirstOrDefault(p => p.Name.ToLower() == receiver.ToLower()).Name;
             if (selected != null)
             {
                 player.Connection.SendChannelOpenPrivate(selected);
@@ -166,7 +168,7 @@ namespace SharpOT
             // TODO: Add exhaustion for yelling, and checks to make sure the player has the
             // permission to use the selected speech type
             // TODO: this should only send to players who can see this player speak (same floor)
-            if (Scripter.RaiseEvent(EventType.OnPlayerSay, new EventProperties(0, 0, 0, message), (Player)creature, new object[] {message}))
+            if (Scripter.RaiseEvent(EventType.OnPlayerSay, new EventProperties(0, 0, 0, message), (Player)creature, new object[] { message }))
             {
                 foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
                 {
@@ -243,6 +245,49 @@ namespace SharpOT
             }
         }
 
+        public void VipAdd(Player player, string buddy)
+        {
+            if (player.VipList.Count >= 100)
+            {
+                player.Connection.SendTextMessage(TextMessageType.StatusSmall, "You cannot add more buddies.");
+            }
+            else if(player.VipList.Values.Any(vip=>vip.Name.ToLower()==buddy.ToLower()))
+            {
+                player.Connection.SendTextMessage(TextMessageType.StatusSmall, "This player is already in your list.");
+            }
+            else
+            {
+                Player selected = Database.GetAllPlayers().FirstOrDefault(p => p.Name.ToLower() == buddy.ToLower());
+                if (selected != null)
+                {
+                    bool state = GetPlayers().Any(p => p.Name.ToLower() == selected.Name.ToLower());
+                    player.VipList.Add(selected.Id, new Vip
+                    {
+                        Id = selected.Id,
+                        Name = selected.Name,
+                        LoggedIn = state
+                    });
+                    player.Connection.SendVipState(selected.Id, selected.Name, state);
+                }
+                else
+                {
+                    player.Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name does not exit.");
+                }
+            }
+        }
+
+        public void VipRemove(Player player, uint id)
+        {
+            if (player.VipList.ContainsKey(id))
+            {
+                player.VipList.Remove(id);
+            }
+            else
+            {
+                //shouldn't happen
+            }
+        }
+
         public void ProcessLogin(Connection connection, string characterName)
         {
             Player player = Database.GetPlayer(connection.AccountId, characterName);
@@ -266,33 +311,36 @@ namespace SharpOT
 
             player.Connection.SendInitialPacket();
 
-            var spectators = GetSpectatorPlayers(player.Tile.Location);
 
-            foreach (Player spectator in spectators)
+            GetSpectatorPlayers(player.Tile.Location).Where(s => s != player).ToList().
+                ForEach(selSpectator => selSpectator.Connection.SendCreatureAppear(player));
+
+
+            /*foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
             {
-                if (spectator != player)
-                {
-                    spectator.Connection.SendCreatureAppear(player);
-                }
-            }
+                p.VipList[player.Id].LoggedIn = true;
+                p.Connection.SendVipLogin(player.Id);
+            }*/
+                        
         }
 
         public void PlayerLogout(Player player)
         {
             // TODO: Make sure the player can logout
             player.Connection.Close();
+            GetSpectatorPlayers(player.Tile.Location).Where(s => s != player).ToList().
+                ForEach(selSpectator => selSpectator.Connection.SendCreatureLogout(player));
+
             player.Tile.Creatures.Remove(player);
             RemoveCreature(player);
 
-            var spectators = GetSpectatorPlayers(player.Tile.Location);
 
-            foreach (Player spectator in spectators)
+            /*foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
             {
-                if (spectator != player)
-                {
-                    spectator.Connection.SendCreatureLogout(player);
-                }
-            }
+                p.VipList[player.Id].LoggedIn = false;
+                p.Connection.SendVipLogout(player.Id);
+            }*/
+
 
             Database.SavePlayer(player);
         }

@@ -231,9 +231,13 @@ namespace SharpOT
                 //case ClientPacketType.AutoWalk:
                 case ClientPacketType.AutoWalkCancel:
                     Game.WalkCancel(Player);
+                    break;                
+                /*case ClientPacketType.VipAdd:
+                    ParseVipAdd(message);
                     break;
-                //case ClientPacketType.VipAdd:
-                //case ClientPacketType.VipRemove:
+                case ClientPacketType.VipRemove:
+                    ParseVipRemove(message);
+                    break;*/
                 case ClientPacketType.RequestOutfit:
                     SendOutfitWindow();
                     break;
@@ -343,6 +347,19 @@ namespace SharpOT
             Player.ChaseMode = packet.ChaseMode;
             Player.SafeMode = packet.SafeMode;
         }
+
+        public void ParseVipAdd(NetworkMessage message)
+        {
+            VipAddPacket packet = VipAddPacket.Parse(message);
+            Game.VipAdd(Player, packet.Name);
+        }
+
+        public void ParseVipRemove(NetworkMessage message)
+        {
+            VipRemovePacket packet = VipRemovePacket.Parse(message);
+            Game.VipRemove(Player, packet.Id);
+        }
+
         #endregion
 
         #region Send
@@ -776,6 +793,38 @@ namespace SharpOT
                 message,
                 type,
                 text
+            );
+            Send(message);
+        }
+
+        public void SendVipState(uint id, string name, bool loggedIn)
+        {
+            NetworkMessage message = new NetworkMessage();
+            VipStatePacket.Add(
+                message,
+                id,
+                name,
+                Convert.ToByte(loggedIn)
+            );
+            Send(message);
+        }
+
+        public void SendVipLogin(uint id)
+        {
+            NetworkMessage message = new NetworkMessage();
+            VipLoginPacket.Add(
+                message,
+                id
+            );
+            Send(message);
+        }
+
+        public void SendVipLogout(uint id)
+        {
+            NetworkMessage message = new NetworkMessage();
+            VipLogoutPacket.Add(
+                message,
+                id
             );
             Send(message);
         }

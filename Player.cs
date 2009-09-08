@@ -5,27 +5,31 @@ namespace SharpOT
 {
     public class Player : Creature
     {
-        public Connection Connection;
-        public Gender Gender = Gender.Male;
-        public Vocation Vocation = Vocation.None;
-        public ushort Level;
-        public byte MagicLevel;
-        public uint Experience;
-        public uint Capacity;
-        public Location SavedLocation = null;
-        public List<Channel> ChannelList;
-        public List<Channel> OpenedChannelList;
-        public FightModes FightMode;
-        public bool ChaseMode;
-        public bool SafeMode;
+        public Connection Connection { get; set; }
+        public Gender Gender { get; set; }
+        public Vocation Vocation { get; set; }
+        public ushort Level { get; set; }
+        public byte MagicLevel { get; set; }
+        public uint Experience { get; set; }
+        public uint Capacity { get; set; }
+        public Location SavedLocation { get; set; }
+        public List<Channel> ChannelList { get; set; }
+        public List<Channel> OpenedChannelList { get; set; }
+        public FightModes FightMode { get; set; }
+        public bool ChaseMode { get; set; }
+        public bool SafeMode { get; set; }
+        public Dictionary<uint, Vip> VipList { get; set; }
 
         public Player()
         {
+            Gender = Gender.Male;
+            Vocation = Vocation.None;
             ChannelList = new List<Channel>();
             OpenedChannelList = new List<Channel>();
             ChannelList.Add(new Channel((ushort)ChatChannel.Game, "Game-Chat", 0));
             ChannelList.Add(new Channel((ushort)ChatChannel.RealLife, "RL-Chat", 0));
             ChannelList.Add(new Channel((ushort)ChatChannel.Help, "Help", 0));
+            VipList = new Dictionary<uint, Vip>(100);
         }
 
         public void Say(string Text)

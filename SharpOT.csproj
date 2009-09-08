@@ -80,11 +80,16 @@
     <Compile Include="Packets\Client\ClientChannelOpenPacket.cs" />
     <Compile Include="Packets\Client\FightModesPacket.cs" />
     <Compile Include="Packets\Client\PrivateChannelOpenPacket.cs" />
+    <Compile Include="Packets\Client\VipAddPacket.cs" />
+    <Compile Include="Packets\Client\VipRemovePacket.cs" />
     <Compile Include="Packets\Server\ChannelListPacket.cs" />
     <Compile Include="Packets\Server\ChannelOpenPacket.cs" />
     <Compile Include="Packets\Server\ChannelOpenPrivatePacket.cs" />
     <Compile Include="Packets\Server\MapFloorChangeDownPacket.cs" />
     <Compile Include="Packets\Server\MapFloorChangeUpPacket.cs" />
+    <Compile Include="Packets\Server\VipLoginPacket.cs" />
+    <Compile Include="Packets\Server\VipLogoutPacket.cs" />
+    <Compile Include="Packets\Server\VipStatePacket.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Outfit.cs" />
@@ -141,6 +146,7 @@
     <Compile Include="Packets\Rsa.cs" />
     <Compile Include="Packets\Xtea.cs" />
     <Compile Include="Util\Hash.cs" />
+    <Compile Include="Vip.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

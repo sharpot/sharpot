@@ -8,7 +8,7 @@ using SharpOT.Util;
 
 namespace SharpOT
 {
-    class Server
+    public class Server
     {
         static void Main(string[] args)
         {
@@ -27,7 +27,7 @@ namespace SharpOT
 
         void Run()
         {
-            game = new Game();
+            game = new Game(this);
 
             if (-1 == Database.GetAccountId("1", "1"))
             {
