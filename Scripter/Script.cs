@@ -8,7 +8,7 @@ namespace SharpOT
 {
     public class Script
     {
-        public delegate bool EventDelegate(object[] args);//Our delegate for events
+        public delegate bool EventDelegate(Player Player, object[] args);//Our delegate for events
         private EventType eventType;//The type of event which raises this script
         private List<UInt32> eventItemIDs;//All the items supported by this event
         private List<UInt16> eventUniqueIDs;//All the unique IDs supported by this event
@@ -69,13 +69,25 @@ namespace SharpOT
             return false;
         }
 
-        public bool Raise(object[] args)
+        public bool Raise(Player player, object[] args)
         {
             EventDelegate eventDelegate;
             eventDelegate = lua.GetFunction(typeof(EventDelegate), System.Enum.GetName(typeof(EventType), this.eventType)) as EventDelegate;
             if (eventDelegate != null)
             {
-                return eventDelegate.Invoke(args);
+                try
+                {
+                    return eventDelegate.Invoke(player, args);
+                }
+                catch (LuaException LuaExep)
+                {
+                    Console.Write(LuaExep.Message.ToString());
+                }
+                catch
+                {
+                    Console.Write("Unknown LUA Error");
+                }
+                        
             }
 
             return true;

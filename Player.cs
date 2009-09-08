@@ -23,9 +23,14 @@ namespace SharpOT
         {
             ChannelList = new List<Channel>();
             OpenedChannelList = new List<Channel>();
-            ChannelList.Add(new Channel(5, "Game-Chat", 0));
-            ChannelList.Add(new Channel(8, "RL-Chat", 0));
-            ChannelList.Add(new Channel(9, "Help", 0));
+            ChannelList.Add(new Channel((ushort)ChatChannel.Game, "Game-Chat", 0));
+            ChannelList.Add(new Channel((ushort)ChatChannel.RealLife, "RL-Chat", 0));
+            ChannelList.Add(new Channel((ushort)ChatChannel.Help, "Help", 0));
+        }
+
+        public void Say(string Text)
+        {
+            Connection.Game.CreatureSaySpeech(this, SpeechType.Say, Text);
         }
     }
 }
