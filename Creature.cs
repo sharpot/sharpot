@@ -37,13 +37,13 @@ namespace SharpOT
         public ushort Health
         {
             get { return _Health; }
-            set { _Health = value; game.CreatureUpdateHealth(this); }
+            set { _Health = value; if (game != null) { game.CreatureUpdateHealth(this); } }
         }
 
         public ushort MaxHealth
         {
             get { return _MaxHealth; }
-            set { _MaxHealth = value; game.CreatureUpdateHealth(this); }
+            set { _MaxHealth = value; if (game != null) { game.CreatureUpdateHealth(this); } }
         }
 #endregion
 
