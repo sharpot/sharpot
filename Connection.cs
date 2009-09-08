@@ -541,6 +541,28 @@ namespace SharpOT
             Send(message);
         }
 
+        public void SendStatus()
+        {
+            NetworkMessage outMessage = new NetworkMessage();
+            PlayerStatusPacket.Add(
+               outMessage,
+                Player.Health,
+                Player.MaxHealth,
+                Player.Capacity,
+                Player.Experience,
+                Player.Level,
+                0, // TODO: level system
+                Player.Mana,
+                Player.MaxMana,
+                Player.MagicLevel,
+                0,
+                0,
+                0
+            );
+
+            Send(outMessage);
+        }
+
         public void SendCreatureChangeOutfit(Creature creature)
         {
             NetworkMessage message = new NetworkMessage();
@@ -563,6 +585,18 @@ namespace SharpOT
                 fromStackPosition,
                 toLocation
             );
+
+            Send(outMessage);
+        }
+
+        public void SendCreatureUpdateHealth(Creature creature)
+        {
+            NetworkMessage outMessage = new NetworkMessage();
+
+            CreatureHealthPacket.Add(
+                outMessage,
+                creature.Id,
+                creature.GetHealthPercent());
 
             Send(outMessage);
         }

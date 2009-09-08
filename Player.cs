@@ -31,10 +31,5 @@ namespace SharpOT
             ChannelList.Add(new Channel((ushort)ChatChannel.Help, "Help", 0));
             VipList = new Dictionary<uint, Vip>(100);
         }
-
-        public void Say(string Text)
-        {
-            Connection.Game.CreatureSaySpeech(this, SpeechType.Say, Text);
-        }
     }
 }
