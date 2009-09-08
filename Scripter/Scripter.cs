@@ -23,11 +23,16 @@ namespace SharpOT
             //Saying TextNukka with anything following it will return false, meaning you wont say it
             //It will also make you say "OnSay returning false" as a test for the import of the player object
             Script testScript = new Script(EventType.OnPlayerSay, new List<UInt32>(), new List<UInt16>(), new List<UInt16>(), "TestNukka");
-            testScript.LoadScript("function OnPlayerSay(Player, Text) Player:Say(\"OnSay returning false\") return false end");
+            testScript.LoadScript("function OnPlayerSay(Player, Text) return false end");
+            scripts.Add(testScript);
+            //More test to come
+
+            testScript = new Script(EventType.OnPlayerLogin, new List<UInt32>(), new List<UInt16>(), new List<UInt16>(), string.Empty);
+            testScript.LoadScript("function OnPlayerLogin() return false end");
             scripts.Add(testScript);
         }
         
-        public bool RaiseEvent(EventType eventType, EventProperties eventProperties, Player player, object[] eventArgs)
+        public bool RaiseEvent(EventType eventType, EventProperties eventProperties,Player player, object[] eventArgs)
         {
             foreach (Script script in scripts)
             {

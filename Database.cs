@@ -10,6 +10,8 @@ namespace SharpOT
 {
     public class Database
     {
+        //TODO: Make player IDs static and store them in the database
+        //verifying if any of same value already exists
         private static SQLiteConnection connection = new SQLiteConnection(
             SharpOT.Properties.Settings.Default.ConnectionString
         );
@@ -69,8 +71,12 @@ namespace SharpOT
         );
 
         private static SQLiteCommand selectAllPlayersCommand = new SQLiteCommand(
-            @"select Name
-            from Player",
+            @"select
+                Name, Gender, Vocation, Level, MagicLevel,Experience, MaxHealth, 
+                MaxMana, Capacity, OutfitLookType, OutfitHead, OutfitBody, 
+                OutfitLegs, OutfitFeet, OutfitAddons, LocationX, LocationY, 
+                LocationZ, Direction
+              from Player",
             connection
         );
 
@@ -287,22 +293,46 @@ namespace SharpOT
             return null;
         }
 
-        public static List<string> GetAllPlayerNames()
+        public static List<Player> GetAllPlayers()
         {
             SQLiteDataReader reader = selectAllPlayersCommand.ExecuteReader();
-            List<string> names = new List<string>();
+            List<Player> players = new List<Player>();
             try
             {
                 while (reader.Read())
                 {
-                    names.Add(reader.GetString(0));
+                    Player player = new Player();
+                    player.Name = reader.GetString(0);
+                    player.Gender = (Gender)reader.GetByte(1);
+                    player.Vocation = (Vocation)reader.GetByte(2);
+                    player.Level = (ushort)reader.GetInt16(3);
+                    player.MagicLevel = reader.GetByte(4);
+                    player.Experience = (uint)reader.GetInt32(5);
+                    player.MaxHealth = (ushort)reader.GetInt16(6);
+                    player.MaxMana = (ushort)reader.GetInt16(7);
+                    player.Capacity = (uint)reader.GetInt32(8);
+                    player.Outfit.LookType = (ushort)reader.GetInt16(9);
+                    player.Outfit.Head = reader.GetByte(10);
+                    player.Outfit.Body = reader.GetByte(11);
+                    player.Outfit.Legs = reader.GetByte(12);
+                    player.Outfit.Feet = reader.GetByte(13);
+                    player.Outfit.Addons = reader.GetByte(14);
+                    if (!reader.IsDBNull(15))
+                    {
+                        int x = reader.GetInt32(15);
+                        int y = reader.GetInt32(16);
+                        int z = reader.GetInt32(17);
+                        player.SavedLocation = new Location(x, y, z);
+                        player.Direction = (Direction)reader.GetByte(18);
+                    }
+                    players.Add(player);
                 }
             }
             finally
             {
                 reader.Close();
             }
-            return names;
+            return players;
         }
 
         public static long GetAccountId(string accountName, string password)
