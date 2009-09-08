@@ -245,6 +245,20 @@ namespace SharpOT
             }
         }
 
+        public void CreatureUpdateHealth(Creature creature)
+        {
+            foreach (var player in GetSpectatorPlayers(creature.Tile.Location))
+            {
+                if (player == creature)
+                {
+                    player.Connection.SendStatus();
+                }
+
+                player.Connection.SendCreatureUpdateHealth(creature);
+            }
+        }
+
+
         public void VipAdd(Player player, string buddy)
         {
             if (player.VipList.Count >= 100)
