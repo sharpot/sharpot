@@ -85,6 +85,7 @@
     <Compile Include="Packets\Server\ChannelListPacket.cs" />
     <Compile Include="Packets\Server\ChannelOpenPacket.cs" />
     <Compile Include="Packets\Server\ChannelOpenPrivatePacket.cs" />
+    <Compile Include="Packets\Server\CreatureHealthPacket.cs" />
     <Compile Include="Packets\Server\MapFloorChangeDownPacket.cs" />
     <Compile Include="Packets\Server\MapFloorChangeUpPacket.cs" />
     <Compile Include="Packets\Server\VipLoginPacket.cs" />
@@ -151,7 +152,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="Data\sharpot.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Data\Tibia.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

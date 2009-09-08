@@ -9,6 +9,7 @@ namespace SharpOT.Packets
     {
         public static void Add(NetworkMessage message,uint id)
         {
+            message.AddByte((byte)ServerPacketType.VipLogin);
             message.AddUInt32(id);
         }
     }

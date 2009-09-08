@@ -232,12 +232,12 @@ namespace SharpOT
                 case ClientPacketType.AutoWalkCancel:
                     Game.WalkCancel(Player);
                     break;                
-                /*case ClientPacketType.VipAdd:
+                case ClientPacketType.VipAdd:
                     ParseVipAdd(message);
                     break;
                 case ClientPacketType.VipRemove:
                     ParseVipRemove(message);
-                    break;*/
+                    break;
                 case ClientPacketType.RequestOutfit:
                     SendOutfitWindow();
                     break;
@@ -280,7 +280,7 @@ namespace SharpOT
                     Game.CreatureMove(Player,  Direction.NorthWest);
                     break;
                 default:
-                    Server.Log("Unhandled packet from " + Player + ": " + type);
+                    Server.Log("Unhandled packet from " + Player.ToString() + ": " + type);
                     break;
             }
         }

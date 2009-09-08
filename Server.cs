@@ -32,17 +32,17 @@ namespace SharpOT
             if (-1 == Database.GetAccountId("1", "1"))
             {
                 Database.CreateAccount("1", "1");
-                Database.CreatePlayer(1, "God");
+                Database.CreatePlayer(1, "God", game.GenerateAvailableId());
             }
             if (-1 == Database.GetAccountId("2", "2"))
             {
                 Database.CreateAccount("2", "2");
-                Database.CreatePlayer(2, "Bob");
+                Database.CreatePlayer(2, "Bob", game.GenerateAvailableId());
             }
             if (-1 == Database.GetAccountId("3", "3"))
             {
                 Database.CreateAccount("3", "3");
-                Database.CreatePlayer(3, "Alice");
+                Database.CreatePlayer(3, "Alice", game.GenerateAvailableId());
             }
 
             try
