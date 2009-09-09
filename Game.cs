@@ -353,7 +353,7 @@ namespace SharpOT
             var spectators = GetSpectatorPlayers(player.Tile.Location).Where(s => s != player);
             foreach (var spectator in spectators)
             {
-                spectator => selSpectator.Connection.SendCreatureLogout(player);
+                spectator.Connection.SendCreatureLogout(player);
             }
 
             player.Tile.Creatures.Remove(player);
@@ -384,9 +384,9 @@ namespace SharpOT
 
         public uint GenerateAvailableId()
         {
-            List<Player> players = Database.GetAllPlayers();
+            IEnumerable<Player> players = Database.GetAllPlayers();
             uint baseId = 0x01000000;
-            if (players.Count == 0)
+            if (players.Count() == 0)
             {
                 return baseId;
             }
@@ -399,7 +399,6 @@ namespace SharpOT
                 }
             }
             throw new Exception("No available player ids.");
-            return 0;
         }
 
         public bool IsIdAvailable(uint id)

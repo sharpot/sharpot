@@ -92,5 +92,17 @@ namespace SharpOT.Properties {
                 this["MessageOfTheDay"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data\\Scripts")]
+        public string ScriptsDirectory {
+            get {
+                return ((string)(this["ScriptsDirectory"]));
+            }
+            set {
+                this["ScriptsDirectory"] = value;
+            }
+        }
     }
 }
