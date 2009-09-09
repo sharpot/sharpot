@@ -401,10 +401,9 @@ namespace SharpOT
             return null;
         }
 
-        public static List<Player> GetAllPlayers()
+        public static IEnumerable<Player> GetAllPlayers()
         {
             SQLiteDataReader reader = selectAllPlayersCommand.ExecuteReader();
-            List<Player> players = new List<Player>();
             try
             {
                 while (reader.Read())
@@ -434,14 +433,13 @@ namespace SharpOT
                         player.SavedLocation = new Location(x, y, z);
                         player.Direction = (Direction)reader.GetByte(19);
                     }
-                    players.Add(player);
+                    yield return player;
                 }
             }
             finally
             {
                 reader.Close();
             }
-            return players;
         }
                 
         public static long GetAccountId(string accountName, string password)

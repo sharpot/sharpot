@@ -25,5 +25,8 @@
     <Setting Name="MessageOfTheDay" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="ScriptsDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data\Scripts</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
