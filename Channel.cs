@@ -17,9 +17,9 @@ namespace SharpOT
             Id = id;
             Name = name;
             CooldownTime = cooldownTime;
-            builder=new StringBuilder();
+            //builder=new StringBuilder();
         }
-
+        /*Reserved for future better channel management
         StringBuilder builder;
         public void DoLog(Player player, string message)
         {
@@ -31,6 +31,6 @@ namespace SharpOT
             StreamWriter sw = new StreamWriter("Channel_" + Name + "_" + DateTime.Now + ".txt");
             sw.Write(builder.ToString());
             sw.Close();
-        }
+        }*/
     }
 }
