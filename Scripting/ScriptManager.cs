@@ -12,13 +12,15 @@ namespace SharpOT.Scripting
 {
     public class ScriptManager
     {
-        // TODO: .NET 3.5 setting
-        private static CSharpCodeProvider cSharpCodeProvider = new CSharpCodeProvider();
-        private static VBCodeProvider vBCodeProvider = new VBCodeProvider();
+        private static CSharpCodeProvider cSharpCodeProvider = new CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+        private static VBCodeProvider vBCodeProvider = new VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
         private static List<IScript> loadedScripts = new List<IScript>();
 
-        public static void LoadAllScripts(Game game)
+        private static StringBuilder errorLog;
+
+        public static string LoadAllScripts(Game game)
         {
+            errorLog = new StringBuilder();
             foreach (string directory in SharpOT.Properties.Settings.Default.ScriptsDirectory.Split(';'))
             {
                 if (!Directory.Exists(directory)) continue;
@@ -28,6 +30,7 @@ namespace SharpOT.Scripting
                     LoadScript(game, path);
                 }
             }
+            return errorLog.ToString();
         }
 
         public static void LoadScript(Game game, string path)
@@ -68,6 +71,11 @@ namespace SharpOT.Scripting
             if (!results.Errors.HasErrors)
             {
                 return results.CompiledAssembly;
+            }
+            else
+            {
+                foreach (CompilerError error in results.Errors)
+                    errorLog.AppendLine(error.ToString());
             }
             return null;
         }
