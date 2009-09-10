@@ -19,7 +19,7 @@ namespace SharpOT
         public bool ChaseMode { get; set; }
         public bool SafeMode { get; set; }
         public Dictionary<uint, Vip> VipList { get; set; }
-        public int YellTime { get; set; }
+        public int LastYellTime { get; set; }
 
         public Player()
         {

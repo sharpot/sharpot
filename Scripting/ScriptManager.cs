@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace SharpOT.Scripting
 {
-    public class Scripting
+    public class ScriptManager
     {
         // TODO: .NET 3.5 setting
         private static CSharpCodeProvider cSharpCodeProvider = new CSharpCodeProvider();
@@ -65,7 +65,7 @@ namespace SharpOT.Scripting
             compilerParameters.ReferencedAssemblies.Add("System.dll");
             compilerParameters.ReferencedAssemblies.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);
             CompilerResults results = provider.CompileAssemblyFromFile(compilerParameters, path);
-            if (results.Errors.Count == 0)
+            if (!results.Errors.HasErrors)
             {
                 return results.CompiledAssembly;
             }
