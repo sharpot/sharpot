@@ -7,35 +7,32 @@ namespace SharpOT.Packets
 {
     public class PlayerSpeechPacket : Packet
     {
-        public SpeechType SpeechType { get; set; }
-        public string Receiver { get; set; }
-        public string Message { get; set; }
-        public ChatChannel ChannelId { get; set; }
+        public Speech Speech { get; private set; }
 
         public static PlayerSpeechPacket Parse(NetworkMessage message)
         {
             PlayerSpeechPacket packet = new PlayerSpeechPacket();
+            packet.Speech = new Speech();
+            packet.Speech.Type = (SpeechType)message.GetByte();
 
-            packet.SpeechType = (SpeechType)message.GetByte();
-
-            switch (packet.SpeechType)
+            switch (packet.Speech.Type)
             {
                 case SpeechType.Private:
                 case SpeechType.PrivateRed:
                 case SpeechType.RuleViolationAnswer:
-                    packet.Receiver = message.GetString();
+                    packet.Speech.Receiver = message.GetString();
                     break;
                 case SpeechType.ChannelYellow:
                 case SpeechType.ChannelRed:
                 case SpeechType.ChannelRedAnonymous:
                 case SpeechType.ChannelWhite:
-                    packet.ChannelId = (ChatChannel)message.GetUInt16();
+                    packet.Speech.ChannelId = (ChatChannel)message.GetUInt16();
                     break;
                 default:
                     break;
             }
 
-            packet.Message = message.GetString();
+            packet.Speech.Message = message.GetString();
 
             return packet;
         }

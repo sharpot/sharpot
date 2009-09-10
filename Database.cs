@@ -162,6 +162,8 @@ namespace SharpOT
         );
         #endregion
 
+        #region Parameters
+
         private static SQLiteParameter accountNameParam = new SQLiteParameter("accountName");
         private static SQLiteParameter passwordParam = new SQLiteParameter("password");
         private static SQLiteParameter accountIdParam = new SQLiteParameter("accountId");
@@ -186,6 +188,10 @@ namespace SharpOT
         private static SQLiteParameter locationYParam = new SQLiteParameter("locationY");
         private static SQLiteParameter locationZParam = new SQLiteParameter("locationZ");
         private static SQLiteParameter directionParam = new SQLiteParameter("direction");
+
+        #endregion
+
+        #region Setup
 
         static Database()
         {
@@ -222,54 +228,45 @@ namespace SharpOT
             selectPlayerByNameCommand.Parameters.Add(nameParam);
 
             selectPlayerByIdCommand.Parameters.Add(idParam);
-            
+
             updatePlayerByNameCommand.Parameters.Add(idParam);
-            updatePlayerByNameCommand.Parameters.Add(genderParam);
-            updatePlayerByNameCommand.Parameters.Add(vocationParam);
-            updatePlayerByNameCommand.Parameters.Add(levelParam);
-            updatePlayerByNameCommand.Parameters.Add(magicLevelParam);
-            updatePlayerByNameCommand.Parameters.Add(experienceParam);
-            updatePlayerByNameCommand.Parameters.Add(maxHealthParam);
-            updatePlayerByNameCommand.Parameters.Add(maxManaParam);
-            updatePlayerByNameCommand.Parameters.Add(capacityParam);
-            updatePlayerByNameCommand.Parameters.Add(outfitLookTypeParam);
-            updatePlayerByNameCommand.Parameters.Add(outfitHeadParam);
-            updatePlayerByNameCommand.Parameters.Add(outfitBodyParam);
-            updatePlayerByNameCommand.Parameters.Add(outfitLegsParam);
-            updatePlayerByNameCommand.Parameters.Add(outfitFeetParam);
-            updatePlayerByNameCommand.Parameters.Add(outfitAddonsParam);
-            updatePlayerByNameCommand.Parameters.Add(locationXParam);
-            updatePlayerByNameCommand.Parameters.Add(locationYParam);
-            updatePlayerByNameCommand.Parameters.Add(locationZParam);
-            updatePlayerByNameCommand.Parameters.Add(directionParam);
+            AddUpdateParams(updatePlayerByNameCommand);
             updatePlayerByNameCommand.Parameters.Add(nameParam);
             
             updatePlayerByIdCommand.Parameters.Add(nameParam);
-            updatePlayerByIdCommand.Parameters.Add(genderParam);
-            updatePlayerByIdCommand.Parameters.Add(vocationParam);
-            updatePlayerByIdCommand.Parameters.Add(levelParam);
-            updatePlayerByIdCommand.Parameters.Add(magicLevelParam);
-            updatePlayerByIdCommand.Parameters.Add(experienceParam);
-            updatePlayerByIdCommand.Parameters.Add(maxHealthParam);
-            updatePlayerByIdCommand.Parameters.Add(maxManaParam);
-            updatePlayerByIdCommand.Parameters.Add(capacityParam);
-            updatePlayerByIdCommand.Parameters.Add(outfitLookTypeParam);
-            updatePlayerByIdCommand.Parameters.Add(outfitHeadParam);
-            updatePlayerByIdCommand.Parameters.Add(outfitBodyParam);
-            updatePlayerByIdCommand.Parameters.Add(outfitLegsParam);
-            updatePlayerByIdCommand.Parameters.Add(outfitFeetParam);
-            updatePlayerByIdCommand.Parameters.Add(outfitAddonsParam);
-            updatePlayerByIdCommand.Parameters.Add(locationXParam);
-            updatePlayerByIdCommand.Parameters.Add(locationYParam);
-            updatePlayerByIdCommand.Parameters.Add(locationZParam);
-            updatePlayerByIdCommand.Parameters.Add(directionParam);
+            AddUpdateParams(updatePlayerByIdCommand);
             updatePlayerByIdCommand.Parameters.Add(idParam);
+        }
+
+        public static void AddUpdateParams(SQLiteCommand command)
+        {
+            command.Parameters.Add(genderParam);
+            command.Parameters.Add(vocationParam);
+            command.Parameters.Add(levelParam);
+            command.Parameters.Add(magicLevelParam);
+            command.Parameters.Add(experienceParam);
+            command.Parameters.Add(maxHealthParam);
+            command.Parameters.Add(maxManaParam);
+            command.Parameters.Add(capacityParam);
+            command.Parameters.Add(outfitLookTypeParam);
+            command.Parameters.Add(outfitHeadParam);
+            command.Parameters.Add(outfitBodyParam);
+            command.Parameters.Add(outfitLegsParam);
+            command.Parameters.Add(outfitFeetParam);
+            command.Parameters.Add(outfitAddonsParam);
+            command.Parameters.Add(locationXParam);
+            command.Parameters.Add(locationYParam);
+            command.Parameters.Add(locationZParam);
+            command.Parameters.Add(directionParam);
+
         }
 
         public static void Close()
         {
             connection.Close();
         }
+
+        #endregion
 
         #region Account Management
         public static bool CreateAccount(string name, string password)
@@ -455,36 +452,22 @@ namespace SharpOT
 
         public static bool SavePlayerByName(Player player)
         {
-            idParam.Value = player.Id;
-            genderParam.Value = player.Gender;
-            vocationParam.Value = player.Vocation;
-            levelParam.Value = player.Level;
-            magicLevelParam.Value = player.MagicLevel;
-            experienceParam.Value = player.Experience;
-            maxHealthParam.Value = player.MaxHealth;
-            maxManaParam.Value = player.MaxMana;
-            capacityParam.Value = player.Capacity;
-            outfitLookTypeParam.Value = player.Outfit.LookType;
-            outfitHeadParam.Value = player.Outfit.Head;
-            outfitBodyParam.Value = player.Outfit.Body;
-            outfitLegsParam.Value = player.Outfit.Legs;
-            outfitFeetParam.Value = player.Outfit.Feet;
-            outfitAddonsParam.Value = player.Outfit.Addons;
-            locationXParam.Value = player.Tile.Location.X;
-            locationYParam.Value = player.Tile.Location.Y;
-            locationZParam.Value = player.Tile.Location.Z;
-            directionParam.Value = player.Direction;
-
-            accountIdParam.Value = player.Connection.AccountId;
-            nameParam.Value = player.Name;
+            PlayerInfoToParams(player);
 
             return (1 == updatePlayerByNameCommand.ExecuteNonQuery());
         }
 
         public static bool SavePlayerById(Player player)
         {
-            idParam.Value = player.Id;
+            PlayerInfoToParams(player);
 
+            return (1 == updatePlayerByIdCommand.ExecuteNonQuery());
+        }
+
+        private static void PlayerInfoToParams(Player player)
+        {
+            accountIdParam.Value = player.Connection.AccountId;
+            idParam.Value = player.Id;
             nameParam.Value = player.Name;
             genderParam.Value = player.Gender;
             vocationParam.Value = player.Vocation;
@@ -504,9 +487,6 @@ namespace SharpOT
             locationYParam.Value = player.Tile.Location.Y;
             locationZParam.Value = player.Tile.Location.Z;
             directionParam.Value = player.Direction;
-            accountIdParam.Value = player.Connection.AccountId;
-
-            return (1 == updatePlayerByIdCommand.ExecuteNonQuery());
         }
 
         public static IEnumerable<Player> GetAllPlayers()

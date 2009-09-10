@@ -293,27 +293,8 @@ namespace SharpOT
         public void ParsePlayerSpeech(NetworkMessage message)
         {
             PlayerSpeechPacket packet = PlayerSpeechPacket.Parse(message);
-            switch (packet.SpeechType)
-            {
-                case SpeechType.Say:
-                    Game.CreatureSaySpeech(Player, packet.SpeechType, packet.Message);
-                    break;
-                case SpeechType.Whisper:
-                    Game.CreatureWhisperSpeech(Player, packet.SpeechType, packet.Message);
-                    break;
-                case SpeechType.Yell:
-                    Game.CreatureYellSpeech(Player, packet.SpeechType, packet.Message);
-                    break;
-                case SpeechType.Private:
-                    Game.CreaturePrivateSpeech(Player, packet.Receiver, packet.Message);
-                    break;
-                case SpeechType.ChannelOrange:
-                case SpeechType.ChannelRed:
-                case SpeechType.ChannelWhite:
-                case SpeechType.ChannelYellow:
-                    Game.CreatureChannelSpeech(Player.Name, packet.SpeechType, packet.ChannelId, packet.Message);
-                    break;
-            }
+
+            Game.CreatureSpeech(this.Player, packet.Speech);
         }
 
         public void ParseClientChannelOpen(NetworkMessage message)

@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using SharpOT.Util;
+using SharpOT.Scripting;
 
 namespace SharpOT
 {
@@ -29,20 +30,23 @@ namespace SharpOT
         {
             game = new Game(this);
 
-            if (-1 == Database.GetAccountId("1", "1") && game.IsAccountNameAvailable("1") && game.IsCharacterNameAvailable("God"))
+            if (game.IsAccountNameAvailable("1"))
             {
                 Database.CreateAccount("1", "1");
-                Database.CreatePlayer(1, "God", game.GenerateAvailableId());
+                if (game.IsCharacterNameAvailable("God"))
+                    Database.CreatePlayer(1, "God", game.GenerateAvailableId());
             }
-            if (-1 == Database.GetAccountId("2", "2") && game.IsAccountNameAvailable("2") && game.IsCharacterNameAvailable("Bob"))
+            if (game.IsAccountNameAvailable("2"))
             {
                 Database.CreateAccount("2", "2");
-                Database.CreatePlayer(2, "Bob", game.GenerateAvailableId());
+                if (game.IsCharacterNameAvailable("Bob"))
+                    Database.CreatePlayer(2, "Bob", game.GenerateAvailableId());
             }
-            if (-1 == Database.GetAccountId("3", "3") && game.IsAccountNameAvailable("3") && game.IsCharacterNameAvailable("Alice"))
+            if (game.IsAccountNameAvailable("3") && game.IsCharacterNameAvailable("Alice"))
             {
                 Database.CreateAccount("3", "3");
-                Database.CreatePlayer(3, "Alice", game.GenerateAvailableId());
+                if (game.IsCharacterNameAvailable("Alice"))
+                    Database.CreatePlayer(3, "Alice", game.GenerateAvailableId());
             }
 
             try
@@ -57,6 +61,7 @@ namespace SharpOT
 
                 LogStart("Loading scripts");
                 game.Scripter.Load();
+                Scripting.ScriptManager.LoadAllScripts(game);
                 LogDone();
 
                 LogStart("Listening for clients");

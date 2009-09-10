@@ -22,7 +22,13 @@ namespace SharpOT
 
         public Map Map { get; private set; }
         public Scripter Scripter { get; private set; }
-        public Server Server { get; private set; }
+
+        #endregion
+
+        #region Events
+
+        public delegate bool CreatureSpeechHandler(Creature creature, Speech speech);
+        public CreatureSpeechHandler BeforeCreatureSpeech;
 
         #endregion
 
@@ -32,7 +38,6 @@ namespace SharpOT
         {
             Map = new Map();
             Scripter = new Scripter();
-            Server = server;
         }
 
         #endregion
@@ -108,17 +113,50 @@ namespace SharpOT
             }
         }
 
-        public void CreaturePrivateSpeech(Player player, string receiver, string message)
+        public void CreatureSpeech(Creature creature, Speech speech)
+        {
+            if (BeforeCreatureSpeech != null)
+            {
+                if (!BeforeCreatureSpeech(creature, speech))
+                    return;
+            }
+
+            switch (speech.Type)
+            {
+                case SpeechType.Say:
+                    CreatureSaySpeech(creature, speech.Type, speech.Message);
+                    break;
+                case SpeechType.Whisper:
+                    CreatureWhisperSpeech(creature, speech.Type, speech.Message);
+                    break;
+                case SpeechType.Yell:
+                    CreatureYellSpeech(creature, speech.Type, speech.Message);
+                    break;
+                case SpeechType.Private:
+                    CreaturePrivateSpeech(creature, speech.Receiver, speech.Message);
+                    break;
+                case SpeechType.ChannelOrange:
+                case SpeechType.ChannelRed:
+                case SpeechType.ChannelWhite:
+                case SpeechType.ChannelYellow:
+                    CreatureChannelSpeech(creature.Name, speech.Type, speech.ChannelId, speech.Message);
+                    break;
+            }
+        }
+
+        public void CreaturePrivateSpeech(Creature creature, string receiver, string message)
         {
             Player selected = GetPlayers().FirstOrDefault(p => p.Name == receiver);
             if (selected != null)
             {
-                selected.Connection.SendCreaturePrivateSpeech(player, SpeechType.Private, message);
-                player.Connection.SendTextMessage(TextMessageType.StatusSmall, "Message sent to " + receiver + ".");
+                selected.Connection.SendCreaturePrivateSpeech(creature, SpeechType.Private, message);
+                if (creature is Player)
+                    ((Player)creature).Connection.SendTextMessage(TextMessageType.StatusSmall, "Message sent to " + receiver + ".");
             }
             else
             {
-                player.Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name is not online.");
+                if (creature is Player)
+                    ((Player)creature).Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name is not online.");
             }
         }
 
@@ -186,12 +224,12 @@ namespace SharpOT
             if (creature.IsPlayer)
             {
                 Player player = (Player)creature;
-                if (System.Environment.TickCount - player.YellTime <= 30000)
+                if (System.Environment.TickCount - player.LastYellTime <= 30000)
                 {
                     player.Connection.SendTextMessage(TextMessageType.StatusSmall, "You are exhausted.");
                     return;
                 }
-                else player.YellTime = System.Environment.TickCount;
+                else player.LastYellTime = System.Environment.TickCount;
             }
 
             bool sameFloor = creature.Tile.Location.Z > 7;
@@ -417,6 +455,8 @@ namespace SharpOT
 
         public bool IsIdAvailable(uint id)
         {
+            // TODO: All these functions should be fast database lookups checking
+            //       for a single key, not selecting everything and checking server side.
             return !Database.GetPlayerIdNameDictionary().ContainsKey(id);
         }
 
