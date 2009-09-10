@@ -97,7 +97,7 @@ namespace SharpOT
 
         public void PrivateChannelOpen(Player player, string receiver)
         {
-            string selected = Database.GetAllPlayers().FirstOrDefault(p => p.Name.ToLower() == receiver.ToLower()).Name;
+            string selected = Database.GetPlayerIdNameDictionary().FirstOrDefault(pair => pair.Value.ToLower() == receiver.ToLower()).Value;
             if (selected != null)
             {
                 player.Connection.SendChannelOpenPrivate(selected);
@@ -172,7 +172,6 @@ namespace SharpOT
         {
             // TODO: Add exhaustion for yelling, and checks to make sure the player has the
             // permission to use the selected speech type
-            // TODO: this should only send to players who can see this player speak (same floor)
             if (Scripter.RaiseEvent(EventType.OnPlayerSay, new EventProperties(0, 0, 0, message), (Player)creature, new object[] { message }))
             {
                 foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
@@ -184,16 +183,15 @@ namespace SharpOT
 
         public void CreatureYellSpeech(Creature creature, SpeechType speechType, string message)
         {
-            //TODO: Make the IsPlayer function work so we only check this on players (For the chance an NPC might be yelling, ect)
-            Player P = (Player)creature;
-            if (System.Environment.TickCount - P.YellTime <= 30000)
+            if (creature.IsPlayer)
             {
-                P.Connection.SendTextMessage(TextMessageType.StatusSmall, "You are exhausted");
-                return;
-            }
-            else
-            {
-                P.YellTime = System.Environment.TickCount;
+                Player player = (Player)creature;
+                if (System.Environment.TickCount - player.YellTime <= 30000)
+                {
+                    player.Connection.SendTextMessage(TextMessageType.StatusSmall, "You are exhausted.");
+                    return;
+                }
+                else player.YellTime = System.Environment.TickCount;
             }
 
             bool sameFloor = creature.Tile.Location.Z > 7;
@@ -266,7 +264,7 @@ namespace SharpOT
         {
             foreach (var player in GetSpectatorPlayers(creature.Tile.Location))
             {
-                if (player == creature)
+                if (player == creature)//should be composite packet?
                 {
                     player.Connection.SendStatus();
                 }
@@ -278,26 +276,27 @@ namespace SharpOT
 
         public void VipAdd(Player player, string buddy)
         {
-            Player selected = Database.GetAllPlayers().FirstOrDefault(p => p.Name.ToLower() == buddy.ToLower());
-            
+             KeyValuePair<uint,string> selected = Database.GetPlayerIdNameDictionary()
+                 .FirstOrDefault(pair => pair.Value.ToLower() == buddy.ToLower());
+                        
             if (player.VipList.Count >= 100)
             {
                 player.Connection.SendTextMessage(TextMessageType.StatusSmall, "You cannot add more buddies.");
             }
-            else if (selected != null && player.VipList.ContainsKey(selected.Id))
+            else if (selected.Key != 0 && player.VipList.ContainsKey(selected.Key))
             {
                 player.Connection.SendTextMessage(TextMessageType.StatusSmall, "This player is already in your list.");
             }
-            else if (selected != null)
+            else if (selected.Key != 0)
             {
-                bool state = GetPlayers().Any(p => p.Id == selected.Id);
-                player.VipList.Add(selected.Id, new Vip
+                bool state = GetPlayers().Any(p => p.Id == selected.Key);
+                player.VipList.Add(selected.Key, new Vip
                 {
-                    Id = selected.Id,
-                    Name = selected.Name,
+                    Id = selected.Key,
+                    Name = selected.Value,
                     LoggedIn = state
                 });
-                player.Connection.SendVipState(selected.Id, selected.Name, state);
+                player.Connection.SendVipState(selected.Key, selected.Value, state);
             }
             else
             {
@@ -331,7 +330,7 @@ namespace SharpOT
             tile.Creatures.Add(player);
             connection.Player = player;
             player.Connection = connection;
-            player.game = this;
+            player.Game = this;
 
             PlayerLogin(player);
         }
@@ -343,6 +342,7 @@ namespace SharpOT
             player.Connection.SendInitialPacket();
 
 
+            //should be composite packet for players that are spectators AND vips?
             var spectators = GetSpectatorPlayers(player.Tile.Location).Where(s => s != player);
             foreach (var spectator in spectators)
             {
@@ -362,6 +362,8 @@ namespace SharpOT
         {
             // TODO: Make sure the player can logout
             player.Connection.Close();
+
+            //should be composite packet for players that are spectators AND vips?
             var spectators = GetSpectatorPlayers(player.Tile.Location).Where(s => s != player);
             foreach (var spectator in spectators)
             {
@@ -371,7 +373,7 @@ namespace SharpOT
             player.Tile.Creatures.Remove(player);
             RemoveCreature(player);
 
-
+            //maybe player object should have a list of other players that have added it to their vips
             foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
             {
                 p.VipList[player.Id].LoggedIn = false;
@@ -379,7 +381,7 @@ namespace SharpOT
             }
 
 
-            Database.SavePlayerByName(player);
+            Database.SavePlayerById(player);
         }
 
         public long CheckAccount(Connection connection, string accountName, string password)
@@ -396,16 +398,16 @@ namespace SharpOT
 
         public uint GenerateAvailableId()
         {
-            IEnumerable<Player> players = Database.GetAllPlayers();
-            uint baseId = 0x01000000;
-            if (players.Count() == 0)
+            var dictionary = Database.GetPlayerIdNameDictionary();
+            uint baseId = 0x40000001;
+            if (dictionary.Count() == 0)
             {
                 return baseId;
             }
-            for (uint i = 1; i <= 0xFFFFFF; i++)
+            for (uint i = 1; i < 0xFFFFFFFF; i++)
             {
                 baseId |= i;
-                if (!players.Any(p => p.Id == baseId))
+                if (!dictionary.ContainsKey(baseId))
                 {
                     return baseId;
                 }
@@ -415,7 +417,17 @@ namespace SharpOT
 
         public bool IsIdAvailable(uint id)
         {
-            return Database.GetAllPlayers().Any(p => p.Id == id);
+            return !Database.GetPlayerIdNameDictionary().ContainsKey(id);
+        }
+
+        public bool IsCharacterNameAvailable(string name)
+        {
+            return !Database.GetPlayerIdNameDictionary().Values.Any(v => v.ToLower() == name.ToLower());
+        }
+
+        public bool IsAccountNameAvailable(string accName)
+        {
+            return !Database.GetAllAccountNames().Contains(accName);
         }
 
         #endregion

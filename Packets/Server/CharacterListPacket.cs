@@ -7,11 +7,11 @@ namespace SharpOT.Packets
 {
     public class CharacterListPacket : Packet
     {
-        public static void Add(NetworkMessage message, IList<CharacterListItem> characters, ushort premiumDaysLeft)
+        public static void Add(NetworkMessage message, IEnumerable<CharacterListItem> characters, ushort premiumDaysLeft)
         {
             message.AddByte((byte)ServerPacketType.CharacterList);
 
-            message.AddByte((byte)characters.Count);
+            message.AddByte((byte)characters.Count());
 
             foreach (CharacterListItem character in characters)
             {

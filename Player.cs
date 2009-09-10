@@ -18,8 +18,8 @@ namespace SharpOT
         public FightModes FightMode { get; set; }
         public bool ChaseMode { get; set; }
         public bool SafeMode { get; set; }
-        public int YellTime { get; set; }
         public Dictionary<uint, Vip> VipList { get; set; }
+        public int YellTime { get; set; }
 
         public Player()
         {

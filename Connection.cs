@@ -316,18 +316,6 @@ namespace SharpOT
             }
         }
 
-        public void ParseChangeOutfit(NetworkMessage message)
-        {
-            ChangeOutfitPacket packet = ChangeOutfitPacket.Parse(message);
-            Game.PlayerChangeOutfit(Player, packet.Outfit);
-        }
-
-        public void ParsePrivateChannelOpen(NetworkMessage message)
-        {
-            PrivateChannelOpenPacket packet = PrivateChannelOpenPacket.Parse(message);
-            Game.PrivateChannelOpen(Player, packet.Receiver);
-        }
-
         public void ParseClientChannelOpen(NetworkMessage message)
         {
             ClientChannelOpenPacket packet = ClientChannelOpenPacket.Parse(message);
@@ -339,15 +327,7 @@ namespace SharpOT
             ChannelClosePacket packet = ChannelClosePacket.Parse(message);
             Game.ChannelClose(Player, packet.ChannelId);
         }
-
-        public void ParseFightModes(NetworkMessage message)
-        {
-            FightModesPacket packet = FightModesPacket.Parse(message);
-            Player.FightMode = (FightModes)packet.FightMode;
-            Player.ChaseMode = packet.ChaseMode;
-            Player.SafeMode = packet.SafeMode;
-        }
-
+        
         public void ParseVipAdd(NetworkMessage message)
         {
             VipAddPacket packet = VipAddPacket.Parse(message);
@@ -360,6 +340,26 @@ namespace SharpOT
             Game.VipRemove(Player, packet.Id);
         }
 
+        public void ParseChangeOutfit(NetworkMessage message)
+        {
+            ChangeOutfitPacket packet = ChangeOutfitPacket.Parse(message);
+            Game.PlayerChangeOutfit(Player, packet.Outfit);
+        }
+
+        public void ParseFightModes(NetworkMessage message)
+        {
+            FightModesPacket packet = FightModesPacket.Parse(message);
+            Player.FightMode = (FightModes)packet.FightMode;
+            Player.ChaseMode = packet.ChaseMode;
+            Player.SafeMode = packet.SafeMode;
+        }
+
+        public void ParsePrivateChannelOpen(NetworkMessage message)
+        {
+            PrivateChannelOpenPacket packet = PrivateChannelOpenPacket.Parse(message);
+            Game.PrivateChannelOpen(Player, packet.Receiver);
+        }
+        
         #endregion
 
         #region Send
@@ -373,7 +373,7 @@ namespace SharpOT
             Send(message, false);
         }
 
-        public void SendCharacterList(string motd, ushort premiumDays, IList<CharacterListItem> chars)
+        public void SendCharacterList(string motd, ushort premiumDays, IEnumerable<CharacterListItem> chars)
         {
             NetworkMessage message = new NetworkMessage();
 

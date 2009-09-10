@@ -5,23 +5,22 @@ namespace SharpOT
 {
     public class Creature : Thing
     {
-        public uint Id;
-        public string Name;
         
-        private ushort _Health = 100;
-        private ushort _MaxHealth = 100;
-        public ushort Mana = 100;
-        public ushort MaxMana = 100;
-        
-        public Outfit Outfit = new Outfit(128, 0);
-        public Direction Direction = Direction.North;
-        public byte LightLevel = 0;
-        public byte LightColor = 0;
-        public Skull Skull = Skull.None;
-        public Party Party = Party.None;
-        public ushort Speed = 200;
-        public Tile Tile;
-        public Game game;
+        private ushort health = 100;
+        private ushort maxHealth = 100;
+
+        public Creature()
+        {
+            Mana = 100;
+            MaxMana = 100;
+            Outfit = new Outfit(128, 0);
+            Direction = Direction.North;
+            LightLevel = 0;
+            LightColor = 0;
+            Skull = Skull.None;
+            Party = Party.None;
+            Speed = 200;
+        }
 
         protected override ushort GetId()
         {
@@ -33,58 +32,71 @@ namespace SharpOT
             return Name + " [" + Id + "]";
         }
 
-#region "Properties"
+        #region Properties
+        public uint Id { get; set; }
+        public string Name { get; set; }
+
         public ushort Health
         {
-            get { return _Health; }
-            set { _Health = value; if (game != null) { game.CreatureUpdateHealth(this); } }
+            get { return health; }
+            set { health = value; if (Game != null) { Game.CreatureUpdateHealth(this); } }
         }
 
         public ushort MaxHealth
         {
-            get { return _MaxHealth; }
-            set { _MaxHealth = value; if (game != null) { game.CreatureUpdateHealth(this); } }
+            get { return maxHealth; }
+            set { maxHealth = value; if (Game != null) { Game.CreatureUpdateHealth(this); } }
         }
-#endregion
 
-#region "Methods"
-        public bool IsPlayer()
+        public ushort Mana { get; set; }
+        public ushort MaxMana { get; set; }
+
+        public Outfit Outfit { get; set; }
+        public Direction Direction { get; set; }
+        public byte LightLevel { get; set; }
+        public byte LightColor { get; set; }
+        public Skull Skull { get; set; }
+        public Party Party { get; set; }
+        public ushort Speed { get; set; }
+        public Tile Tile { get; set; }
+        public Game Game { get; set; }
+        public bool IsPlayer
         {
-            return Id > 0x40000000;
+            get { return Id > 0x40000000; }
         }
+        #endregion
 
+        #region Methods
         public byte GetHealthPercent()
         {
-            byte Hp = (byte)(((double)Health / (double)MaxHealth) * 100);
-            //Add a check, just incase something goes wrong. Dont want bugged health bars like in OTServ
-            if (Hp > 100) Hp = 100;
+            byte Hp = Convert.ToByte(Math.Floor((double)(Health / MaxHealth) * 100));
             return Hp;
         }
 
         public void Say(string Text)
         {
-            this.game.CreatureSaySpeech(this, SpeechType.Say, Text);
+            this.Game.CreatureSaySpeech(this, SpeechType.Say, Text);
         }
 
         public void Yell(string Text)
         {
-            this.game.CreatureYellSpeech(this, SpeechType.Say, Text);
+            this.Game.CreatureYellSpeech(this, SpeechType.Say, Text);
         }
 
         public void Whisper(string Text)
         {
-            this.game.CreatureYellSpeech(this, SpeechType.Say, Text);
+            this.Game.CreatureYellSpeech(this, SpeechType.Say, Text);
         }
 
         public void Step(Byte Dir)
         {
-            this.game.CreatureMove(this, (Direction)Dir);
+            this.Game.CreatureMove(this, (Direction)Dir);
         }
 
         public void Turn(Byte Dir)
         {
-            this.game.CreatureTurn(this, (Direction)Dir);
+            this.Game.CreatureTurn(this, (Direction)Dir);
         }
-#endregion
+        #endregion
     }
 }
