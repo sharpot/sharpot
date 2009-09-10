@@ -42,29 +42,29 @@ namespace SharpOT
 
         #endregion
 
-        #region Private Helpers
+        #region Public Helpers
 
-        private void AddCreature(Creature creature)
+        public void AddCreature(Creature creature)
         {
             creatures.Add(creature.Id, creature);
         }
 
-        private void RemoveCreature(Creature creature)
+        public void RemoveCreature(Creature creature)
         {
             creatures.Remove(creature.Id);
         }
 
-        private IEnumerable<Creature> GetSpectators(Location location)
+        public IEnumerable<Creature> GetSpectators(Location location)
         {
             return creatures.Values.Where(creature => creature.Tile.Location.CanSee(location));
         }
 
-        private IEnumerable<Player> GetSpectatorPlayers(Location location)
+        public IEnumerable<Player> GetSpectatorPlayers(Location location)
         {
             return GetPlayers().Where(player => player.Tile.Location.CanSee(location));
         }
 
-        private IEnumerable<Player> GetPlayers()
+        public IEnumerable<Player> GetPlayers()
         {
             return creatures.Values.OfType<Player>();
         }
@@ -149,7 +149,7 @@ namespace SharpOT
             Player selected = GetPlayers().FirstOrDefault(p => p.Name == receiver);
             if (selected != null)
             {
-                selected.Connection.SendCreaturePrivateSpeech(creature, SpeechType.Private, message);
+                selected.Connection.SendCreatureSpeech(creature, SpeechType.Private, message);
                 if (creature is Player)
                     ((Player)creature).Connection.SendTextMessage(TextMessageType.StatusSmall, "Message sent to " + receiver + ".");
             }
@@ -208,14 +208,9 @@ namespace SharpOT
 
         public void CreatureSaySpeech(Creature creature, SpeechType speechType, string message)
         {
-            // TODO: Add exhaustion for yelling, and checks to make sure the player has the
-            // permission to use the selected speech type
-            if (Scripter.RaiseEvent(EventType.OnPlayerSay, new EventProperties(0, 0, 0, message), (Player)creature, new object[] { message }))
+            foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
             {
-                foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
-                {
-                    spectator.Connection.SendCreatureDefaultSpeech(creature, speechType, message);
-                }
+                spectator.Connection.SendCreatureSpeech(creature, speechType, message);
             }
         }
 
@@ -235,7 +230,7 @@ namespace SharpOT
             bool sameFloor = creature.Tile.Location.Z > 7;
             foreach (Player player in GetPlayers().Where(p => p.Tile.Location.IsInRange(creature.Tile.Location, sameFloor, 50)))
             {
-                player.Connection.SendCreatureDefaultSpeech(creature, speechType, message.ToUpper());
+                player.Connection.SendCreatureSpeech(creature, speechType, message.ToUpper());
             }
         }
 
@@ -245,11 +240,11 @@ namespace SharpOT
             {
                 if (spectator.Tile.Location.IsInRange(creature.Tile.Location, true, 1.42))
                 {
-                    spectator.Connection.SendCreatureDefaultSpeech(creature, speechType, message);
+                    spectator.Connection.SendCreatureSpeech(creature, speechType, message);
                 }
                 else
                 {
-                    spectator.Connection.SendCreatureDefaultSpeech(creature, speechType, "pspsps");
+                    spectator.Connection.SendCreatureSpeech(creature, speechType, "pspsps");
                 }
             }
         }       
