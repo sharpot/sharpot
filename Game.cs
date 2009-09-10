@@ -184,10 +184,22 @@ namespace SharpOT
 
         public void CreatureYellSpeech(Creature creature, SpeechType speechType, string message)
         {
+            //TODO: Make the IsPlayer function work so we only check this on players (For the chance an NPC might be yelling, ect)
+            Player P = (Player)creature;
+            if (System.Environment.TickCount - P.YellTime <= 30000)
+            {
+                P.Connection.SendTextMessage(TextMessageType.StatusSmall, "You are exhausted");
+                return;
+            }
+            else
+            {
+                P.YellTime = System.Environment.TickCount;
+            }
+
             bool sameFloor = creature.Tile.Location.Z > 7;
             foreach (Player player in GetPlayers().Where(p => p.Tile.Location.IsInRange(creature.Tile.Location, sameFloor, 50)))
             {
-                player.Connection.SendCreatureDefaultSpeech(creature, speechType, message);
+                player.Connection.SendCreatureDefaultSpeech(creature, speechType, message.ToUpper());
             }
         }
 

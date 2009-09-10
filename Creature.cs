@@ -56,6 +56,8 @@ namespace SharpOT
         public byte GetHealthPercent()
         {
             byte Hp = (byte)(((double)Health / (double)MaxHealth) * 100);
+            //Add a check, just incase something goes wrong. Dont want bugged health bars like in OTServ
+            if (Hp > 100) Hp = 100;
             return Hp;
         }
 
