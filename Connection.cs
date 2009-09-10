@@ -412,6 +412,7 @@ namespace SharpOT
                 LightColor.None
             );
 
+            // TODO: Save last login.
             TextMessagePacket.Add(
                 message,
                 TextMessageType.EventDefault,
@@ -704,7 +705,7 @@ namespace SharpOT
             Send(outMessage);
         }
 
-        public void SendCreatureDefaultSpeech(Creature creature, SpeechType speechType, string message)
+        public void SendCreatureSpeech(Creature creature, SpeechType speechType, string message)
         {
 
             NetworkMessage outMessage = new NetworkMessage();
@@ -719,11 +720,6 @@ namespace SharpOT
                 0000
             );
             Send(outMessage);
-        }
-
-        public void SendCreaturePrivateSpeech(Creature creature, SpeechType speechType, string message)
-        {
-            SendCreatureDefaultSpeech(creature, speechType, message);
         }
 
         public void SendChannelSpeech(string sender, SpeechType type, ChatChannel channelId, string message)
