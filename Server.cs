@@ -60,9 +60,14 @@ namespace SharpOT
                 LogDone();
 
                 LogStart("Loading scripts");
-                game.Scripter.Load();
-                Scripting.ScriptManager.LoadAllScripts(game);
+                //game.Scripter.Load();
+                string errors = Scripting.ScriptManager.LoadAllScripts(game);
                 LogDone();
+
+                if (errors.Length > 0)
+                {
+                    Log("There were errors when compiling scripts:\n\n" + errors);
+                }
 
                 LogStart("Listening for clients");
                 clientLoginListener.Start();

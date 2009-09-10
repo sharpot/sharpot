@@ -13,8 +13,8 @@ public class LogSpeech : IScript
 
     public bool BeforeCreatureSpeech(Creature creature, Speech speech)
     {
-        game.Server.Log(speech.Message);
-        return true;
+        Server.Log(speech.Message);
+        return false;
     }
 
     public bool Stop()
