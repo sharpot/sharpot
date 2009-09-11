@@ -27,7 +27,6 @@ public class OnlineCommand : IScript
             ((Player)creature).Connection.SendTextMessage(TextMessageType.EventDefault, "Online: " + online);
             return false;
         }
-
         return true;
     }
 

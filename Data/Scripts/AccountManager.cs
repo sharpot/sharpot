@@ -10,6 +10,7 @@ public class AccountManager:IScript
     {
         this.game = game;
         game.BeforeCreatureSpeech += BeforeCreatureSpeech;
+        game.BeforeCreatureMove += BeforeCreatureMove;
         return true;
     }
 
@@ -17,8 +18,8 @@ public class AccountManager:IScript
     {
         if (creature.IsPlayer && creature.Name == "Account Manager")
         {
-            Server.Log("IF1");
             Player p = (Player)creature;
+            p.Connection.SendCreatureSpeech(creature, SpeechType.Whisper, speech.Message);
             if (managers.ContainsKey(p.Connection))
             {
                 Parse(p.Connection, managers[p.Connection], speech);
@@ -28,14 +29,21 @@ public class AccountManager:IScript
                 managers.Add(p.Connection, DialogueState.New);
                 Parse(p.Connection, managers[p.Connection], speech);
             }
-
-            Server.Log("ret false");
             return false;
         }
 
-        Server.Log("ret true");
         return true;
 
+    }
+
+    public bool BeforeCreatureMove(Creature creature, Direction direction, Location fromLocation, Location toLocation, byte fromStackPosition, Tile toTile)
+    {
+        if (creature.IsPlayer && creature.Name == "Account Manager")
+        {
+            ((Player)creature).Connection.SendCancelWalk();
+            return false;
+        }
+        return true;
     }
 
     private void Parse(Connection connection,DialogueState state, Speech speech)
@@ -66,12 +74,12 @@ public class AccountManager:IScript
                 break;
 
         }
-        Server.Log("end parse");
     }
 
     public bool Stop()
     {
         game.BeforeCreatureSpeech -= BeforeCreatureSpeech;
+        game.BeforeCreatureMove -= BeforeCreatureMove;
         return true;
     }
 
