@@ -38,6 +38,13 @@ namespace SharpOT
             from Account",
             connection
         );
+
+        private static SQLiteCommand checkAccountNameCommand = new SQLiteCommand(
+            @"select Name
+            from Account
+            where Name=@accountName",
+            connection
+        );
         #endregion
 
         #region Map Commands
@@ -110,7 +117,23 @@ namespace SharpOT
             from Player",
             connection
         );
-        
+
+        private static SQLiteCommand selectPlayerNameByIdCommand = new SQLiteCommand(
+            @"select
+                Name
+            from Player
+            where Id=@playerId",
+            connection
+        );
+
+        private static SQLiteCommand selectPlayerIdByNameCommand = new SQLiteCommand(
+            @"select
+                Id
+            from Player
+            where Name=@name",
+            connection
+        );
+
         private static SQLiteCommand updatePlayerByNameCommand = new SQLiteCommand(
             @"update Player
               set
@@ -205,7 +228,9 @@ namespace SharpOT
             selectAccountIdCommand.Parameters.Add(passwordParam);
 
             selectPlayerNameByAccountIdCommand.Parameters.Add(accountIdParam);
-            
+
+            checkAccountNameCommand.Parameters.Add(accountNameParam);
+
             //Players parameters
             insertPlayerCommand.Parameters.Add(accountIdParam);
             insertPlayerCommand.Parameters.Add(idParam);
@@ -227,7 +252,11 @@ namespace SharpOT
             
             selectPlayerByNameCommand.Parameters.Add(nameParam);
 
+            selectPlayerIdByNameCommand.Parameters.Add(nameParam);
+
             selectPlayerByIdCommand.Parameters.Add(idParam);
+
+            selectPlayerNameByIdCommand.Parameters.Add(idParam);
 
             updatePlayerByNameCommand.Parameters.Add(idParam);
             AddUpdateParams(updatePlayerByNameCommand);
@@ -365,6 +394,16 @@ namespace SharpOT
             {
                 reader.Close();
             }
+        }
+
+        public static bool CheckAccountName(string accName)
+        {
+            accountNameParam.Value = accName;
+            SQLiteDataReader reader = checkAccountNameCommand.ExecuteReader();
+            bool ret = reader.Read();
+            reader.Close();
+
+            return ret;
         }
         #endregion
 
@@ -547,6 +586,28 @@ namespace SharpOT
                 reader.Close();
             }
             return dictionary;
+        }
+
+        public static KeyValuePair<uint, string> GetPlayerIdNamePair(uint playerId)
+        {
+            KeyValuePair<uint, string> pair =new KeyValuePair<uint,string>();
+            idParam.Value = playerId;
+            SQLiteDataReader reader = selectPlayerNameByIdCommand.ExecuteReader();
+            if (reader.Read()) 
+                pair = new KeyValuePair<uint, string>(playerId, reader.GetString(0));
+            reader.Close();
+            return pair;
+        }
+
+        public static KeyValuePair<uint, string> GetPlayerIdNamePair(string playerName)
+        {
+            KeyValuePair<uint, string> pair = new KeyValuePair<uint, string>();
+            nameParam.Value = playerName;
+            SQLiteDataReader reader =selectPlayerIdByNameCommand.ExecuteReader();
+            if (reader.Read()) 
+                pair = new KeyValuePair<uint, string>((uint)reader.GetInt32(0), playerName);
+            reader.Close();
+            return pair;
         }
 
         #endregion
