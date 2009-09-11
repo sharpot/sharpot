@@ -51,7 +51,7 @@ namespace SharpOT
         }
         #endregion
 
-        protected override ushort GetId()
+        protected override ushort GetThingId()
         {
             return Id;
         }

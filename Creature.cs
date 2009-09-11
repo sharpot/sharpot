@@ -5,9 +5,12 @@ namespace SharpOT
 {
     public class Creature : Thing
     {
-        
-        private ushort health = 100;
-        private ushort maxHealth = 100;
+        #region Private Variables
+
+
+        #endregion
+
+        #region Constructor
 
         public Creature()
         {
@@ -22,31 +25,25 @@ namespace SharpOT
             Speed = 200;
         }
 
-        protected override ushort GetId()
-        {
-            return 0x63;
-        }
+        #endregion
+
+        #region Overrides
 
         public override string ToString()
         {
             return Name + " [" + Id + "]";
         }
 
+        #endregion
+
         #region Properties
+
         public uint Id { get; set; }
         public string Name { get; set; }
 
-        public ushort Health
-        {
-            get { return health; }
-            set { health = value; if (Game != null) { Game.CreatureUpdateHealth(this); } }
-        }
+        public ushort Health { get; set; }
 
-        public ushort MaxHealth
-        {
-            get { return maxHealth; }
-            set { maxHealth = value; if (Game != null) { Game.CreatureUpdateHealth(this); } }
-        }
+        public ushort MaxHealth { get; set; }
 
         public ushort Mana { get; set; }
         public ushort MaxMana { get; set; }
@@ -65,39 +62,49 @@ namespace SharpOT
         {
             get { return Id > 0x40000000; }
         }
+
+        public byte HealthPercent
+        {
+            get
+            {
+                return Convert.ToByte(Math.Floor((double)(Health / MaxHealth) * 100));
+            }
+        }
+
+        protected override ushort GetThingId()
+        {
+            return 0x63;
+        }
+
         #endregion
 
         #region Methods
-        public byte GetHealthPercent()
+
+        public void Say(string text)
         {
-            byte Hp = Convert.ToByte(Math.Floor((double)(Health / MaxHealth) * 100));
-            return Hp;
+            this.Game.CreatureSpeech(this, new Speech() { Type = SpeechType.Say, Message = text });
         }
 
-        public void Say(string Text)
+        public void Yell(string text)
         {
-            this.Game.CreatureSaySpeech(this, SpeechType.Say, Text);
+            this.Game.CreatureSpeech(this, new Speech() { Type = SpeechType.Yell, Message = text });
         }
 
-        public void Yell(string Text)
+        public void Whisper(string text)
         {
-            this.Game.CreatureYellSpeech(this, SpeechType.Say, Text);
+            this.Game.CreatureSpeech(this, new Speech() { Type = SpeechType.Whisper, Message = text });
         }
 
-        public void Whisper(string Text)
+        public void Step(Direction dir)
         {
-            this.Game.CreatureYellSpeech(this, SpeechType.Say, Text);
+            this.Game.CreatureMove(this, dir);
         }
 
-        public void Step(Byte Dir)
+        public void Turn(Direction dir)
         {
-            this.Game.CreatureMove(this, (Direction)Dir);
+            this.Game.CreatureTurn(this, dir);
         }
 
-        public void Turn(Byte Dir)
-        {
-            this.Game.CreatureTurn(this, (Direction)Dir);
-        }
         #endregion
     }
 }

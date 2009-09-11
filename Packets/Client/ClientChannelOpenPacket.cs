@@ -7,13 +7,12 @@ namespace SharpOT.Packets
 {
     public class ClientChannelOpenPacket : Packet
     {
-
-        public ChatChannel ChannelId { get; set; }
+        public ChatChannel Channel { get; set; }
 
         public static ClientChannelOpenPacket Parse(NetworkMessage message)
         {
             ClientChannelOpenPacket p = new ClientChannelOpenPacket();
-            p.ChannelId = (ChatChannel)message.GetUInt16();
+            p.Channel = (ChatChannel)message.GetUInt16();
             return p;
         }
     }

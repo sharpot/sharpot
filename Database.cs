@@ -19,6 +19,7 @@ namespace SharpOT
         );
 
         #region Account Commands
+
         private static SQLiteCommand insertAccountCommand = new SQLiteCommand(
             @"insert into Account (Name, Password)
               values (@accountName, @password)",
@@ -35,14 +36,28 @@ namespace SharpOT
 
         private static SQLiteCommand selectAllAccountNamesCommand = new SQLiteCommand(
             @"select Name
-            from Account",
+              from Account",
             connection
         );
 
         private static SQLiteCommand checkAccountNameCommand = new SQLiteCommand(
             @"select Name
-            from Account
-            where Name=@accountName",
+              from Account
+              where Name=@accountName",
+            connection
+        );
+
+        private static SQLiteCommand checkPlayerNameCommand = new SQLiteCommand(
+            @"select Name
+              from Player
+              where Name=@name",
+            connection
+        );
+
+        private static SQLiteCommand checkPlayerIdCommand = new SQLiteCommand(
+            @"select Id
+              from Player
+              where Id=@playerId",
             connection
         );
 
@@ -50,6 +65,7 @@ namespace SharpOT
             "select last_insert_rowid()",
             connection
         );
+
         #endregion
 
         #region Map Commands
@@ -65,6 +81,7 @@ namespace SharpOT
         #endregion
 
         #region Player Commands
+
         private static SQLiteCommand insertPlayerCommand = new SQLiteCommand(
             @"insert into Player 
                 (AccountId, Id, Name, Gender, Vocation, Level, MagicLevel, 
@@ -142,6 +159,7 @@ namespace SharpOT
         private static SQLiteCommand updatePlayerByNameCommand = new SQLiteCommand(
             @"update Player
               set
+                  Id = @playerId,
                   Gender = @gender,
                   Vocation = @vocation,
                   Level = @level,
@@ -167,6 +185,7 @@ namespace SharpOT
         private static SQLiteCommand updatePlayerByIdCommand = new SQLiteCommand(
             @"update Player
               set
+                  Name = @name,
                   Gender = @gender,
                   Vocation = @vocation,
                   Level = @level,
@@ -188,6 +207,7 @@ namespace SharpOT
               where Id = @playerId",
             connection
         );
+
         #endregion
 
         #region Parameters
@@ -195,9 +215,9 @@ namespace SharpOT
         private static SQLiteParameter accountNameParam = new SQLiteParameter("accountName");
         private static SQLiteParameter passwordParam = new SQLiteParameter("password");
         private static SQLiteParameter accountIdParam = new SQLiteParameter("accountId");
-        private static SQLiteParameter nameParam = new SQLiteParameter("name");
+        private static SQLiteParameter playerNameParam = new SQLiteParameter("name");
 
-        private static SQLiteParameter idParam = new SQLiteParameter("playerId");
+        private static SQLiteParameter playerIdParam = new SQLiteParameter("playerId");
         private static SQLiteParameter genderParam = new SQLiteParameter("gender");
         private static SQLiteParameter vocationParam = new SQLiteParameter("vocation");
         private static SQLiteParameter levelParam = new SQLiteParameter("level");
@@ -236,10 +256,14 @@ namespace SharpOT
 
             checkAccountNameCommand.Parameters.Add(accountNameParam);
 
+            checkPlayerNameCommand.Parameters.Add(playerNameParam);
+
+            checkPlayerIdCommand.Parameters.Add(playerIdParam);
+
             //Players parameters
             insertPlayerCommand.Parameters.Add(accountIdParam);
-            insertPlayerCommand.Parameters.Add(idParam);
-            insertPlayerCommand.Parameters.Add(nameParam);
+            insertPlayerCommand.Parameters.Add(playerIdParam);
+            insertPlayerCommand.Parameters.Add(playerNameParam);
             insertPlayerCommand.Parameters.Add(genderParam);
             insertPlayerCommand.Parameters.Add(vocationParam);
             insertPlayerCommand.Parameters.Add(levelParam);
@@ -255,21 +279,21 @@ namespace SharpOT
             insertPlayerCommand.Parameters.Add(outfitFeetParam);
             insertPlayerCommand.Parameters.Add(outfitAddonsParam);
             
-            selectPlayerByNameCommand.Parameters.Add(nameParam);
+            selectPlayerByNameCommand.Parameters.Add(playerNameParam);
 
-            selectPlayerIdByNameCommand.Parameters.Add(nameParam);
+            selectPlayerIdByNameCommand.Parameters.Add(playerNameParam);
 
-            selectPlayerByIdCommand.Parameters.Add(idParam);
+            selectPlayerByIdCommand.Parameters.Add(playerIdParam);
 
-            selectPlayerNameByIdCommand.Parameters.Add(idParam);
+            selectPlayerNameByIdCommand.Parameters.Add(playerIdParam);
 
-            updatePlayerByNameCommand.Parameters.Add(idParam);
+            updatePlayerByNameCommand.Parameters.Add(playerIdParam);
             AddUpdateParams(updatePlayerByNameCommand);
-            updatePlayerByNameCommand.Parameters.Add(nameParam);
+            updatePlayerByNameCommand.Parameters.Add(playerNameParam);
             
-            updatePlayerByIdCommand.Parameters.Add(nameParam);
+            updatePlayerByIdCommand.Parameters.Add(playerNameParam);
             AddUpdateParams(updatePlayerByIdCommand);
-            updatePlayerByIdCommand.Parameters.Add(idParam);
+            updatePlayerByIdCommand.Parameters.Add(playerIdParam);
         }
 
         public static void AddUpdateParams(SQLiteCommand command)
@@ -348,8 +372,8 @@ namespace SharpOT
             int id = -1;
 
             accountIdParam.Value = accountId;
-            idParam.Value = playerid;
-            nameParam.Value = name;
+            playerIdParam.Value = playerid;
+            playerNameParam.Value = name;
             genderParam.Value = Gender.Male;
             vocationParam.Value = Vocation.None;
             levelParam.Value = 1;
@@ -394,7 +418,6 @@ namespace SharpOT
             {
                 reader.Close();
             }
-
         }
 
         public static IEnumerable<CharacterListItem> GetCharacterList(long accountId)
@@ -423,27 +446,37 @@ namespace SharpOT
             }
         }
 
-        public static bool CheckAccountName(string accName)
+        public static bool AccountNameExists(string accName)
         {
             accountNameParam.Value = accName;
-            SQLiteDataReader reader = checkAccountNameCommand.ExecuteReader();
-            bool ret = reader.Read();
-            reader.Close();
-
-            return ret;
+            return null != checkAccountNameCommand.ExecuteScalar();
         }
+
+        public static bool PlayerNameExists(string playerName)
+        {
+            playerNameParam.Value = playerName;
+            return null != checkPlayerNameCommand.ExecuteScalar();
+        }
+
+        public static bool PlayerIdExists(uint id)
+        {
+            playerIdParam.Value = id;
+            return null != checkPlayerIdCommand.ExecuteScalar();
+        }
+
         #endregion
 
         #region Players
         public static Player GetPlayerByName(long accountId, string name)
         {
+            Player player = null;
             accountIdParam.Value = accountId;
-            nameParam.Value = name;
+            playerNameParam.Value = name;
 
             SQLiteDataReader reader = selectPlayerByNameCommand.ExecuteReader();
             if (reader.Read())
             {
-                Player player = new Player();
+                player = new Player();
                 player.Name = name;
                 player.Id =(uint) reader.GetInt32(0);
                 player.Gender = (Gender)reader.GetByte(1);
@@ -460,6 +493,7 @@ namespace SharpOT
                 player.Outfit.Legs = reader.GetByte(12);
                 player.Outfit.Feet = reader.GetByte(13);
                 player.Outfit.Addons = reader.GetByte(14);
+
                 if (!reader.IsDBNull(15))
                 {
                     int x = reader.GetInt32(15);
@@ -468,22 +502,22 @@ namespace SharpOT
                     player.SavedLocation = new Location(x, y, z);
                     player.Direction = (Direction)reader.GetByte(18);
                 }
-                reader.Close();
 
                 player.Speed = (ushort)(220 + (2 * (player.Level - 1)));
-                return player;
             }
-            return null;
+            reader.Close();
+            return player;
         }
         
         public static Player GetPlayerById(uint playerId)
         {
-            idParam.Value = playerId;
+            Player player = null;
+            playerIdParam.Value = playerId;
 
             SQLiteDataReader reader = selectPlayerByIdCommand.ExecuteReader();
             if (reader.Read())
             {
-                Player player = new Player();
+                player = new Player();
                 player.Name = reader.GetString(0);
                 player.Id = playerId;
                 player.Gender = (Gender)reader.GetByte(1);
@@ -500,6 +534,7 @@ namespace SharpOT
                 player.Outfit.Legs = reader.GetByte(12);
                 player.Outfit.Feet = reader.GetByte(13);
                 player.Outfit.Addons = reader.GetByte(14);
+
                 if (!reader.IsDBNull(15))
                 {
                     int x = reader.GetInt32(15);
@@ -508,12 +543,11 @@ namespace SharpOT
                     player.SavedLocation = new Location(x, y, z);
                     player.Direction = (Direction)reader.GetByte(18);
                 }
-                reader.Close();
 
                 player.Speed = (ushort)(220 + (2 * (player.Level - 1)));
-                return player;
             }
-            return null;
+            reader.Close();
+            return player;
         }
 
         public static bool SavePlayerByName(Player player)
@@ -533,8 +567,8 @@ namespace SharpOT
         private static void PlayerInfoToParams(Player player)
         {
             accountIdParam.Value = player.Connection.AccountId;
-            idParam.Value = player.Id;
-            nameParam.Value = player.Name;
+            playerIdParam.Value = player.Id;
+            playerNameParam.Value = player.Name;
             genderParam.Value = player.Gender;
             vocationParam.Value = player.Vocation;
             levelParam.Value = player.Level;
@@ -618,7 +652,7 @@ namespace SharpOT
         public static KeyValuePair<uint, string> GetPlayerIdNamePair(uint playerId)
         {
             KeyValuePair<uint, string> pair =new KeyValuePair<uint,string>();
-            idParam.Value = playerId;
+            playerIdParam.Value = playerId;
             SQLiteDataReader reader = selectPlayerNameByIdCommand.ExecuteReader();
             if (reader.Read()) 
                 pair = new KeyValuePair<uint, string>(playerId, reader.GetString(0));
@@ -629,7 +663,7 @@ namespace SharpOT
         public static KeyValuePair<uint, string> GetPlayerIdNamePair(string playerName)
         {
             KeyValuePair<uint, string> pair = new KeyValuePair<uint, string>();
-            nameParam.Value = playerName;
+            playerNameParam.Value = playerName;
             SQLiteDataReader reader =selectPlayerIdByNameCommand.ExecuteReader();
             if (reader.Read()) 
                 pair = new KeyValuePair<uint, string>((uint)reader.GetInt32(0), playerName);
@@ -640,6 +674,7 @@ namespace SharpOT
         #endregion
 
         #region Map
+
         public static void GetMapTiles(Map map)
         {
             SQLiteDataReader reader = selectMapTilesCommand.ExecuteReader();
@@ -679,6 +714,7 @@ namespace SharpOT
             }
             reader.Close();
         }
+
         #endregion
     }
 }

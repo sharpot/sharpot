@@ -5,7 +5,7 @@ namespace SharpOT
 {
     public abstract class Thing
     {
-        protected abstract ushort GetId();
+        protected abstract ushort GetThingId();
 
         // Thanks to Stepler at http://tpforums.org/forum/showpost.php?p=26654&postcount=5
         // The sections are:
@@ -17,7 +17,7 @@ namespace SharpOT
         // 5 - Other items
         public byte GetOrder()
         {
-            uint id = GetId();
+            uint id = GetThingId();
             if ((id >= 0x0061) && (id <= 0x0063)) return 4;
 
             DatItem di = DatReader.GetItem(id);

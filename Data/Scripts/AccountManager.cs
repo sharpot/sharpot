@@ -11,7 +11,13 @@ public class AccountManager:IScript
         this.game = game;
         game.BeforeCreatureSpeech += BeforeCreatureSpeech;
         game.BeforeCreatureMove += BeforeCreatureMove;
+        game.AfterLogin += AfterLogin;
         return true;
+    }
+
+    public void AfterLogin(Player player)
+    {
+            player.Connection.SendTextMessage(TextMessageType.ConsoleBlue, "Say anything to start a dialogue.");
     }
 
     public bool BeforeCreatureSpeech(Creature creature, Speech speech)
@@ -19,7 +25,6 @@ public class AccountManager:IScript
         if (creature.IsPlayer && creature.Name == "Account Manager")
         {
             Player p = (Player)creature;
-            p.Connection.SendCreatureSpeech(creature, SpeechType.Whisper, speech.Message);
             if (managers.ContainsKey(p.Connection))
             {
                 Parse(p.Connection, managers[p.Connection], speech);
@@ -29,7 +34,8 @@ public class AccountManager:IScript
                 managers.Add(p.Connection, DialogueState.New);
                 Parse(p.Connection, managers[p.Connection], speech);
             }
-            return false;
+
+            speech.Type = SpeechType.Whisper;
         }
 
         return true;
@@ -80,6 +86,7 @@ public class AccountManager:IScript
     {
         game.BeforeCreatureSpeech -= BeforeCreatureSpeech;
         game.BeforeCreatureMove -= BeforeCreatureMove;
+        game.AfterLogin -= AfterLogin;
         return true;
     }
 

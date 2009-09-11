@@ -300,13 +300,13 @@ namespace SharpOT
         public void ParseClientChannelOpen(NetworkMessage message)
         {
             ClientChannelOpenPacket packet = ClientChannelOpenPacket.Parse(message);
-            Game.ChannelOpen(Player, packet.ChannelId);
+            Game.ChannelOpen(Player, packet.Channel);
         }
 
         public void ParseChannelClose(NetworkMessage message)
         {
             ChannelClosePacket packet = ChannelClosePacket.Parse(message);
-            Game.ChannelClose(Player, packet.ChannelId);
+            Game.ChannelClose(Player, packet.Channel);
         }
         
         public void ParseVipAdd(NetworkMessage message)
@@ -578,7 +578,7 @@ namespace SharpOT
             CreatureHealthPacket.Add(
                 outMessage,
                 creature.Id,
-                creature.GetHealthPercent());
+                creature.HealthPercent);
 
             Send(outMessage);
         }
