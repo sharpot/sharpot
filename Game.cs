@@ -450,19 +450,18 @@ namespace SharpOT
 
         public bool IsIdAvailable(uint id)
         {
-            // TODO: All these functions should be fast database lookups checking
-            //       for a single key, not selecting everything and checking server side.
-            return !Database.GetPlayerIdNameDictionary().ContainsKey(id);
+            return Database.GetPlayerIdNamePair(id).Key == 0;
         }
 
         public bool IsCharacterNameAvailable(string name)
         {
-            return !Database.GetPlayerIdNameDictionary().Values.Any(v => v.ToLower() == name.ToLower());
+            //make a sql query that ignores case when searching if possible
+            return !Database.GetPlayerIdNameDictionary().Any(pair => pair.Value.ToLower() == name.ToLower());
         }
 
         public bool IsAccountNameAvailable(string accName)
         {
-            return !Database.GetAllAccountNames().Contains(accName);
+            return !Database.CheckAccountName(accName);
         }
 
         #endregion

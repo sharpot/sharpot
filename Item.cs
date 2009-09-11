@@ -25,22 +25,23 @@ namespace SharpOT
 
 
         #region "Constructors"
-        public void Item(ushort Id, Location Location)
+        public Item()
         {
-            Item(Id, Location, "item of type " + Id);
+        }
+        public Item(ushort Id, Location Location)
+            : this(Id, Location, "item of type " + Id) { }
+
+        public Item(ushort Id, Location Location, string Name)
+            : this(Id, Location, Name, "")
+        {
         }
 
-        public void Item(ushort Id, Location Location, string Name)
+        public Item(ushort Id, Location Location, string Name, string Description)
+            : this(Id, Location, Name, Description, "")
         {
-            Item(Id, Location, Name, "");
         }
 
-        public void Item(ushort Id, Location Location, string Name, string Description)
-        {
-            Item(Id, Location, Name, Description, "");
-        }
-
-        public void Item(ushort Id, Location Location, string Name, string Description, string SpecialDescription)
+        public Item(ushort Id, Location Location, string Name, string Description, string SpecialDescription)
         {
             this.Id = Id;
             this.Location = Location;
@@ -69,10 +70,10 @@ namespace SharpOT
 
         private string GetArticle(string text)
         {
-            if (text.Length = 0) return string.Empty;
+            if (text.Length == 0) return string.Empty;
 
-            if (text.tolower()[0] = "a" || text.tolower()[0] = "e" ||
-            text.tolower()[0] = "i" || text.tolower()[0] = "o" || text.tolower()[0] = "u")
+            if ((text.ToLower()[0] == 'a') || (text.ToLower()[0] == 'e') ||
+            text.ToLower()[0] == 'i' || text.ToLower()[0] == 'o' || text.ToLower()[0] == 'u')
             {
                 return "an";
             }
@@ -82,39 +83,36 @@ namespace SharpOT
 
         private string GetCombatAttributes()
         {
-            string Temp;
+            string temp = "";
             if (Attack > 0 && Defense > 0)
             {
                 //Add the items attack
-                Temp = "(Atk:" + Attack;
+                temp = "(Atk:" + Attack;
                 if (ExtraAttack > 0)
                 {
-                    Temp += " +" + ExtraAttack;
+                    temp += " +" + ExtraAttack;
                 }
                 else if (ExtraAttack < 0)
                 {
-                    Temp += " -" + Math.Abs(ExtraAttack);
+                    temp += " -" + Math.Abs(ExtraAttack);
                 }
                 //Add the Defense
-                Temp += ", Def:" + Defense;
+                temp += ", Def:" + Defense;
                 if (ExtraDefense > 0)
                 {
-                    Temp += " +" + ExtraDefense;
+                    temp += " +" + ExtraDefense;
                 }
                 else if (ExtraDefense < 0)
                 {
-                    Temp += " -" + Math.Abs(ExtraDefense);
+                    temp += " -" + Math.Abs(ExtraDefense);
                 }
-                Temp += ")";
+                temp += ")";
             }
             else if (Armor > 0)
             {
-                Temp = "(Arm:" + Armor + ")";
+                temp = "(Arm:" + Armor + ")";
             }
-            else
-            {
-                return string.Empty;
-            }
+            return temp;
         }
         #endregion
 
