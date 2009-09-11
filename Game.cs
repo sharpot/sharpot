@@ -13,7 +13,6 @@ namespace SharpOT
     {
         #region Variables
         
-        
         private Dictionary<uint, Creature> creatures = new Dictionary<uint, Creature>();
         Random random = new Random();
 
@@ -37,11 +36,30 @@ namespace SharpOT
         public delegate bool PlayerChangeOutfitHandler(Creature creature, Outfit outfit);
         public PlayerChangeOutfitHandler BeforePlayerChangeOutfit;
 
-        public delegate bool PrivateChannelOpenHandler(Player creature, string receiver);
+        public delegate bool PrivateChannelOpenHandler(Player player, string receiver);
         public PrivateChannelOpenHandler BeforePrivateChannelOpen;
 
         public delegate bool CreatureMoveHandler(Creature creature,Direction direction,Location fromLocation,Location toLocation, byte fromStackPosition, Tile toTile);
         public CreatureMoveHandler BeforeCreatureMove;
+
+        public delegate bool ChannelHandler(Player creature, ChatChannel channel);
+        public ChannelHandler BeforeChannelOpen;
+        public ChannelHandler BeforeChannelClose;
+
+        public delegate bool CreatureUpdateHealthHandler(Creature creature, ushort health);
+        public CreatureUpdateHealthHandler BeforeCreatureUpdateHealth;
+
+        public delegate bool VipAddHandler(Player player, string vipName);
+        public VipAddHandler BeforeVipAdd;
+
+        public delegate bool VipRemoveHandler(Player player, uint vipId);
+        public VipRemoveHandler BeforeVipRemove;
+
+        public delegate bool BeforeLoginHandler(Connection connection, string playerName);
+        public BeforeLoginHandler BeforeLogin;
+
+        public delegate void AfterLoginHandler(Player player);
+        public AfterLoginHandler AfterLogin;
 
         #endregion
 
@@ -93,6 +111,8 @@ namespace SharpOT
 
         public void CreatureTurn(Creature creature, Direction direction)
         {
+            // TODO: What should we do about recursion? A script shouldn't
+            // call this method when handling this method...
             if (BeforeCreatureTurn != null)
             {
                 bool forward = true;
@@ -195,24 +215,19 @@ namespace SharpOT
             }
         }
 
-        public void CreaturePrivateSpeech(Creature creature, string receiver, string message)
-        {
-            Player selected = GetPlayers().FirstOrDefault(p => p.Name == receiver);
-            if (selected != null)
-            {
-                selected.Connection.SendCreatureSpeech(creature, SpeechType.Private, message);
-                if (creature.IsPlayer)
-                    ((Player)creature).Connection.SendTextMessage(TextMessageType.StatusSmall, "Message sent to " + receiver + ".");
-            }
-            else
-            {
-                if (creature.IsPlayer)
-                    ((Player)creature).Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name is not online.");
-            }
-        }
-
         public void ChannelOpen(Player player, ChatChannel channel)
         {
+            if (BeforeChannelOpen != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeChannelOpen.GetInvocationList())
+                {
+                    ChannelHandler subscriber = (ChannelHandler)del;
+                    forward &= (bool)subscriber(player, channel);
+                }
+                if (!forward) return;
+            }
+
             Channel selected = player.ChannelList.FirstOrDefault(c => c.Id == (ushort)channel);
             if (selected != null)
             {
@@ -220,85 +235,25 @@ namespace SharpOT
                 {
                     player.OpenedChannelList.Add(selected);
                 }
-                else
-                {
-                    //shouldn't happen
 
-                }
                 player.Connection.SendChannelOpen(selected);
-            }
-            else
-            {
-                //shouldn't happen
             }
         }
 
-        public void ChannelClose(Player player, ushort channelId)
+        public void ChannelClose(Player player, ChatChannel channel)
         {
-            Channel selected = player.OpenedChannelList.FirstOrDefault(c => c.Id == channelId);
+            if (BeforeChannelClose != null)
+            {
+                // Happens client side, can't stop it
+                BeforeChannelClose(player, channel);
+            }
+
+            Channel selected = player.OpenedChannelList.FirstOrDefault(c => c.Id == (ushort)channel);
             if (selected != null)
             {
                 player.OpenedChannelList.Remove(selected);
             }
-            else
-            {
-                //shouldn't happen
-            }
-        }
-
-        public void CreatureChannelSpeech(string sender, SpeechType type, ChatChannel channelId, string message)
-        {
-            var channelPlayers = GetPlayers()
-                .Where(player => player.OpenedChannelList.Any(channel => channel.Id == (ushort)channelId));
-
-            foreach (var player in channelPlayers)
-            {
-                player.Connection.SendChannelSpeech(sender, type, channelId, message);
-            }
-        }
-
-        public void CreatureSaySpeech(Creature creature, SpeechType speechType, string message)
-        {
-            foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
-            {
-                spectator.Connection.SendCreatureSpeech(creature, speechType, message);
-            }
-        }
-
-        public void CreatureYellSpeech(Creature creature, SpeechType speechType, string message)
-        {
-            if (creature.IsPlayer)
-            {
-                Player player = (Player)creature;
-                if (System.Environment.TickCount - player.LastYellTime <= 30000)
-                {
-                    player.Connection.SendTextMessage(TextMessageType.StatusSmall, "You are exhausted.");
-                    return;
-                }
-                else player.LastYellTime = System.Environment.TickCount;
-            }
-
-            bool sameFloor = creature.Tile.Location.Z > 7;
-            foreach (Player player in GetPlayers().Where(p => p.Tile.Location.IsInRange(creature.Tile.Location, sameFloor, 50)))
-            {
-                player.Connection.SendCreatureSpeech(creature, speechType, message.ToUpper());
-            }
-        }
-
-        public void CreatureWhisperSpeech(Creature creature, SpeechType speechType, string message)
-        {
-            foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
-            {
-                if (spectator.Tile.Location.IsInRange(creature.Tile.Location, true, 1.42))
-                {
-                    spectator.Connection.SendCreatureSpeech(creature, speechType, message);
-                }
-                else
-                {
-                    spectator.Connection.SendCreatureSpeech(creature, speechType, "pspsps");
-                }
-            }
-        }       
+        }     
 
         public void CreatureMove(Creature creature, Direction direction)
         {
@@ -313,7 +268,7 @@ namespace SharpOT
                 foreach (Delegate del in BeforeCreatureMove.GetInvocationList())
                 {
                     CreatureMoveHandler subscriber = (CreatureMoveHandler)del;
-                    forward &= (bool)subscriber(creature,direction,fromLocation,toLocation,fromStackPosition,toTile);
+                    forward &= (bool)subscriber(creature, direction, fromLocation, toLocation, fromStackPosition, toTile);
                 }
                 if (!forward) return;
             }
@@ -355,12 +310,24 @@ namespace SharpOT
             }
         }
 
-        public void CreatureUpdateHealth(Creature creature)
+        public void CreatureUpdateHealth(Creature creature, ushort health)
         {
+            if (BeforeCreatureUpdateHealth != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeCreatureUpdateHealth.GetInvocationList())
+                {
+                    CreatureUpdateHealthHandler subscriber = (CreatureUpdateHealthHandler)del;
+                    forward &= (bool)subscriber(creature, health);
+                }
+                if (!forward) return;
+            }
+
             foreach (var player in GetSpectatorPlayers(creature.Tile.Location))
             {
-                if (player == creature)//should be composite packet?
+                if (player == creature)
                 {
+                    //TODO: composite packet
                     player.Connection.SendStatus();
                 }
 
@@ -369,10 +336,21 @@ namespace SharpOT
         }
 
 
-        public void VipAdd(Player player, string buddy)
+        public void VipAdd(Player player, string vipName)
         {
-             KeyValuePair<uint,string> selected = Database.GetPlayerIdNameDictionary()
-                 .FirstOrDefault(pair => pair.Value.ToLower() == buddy.ToLower());
+            if (BeforeVipAdd != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeVipAdd.GetInvocationList())
+                {
+                    VipAddHandler subscriber = (VipAddHandler)del;
+                    forward &= (bool)subscriber(player, vipName);
+                }
+                if (!forward) return;
+            }
+
+            KeyValuePair<uint,string> selected = Database.GetPlayerIdNameDictionary()
+                .FirstOrDefault(pair => pair.Value.ToLower() == vipName.ToLower());
                         
             if (player.VipList.Count >= 100)
             {
@@ -400,20 +378,37 @@ namespace SharpOT
 
         }
 
-        public void VipRemove(Player player, uint id)
+        public void VipRemove(Player player, uint vipId)
         {
-            if (player.VipList.ContainsKey(id))
+            if (BeforeVipRemove != null)
             {
-                player.VipList.Remove(id);
+                // Happens client side, can't stop it
+                BeforeVipRemove(player, vipId);
             }
-            else
+
+            if (player.VipList.ContainsKey(vipId))
             {
-                //shouldn't happen
+                player.VipList.Remove(vipId);
             }
         }
 
         public void ProcessLogin(Connection connection, string characterName)
         {
+            if (BeforeLogin != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeLogin.GetInvocationList())
+                {
+                    BeforeLoginHandler subscriber = (BeforeLoginHandler)del;
+                    forward &= (bool)subscriber(connection, characterName);
+                }
+                if (!forward)
+                {
+                    connection.Close();
+                    return;
+                }
+            }
+
             Player player = Database.GetPlayerByName(connection.AccountId, characterName);
             if (player.SavedLocation == null || Map.GetTile(player.SavedLocation) == null)
             {
@@ -428,33 +423,6 @@ namespace SharpOT
             player.Game = this;
 
             PlayerLogin(player);
-        }
-
-        private void PlayerLogin(Player player)
-        {
-            AddCreature(player);
-
-            player.Connection.SendInitialPacket();
-
-            if (player.Name == "Account Manager")
-            {
-                player.Connection.SendTextMessage(TextMessageType.ConsoleBlue, "Say anything to start a dialogue.");
-            }
-
-            //should be composite packet for players that are spectators AND vips?
-            var spectators = GetSpectatorPlayers(player.Tile.Location).Where(s => s != player);
-            foreach (var spectator in spectators)
-            {
-                spectator.Connection.SendCreatureAppear(player);
-            }
-
-
-            foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
-            {
-                p.VipList[player.Id].LoggedIn = true;
-                p.Connection.SendVipLogin(player.Id);
-            }
-                        
         }
 
         public void PlayerLogout(Player player)
@@ -514,20 +482,104 @@ namespace SharpOT
             throw new Exception("No available player ids.");
         }
 
-        public bool IsIdAvailable(uint id)
+        #endregion
+
+        #region Private Helpers
+
+        private void PlayerLogin(Player player)
         {
-            return Database.GetPlayerIdNamePair(id).Key == 0;
+            AddCreature(player);
+
+            player.Connection.SendInitialPacket();
+
+            if (AfterLogin != null)
+            {
+                AfterLogin(player);
+            }
+
+            //TODO: composite packet for players that are spectators AND vips?
+            var spectators = GetSpectatorPlayers(player.Tile.Location).Where(s => s != player);
+            foreach (var spectator in spectators)
+            {
+                spectator.Connection.SendCreatureAppear(player);
+            }
+
+
+            foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
+            {
+                p.VipList[player.Id].LoggedIn = true;
+                p.Connection.SendVipLogin(player.Id);
+            }
         }
 
-        public bool IsCharacterNameAvailable(string name)
+        private void CreatureChannelSpeech(string sender, SpeechType type, ChatChannel channelId, string message)
         {
-            //make a sql query that ignores case when searching if possible
-            return !Database.GetPlayerIdNameDictionary().Any(pair => pair.Value.ToLower() == name.ToLower());
+            var channelPlayers = GetPlayers()
+                .Where(player => player.OpenedChannelList.Any(channel => channel.Id == (ushort)channelId));
+
+            foreach (var player in channelPlayers)
+            {
+                player.Connection.SendChannelSpeech(sender, type, channelId, message);
+            }
         }
 
-        public bool IsAccountNameAvailable(string accName)
+        private void CreatureSaySpeech(Creature creature, SpeechType speechType, string message)
         {
-            return !Database.CheckAccountName(accName);
+            foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
+            {
+                spectator.Connection.SendCreatureSpeech(creature, speechType, message);
+            }
+        }
+
+        private void CreatureYellSpeech(Creature creature, SpeechType speechType, string message)
+        {
+            if (creature.IsPlayer)
+            {
+                Player player = (Player)creature;
+                if (System.Environment.TickCount - player.LastYellTime <= 30000)
+                {
+                    player.Connection.SendTextMessage(TextMessageType.StatusSmall, "You are exhausted.");
+                    return;
+                }
+                else player.LastYellTime = System.Environment.TickCount;
+            }
+
+            bool sameFloor = creature.Tile.Location.Z > 7;
+            foreach (Player player in GetPlayers().Where(p => p.Tile.Location.IsInRange(creature.Tile.Location, sameFloor, 50)))
+            {
+                player.Connection.SendCreatureSpeech(creature, speechType, message.ToUpper());
+            }
+        }
+
+        private void CreatureWhisperSpeech(Creature creature, SpeechType speechType, string message)
+        {
+            foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
+            {
+                if (spectator.Tile.Location.IsInRange(creature.Tile.Location, true, 1.42))
+                {
+                    spectator.Connection.SendCreatureSpeech(creature, speechType, message);
+                }
+                else
+                {
+                    spectator.Connection.SendCreatureSpeech(creature, speechType, "pspsps");
+                }
+            }
+        }
+
+        private void CreaturePrivateSpeech(Creature creature, string receiver, string message)
+        {
+            Player selected = GetPlayers().FirstOrDefault(p => p.Name == receiver);
+            if (selected != null)
+            {
+                selected.Connection.SendCreatureSpeech(creature, SpeechType.Private, message);
+                if (creature.IsPlayer)
+                    ((Player)creature).Connection.SendTextMessage(TextMessageType.StatusSmall, "Message sent to " + receiver + ".");
+            }
+            else
+            {
+                if (creature.IsPlayer)
+                    ((Player)creature).Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name is not online.");
+            }
         }
 
         #endregion
