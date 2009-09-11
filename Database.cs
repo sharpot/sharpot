@@ -45,6 +45,11 @@ namespace SharpOT
             where Name=@accountName",
             connection
         );
+
+        private static SQLiteCommand selectLastInsertId = new SQLiteCommand(
+            "select last_insert_rowid()",
+            connection
+        );
         #endregion
 
         #region Map Commands
@@ -298,18 +303,32 @@ namespace SharpOT
         #endregion
 
         #region Account Management
-        public static bool CreateAccount(string name, string password)
+
+        public static int GetLastInsertId()
         {
+            return Convert.ToInt32(selectLastInsertId.ExecuteScalar());
+        }
+
+        public static int CreateAccount(string name, string password)
+        {
+            int id = -1;
+
             accountNameParam.Value = name;
             passwordParam.Value = Util.Hash.SHA256Hash(password);
+
             try
             {
-                return (1 == insertAccountCommand.ExecuteNonQuery());
+                if (1 == insertAccountCommand.ExecuteNonQuery())
+                {
+                    id = GetLastInsertId();
+                }
             }
             catch (SQLiteException)
             {
-                return false;
+                return id;
             }
+
+            return id;
         }
 
         public static long GetAccountId(string accountName, string password)
@@ -324,8 +343,10 @@ namespace SharpOT
             return (long)result;
         }
 
-        public static bool CreatePlayer(long accountId, string name, uint playerid)
+        public static int CreatePlayer(long accountId, string name, uint playerid)
         {
+            int id = -1;
+
             accountIdParam.Value = accountId;
             idParam.Value = playerid;
             nameParam.Value = name;
@@ -343,14 +364,20 @@ namespace SharpOT
             outfitLegsParam.Value = 0;
             outfitFeetParam.Value = 0;
             outfitAddonsParam.Value = 0;
+
             try
             {
-                return (1 == insertPlayerCommand.ExecuteNonQuery());
+                if (1 == insertPlayerCommand.ExecuteNonQuery())
+                {
+                    id = GetLastInsertId();
+                }
             }
             catch (SQLiteException)
             {
-                return false;
+                return id;
             }
+
+            return id;
         }
 
         public static IEnumerable<string> GetAllAccountNames()

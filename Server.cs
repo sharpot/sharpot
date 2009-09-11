@@ -28,34 +28,32 @@ namespace SharpOT
 
         void Run()
         {
+            int id = -1;
             game = new Game(this);
 
             if (game.IsAccountNameAvailable("manager"))
             {
-                Database.CreateAccount("manager", "manager");
-                if (game.IsCharacterNameAvailable("Account Manager"))
-                    Database.CreatePlayer(
-                        Database.GetAccountId("manager","manager"),
-                        "Account Manager",
-                        game.GenerateAvailableId());
+                id = Database.CreateAccount("manager", "manager");
+                if (id > 0 && game.IsCharacterNameAvailable("Account Manager"))
+                    Database.CreatePlayer(id, "Account Manager", game.GenerateAvailableId());
             }
             if (game.IsAccountNameAvailable("1"))
             {
-                Database.CreateAccount("1", "1");
-                if (game.IsCharacterNameAvailable("God"))
-                    Database.CreatePlayer(1, "God", game.GenerateAvailableId());
+                id = Database.CreateAccount("1", "1");
+                if (id > 0 && game.IsCharacterNameAvailable("God"))
+                    Database.CreatePlayer(id, "God", game.GenerateAvailableId());
             }
             if (game.IsAccountNameAvailable("2"))
             {
-                Database.CreateAccount("2", "2");
-                if (game.IsCharacterNameAvailable("Bob"))
-                    Database.CreatePlayer(2, "Bob", game.GenerateAvailableId());
+                id = Database.CreateAccount("2", "2");
+                if (id > 0 && game.IsCharacterNameAvailable("Bob"))
+                    Database.CreatePlayer(id, "Bob", game.GenerateAvailableId());
             }
             if (game.IsAccountNameAvailable("3") && game.IsCharacterNameAvailable("Alice"))
             {
-                Database.CreateAccount("3", "3");
-                if (game.IsCharacterNameAvailable("Alice"))
-                    Database.CreatePlayer(3, "Alice", game.GenerateAvailableId());
+                id = Database.CreateAccount("3", "3");
+                if (id > 0 && game.IsCharacterNameAvailable("Alice"))
+                    Database.CreatePlayer(id, "Alice", game.GenerateAvailableId());
             }
 
             try
