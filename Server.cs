@@ -30,6 +30,15 @@ namespace SharpOT
         {
             game = new Game(this);
 
+            if (game.IsAccountNameAvailable("manager"))
+            {
+                Database.CreateAccount("manager", "manager");
+                if (game.IsCharacterNameAvailable("Account Manager"))
+                    Database.CreatePlayer(
+                        Database.GetAccountId("manager","manager"),
+                        "Account Manager",
+                        game.GenerateAvailableId());
+            }
             if (game.IsAccountNameAvailable("1"))
             {
                 Database.CreateAccount("1", "1");
