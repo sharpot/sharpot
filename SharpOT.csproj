@@ -76,6 +76,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channel.cs" />
+    <Compile Include="Data\Scripts\AccountManager.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Packets\Client\ChannelClosePacket.cs" />
     <Compile Include="Packets\Client\ClientChannelOpenPacket.cs" />
     <Compile Include="Packets\Client\FightModesPacket.cs" />

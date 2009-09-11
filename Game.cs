@@ -13,6 +13,7 @@ namespace SharpOT
     {
         #region Variables
         
+        
         private Dictionary<uint, Creature> creatures = new Dictionary<uint, Creature>();
         Random random = new Random();
 
@@ -121,26 +122,33 @@ namespace SharpOT
                     return;
             }
 
-            switch (speech.Type)
+            if (creature.Name != "Account Manager")
             {
-                case SpeechType.Say:
-                    CreatureSaySpeech(creature, speech.Type, speech.Message);
-                    break;
-                case SpeechType.Whisper:
-                    CreatureWhisperSpeech(creature, speech.Type, speech.Message);
-                    break;
-                case SpeechType.Yell:
-                    CreatureYellSpeech(creature, speech.Type, speech.Message);
-                    break;
-                case SpeechType.Private:
-                    CreaturePrivateSpeech(creature, speech.Receiver, speech.Message);
-                    break;
-                case SpeechType.ChannelOrange:
-                case SpeechType.ChannelRed:
-                case SpeechType.ChannelWhite:
-                case SpeechType.ChannelYellow:
-                    CreatureChannelSpeech(creature.Name, speech.Type, speech.ChannelId, speech.Message);
-                    break;
+                switch (speech.Type)
+                {
+                    case SpeechType.Say:
+                        CreatureSaySpeech(creature, speech.Type, speech.Message);
+                        break;
+                    case SpeechType.Whisper:
+                        CreatureWhisperSpeech(creature, speech.Type, speech.Message);
+                        break;
+                    case SpeechType.Yell:
+                        CreatureYellSpeech(creature, speech.Type, speech.Message);
+                        break;
+                    case SpeechType.Private:
+                        CreaturePrivateSpeech(creature, speech.Receiver, speech.Message);
+                        break;
+                    case SpeechType.ChannelOrange:
+                    case SpeechType.ChannelRed:
+                    case SpeechType.ChannelWhite:
+                    case SpeechType.ChannelYellow:
+                        CreatureChannelSpeech(creature.Name, speech.Type, speech.ChannelId, speech.Message);
+                        break;
+                }
+            }
+            else
+            {
+                ((Player)creature).Connection.SendCreatureSpeech(creature, SpeechType.Whisper, speech.Message);
             }
         }
 
@@ -150,12 +158,12 @@ namespace SharpOT
             if (selected != null)
             {
                 selected.Connection.SendCreatureSpeech(creature, SpeechType.Private, message);
-                if (creature is Player)
+                if (creature.IsPlayer)
                     ((Player)creature).Connection.SendTextMessage(TextMessageType.StatusSmall, "Message sent to " + receiver + ".");
             }
             else
             {
-                if (creature is Player)
+                if (creature.IsPlayer)
                     ((Player)creature).Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name is not online.");
             }
         }
@@ -374,6 +382,10 @@ namespace SharpOT
 
             player.Connection.SendInitialPacket();
 
+            if (player.Name == "Account Manager")
+            {
+                player.Connection.SendTextMessage(TextMessageType.ConsoleBlue, "Say anything to start a dialogue.");
+            }
 
             //should be composite packet for players that are spectators AND vips?
             var spectators = GetSpectatorPlayers(player.Tile.Location).Where(s => s != player);

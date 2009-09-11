@@ -60,6 +60,7 @@ namespace SharpOT
         public ushort Speed { get; set; }
         public Tile Tile { get; set; }
         public Game Game { get; set; }
+
         public bool IsPlayer
         {
             get { return Id > 0x40000000; }

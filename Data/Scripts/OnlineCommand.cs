@@ -13,7 +13,7 @@ public class OnlineCommand : IScript
 
     public bool BeforeCreatureSpeech(Creature creature, Speech speech)
     {
-        if (creature is Player && speech.Message.ToLower().Equals("/online"))
+        if (creature.IsPlayer && speech.Message.ToLower().Equals("/online"))
         {
             string online = "";
             foreach (Player player in game.GetPlayers())
