@@ -40,6 +40,9 @@ namespace SharpOT
         public delegate bool PrivateChannelOpenHandler(Player creature, string receiver);
         public PrivateChannelOpenHandler BeforePrivateChannelOpen;
 
+        public delegate bool CreatureMoveHandler(Creature creature,Direction direction,Location fromLocation,Location toLocation, byte fromStackPosition, Tile toTile);
+        public CreatureMoveHandler BeforeCreatureMove;
+
         #endregion
 
         #region Constructor
@@ -90,12 +93,15 @@ namespace SharpOT
 
         public void CreatureTurn(Creature creature, Direction direction)
         {
-            // TODO: we need a better, more generic calling method.
-            // The return value is of the last delegate executed.
             if (BeforeCreatureTurn != null)
             {
-                if (!BeforeCreatureTurn(creature, direction))
-                    return;
+                bool forward = true;
+                foreach (Delegate del in BeforeCreatureTurn.GetInvocationList())
+                {
+                    CreatureTurnHandler subscriber = (CreatureTurnHandler)del;
+                    forward &= (bool)subscriber(creature, direction);
+                }
+                if (!forward) return;
             }
 
             if (creature.Direction != direction)
@@ -112,8 +118,13 @@ namespace SharpOT
         {
             if (BeforePlayerChangeOutfit != null)
             {
-                if (!BeforePlayerChangeOutfit(player, outfit))
-                    return;
+                bool forward = true;
+                foreach (Delegate del in BeforePlayerChangeOutfit.GetInvocationList())
+                {
+                    PlayerChangeOutfitHandler subscriber = (PlayerChangeOutfitHandler)del;
+                    forward &= (bool)subscriber(player, outfit);
+                }
+                if (!forward) return;
             }
 
             player.Outfit = outfit;
@@ -128,8 +139,13 @@ namespace SharpOT
         {
             if (BeforePrivateChannelOpen != null)
             {
-                if (!BeforePrivateChannelOpen(player, receiver))
-                    return;
+                bool forward = true;
+                foreach (Delegate del in BeforePrivateChannelOpen.GetInvocationList())
+                {
+                    PrivateChannelOpenHandler subscriber = (PrivateChannelOpenHandler)del;
+                    forward &= (bool)subscriber(player, receiver);
+                }
+                if (!forward) return;
             }
 
             string selected = Database.GetPlayerIdNameDictionary().FirstOrDefault(pair => pair.Value.ToLower() == receiver.ToLower()).Value;
@@ -147,37 +163,35 @@ namespace SharpOT
         {
             if (BeforeCreatureSpeech != null)
             {
-                if (!BeforeCreatureSpeech(creature, speech))
-                    return;
+                bool forward = true;
+                foreach (Delegate del in BeforeCreatureSpeech.GetInvocationList())
+                {
+                    CreatureSpeechHandler subscriber=(CreatureSpeechHandler)del;
+                    forward &= (bool)subscriber(creature, speech);
+                }
+                if (!forward) return;
             }
 
-            if (creature.Name != "Account Manager")
+            switch (speech.Type)
             {
-                switch (speech.Type)
-                {
-                    case SpeechType.Say:
-                        CreatureSaySpeech(creature, speech.Type, speech.Message);
-                        break;
-                    case SpeechType.Whisper:
-                        CreatureWhisperSpeech(creature, speech.Type, speech.Message);
-                        break;
-                    case SpeechType.Yell:
-                        CreatureYellSpeech(creature, speech.Type, speech.Message);
-                        break;
-                    case SpeechType.Private:
-                        CreaturePrivateSpeech(creature, speech.Receiver, speech.Message);
-                        break;
-                    case SpeechType.ChannelOrange:
-                    case SpeechType.ChannelRed:
-                    case SpeechType.ChannelWhite:
-                    case SpeechType.ChannelYellow:
-                        CreatureChannelSpeech(creature.Name, speech.Type, speech.ChannelId, speech.Message);
-                        break;
-                }
-            }
-            else
-            {
-                ((Player)creature).Connection.SendCreatureSpeech(creature, SpeechType.Whisper, speech.Message);
+                case SpeechType.Say:
+                    CreatureSaySpeech(creature, speech.Type, speech.Message);
+                    break;
+                case SpeechType.Whisper:
+                    CreatureWhisperSpeech(creature, speech.Type, speech.Message);
+                    break;
+                case SpeechType.Yell:
+                    CreatureYellSpeech(creature, speech.Type, speech.Message);
+                    break;
+                case SpeechType.Private:
+                    CreaturePrivateSpeech(creature, speech.Receiver, speech.Message);
+                    break;
+                case SpeechType.ChannelOrange:
+                case SpeechType.ChannelRed:
+                case SpeechType.ChannelWhite:
+                case SpeechType.ChannelYellow:
+                    CreatureChannelSpeech(creature.Name, speech.Type, speech.ChannelId, speech.Message);
+                    break;
             }
         }
 
@@ -292,6 +306,17 @@ namespace SharpOT
             byte fromStackPosition = creature.Tile.GetStackPosition(creature);
             Location toLocation = creature.Tile.Location.Offset(direction);
             Tile toTile = Map.GetTile(toLocation);
+
+            if (BeforeCreatureMove != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeCreatureMove.GetInvocationList())
+                {
+                    CreatureMoveHandler subscriber = (CreatureMoveHandler)del;
+                    forward &= (bool)subscriber(creature,direction,fromLocation,toLocation,fromStackPosition,toTile);
+                }
+                if (!forward) return;
+            }
 
             if (toTile != null && toTile.IsWalkable)
             {
