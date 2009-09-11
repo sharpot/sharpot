@@ -31,6 +31,15 @@ namespace SharpOT
         public delegate bool CreatureSpeechHandler(Creature creature, Speech speech);
         public CreatureSpeechHandler BeforeCreatureSpeech;
 
+        public delegate bool CreatureTurnHandler(Creature creature, Direction direction);
+        public CreatureTurnHandler BeforeCreatureTurn;
+
+        public delegate bool PlayerChangeOutfitHandler(Creature creature, Outfit outfit);
+        public PlayerChangeOutfitHandler BeforePlayerChangeOutfit;
+
+        public delegate bool PrivateChannelOpenHandler(Player creature, string receiver);
+        public PrivateChannelOpenHandler BeforePrivateChannelOpen;
+
         #endregion
 
         #region Constructor
@@ -81,6 +90,14 @@ namespace SharpOT
 
         public void CreatureTurn(Creature creature, Direction direction)
         {
+            // TODO: we need a better, more generic calling method.
+            // The return value is of the last delegate executed.
+            if (BeforeCreatureTurn != null)
+            {
+                if (!BeforeCreatureTurn(creature, direction))
+                    return;
+            }
+
             if (creature.Direction != direction)
             {
                 creature.Direction = direction;
@@ -93,6 +110,12 @@ namespace SharpOT
 
         public void PlayerChangeOutfit(Player player, Outfit outfit)
         {
+            if (BeforePlayerChangeOutfit != null)
+            {
+                if (!BeforePlayerChangeOutfit(player, outfit))
+                    return;
+            }
+
             player.Outfit = outfit;
             foreach (var spectator in GetSpectatorPlayers(player.Tile.Location))
             {
@@ -103,6 +126,12 @@ namespace SharpOT
 
         public void PrivateChannelOpen(Player player, string receiver)
         {
+            if (BeforePrivateChannelOpen != null)
+            {
+                if (!BeforePrivateChannelOpen(player, receiver))
+                    return;
+            }
+
             string selected = Database.GetPlayerIdNameDictionary().FirstOrDefault(pair => pair.Value.ToLower() == receiver.ToLower()).Value;
             if (selected != null)
             {
