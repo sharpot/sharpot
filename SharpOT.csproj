@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{AC45441C-CEA3-4E04-BD10-8BF094A1A1A7}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -103,7 +103,7 @@
     <Compile Include="Scripting\IScript.cs" />
     <Compile Include="Speech.cs" />
     <Compile Include="Thing.cs" />
-    <Compile Include="Item.cs" />
+    <Compile Include="Items\Item.cs" />
     <Compile Include="Creature.cs" />
     <Compile Include="DatItem.cs" />
     <Compile Include="DatReader.cs" />
@@ -166,6 +166,8 @@
     <Compile Include="Data\Scripts\OnlineCommand.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Items\Container.cs" />
+    <Compile Include="Items\Weapon.cs" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
