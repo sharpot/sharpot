@@ -31,11 +31,11 @@ namespace SharpOT
             int id = -1;
             game = new Game(this);
 
-            if (!Database.AccountNameExists("manager"))
+            if (!Database.AccountNameExists("creator"))
             {
-                id = Database.CreateAccount("manager", "manager");
-                if (id > 0 && !Database.PlayerNameExists("Account Manager"))
-                    Database.CreatePlayer(id, "Account Manager", game.GenerateAvailableId());
+                id = Database.CreateAccount("creator", "creator");
+                if (id > 0 && !Database.PlayerNameExists("Account Creator"))
+                    Database.CreatePlayer(id, "Account Creator", game.GenerateAvailableId());
             }
             if (!Database.AccountNameExists("1"))
             {
