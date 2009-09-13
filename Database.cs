@@ -26,6 +26,12 @@ namespace SharpOT
             connection
         );
 
+        private static SQLiteCommand deleteAccountCommand = new SQLiteCommand(
+            @"delete from Account
+                where Id=@accountId",
+            connection
+        );
+
         private static SQLiteCommand selectAccountIdCommand = new SQLiteCommand(
             @"select Id
               from Account
@@ -66,6 +72,14 @@ namespace SharpOT
             connection
         );
 
+        private static SQLiteCommand updatePasswordByAccountId = new SQLiteCommand(
+            @"update Account
+                set
+                    Password=@password
+                where Id=@accountId",
+            connection
+        );
+
         #endregion
 
         #region Map Commands
@@ -91,6 +105,12 @@ namespace SharpOT
                 (@accountId, @playerId, @name, @gender, @vocation, @level, @magicLevel,
                  @experience, @maxHealth, @maxMana, @capacity, @outfitLookType,
                  @outfitHead, @outfitBody, @outfitLegs, @outfitFeet, @outfitAddons)",
+            connection
+        );
+
+        private static SQLiteCommand deletePlayerByName = new SQLiteCommand(
+            @"delete from Player
+                where Name=@name",
             connection
         );
 
@@ -249,6 +269,8 @@ namespace SharpOT
             insertAccountCommand.Parameters.Add(accountNameParam);
             insertAccountCommand.Parameters.Add(passwordParam);
 
+            deleteAccountCommand.Parameters.Add(accountIdParam);
+
             selectAccountIdCommand.Parameters.Add(accountNameParam);
             selectAccountIdCommand.Parameters.Add(passwordParam);
 
@@ -260,6 +282,8 @@ namespace SharpOT
 
             checkPlayerIdCommand.Parameters.Add(playerIdParam);
 
+            updatePasswordByAccountId.Parameters.Add(accountIdParam);
+            updatePasswordByAccountId.Parameters.Add(passwordParam);
             //Players parameters
             insertPlayerCommand.Parameters.Add(accountIdParam);
             insertPlayerCommand.Parameters.Add(playerIdParam);
@@ -278,7 +302,9 @@ namespace SharpOT
             insertPlayerCommand.Parameters.Add(outfitLegsParam);
             insertPlayerCommand.Parameters.Add(outfitFeetParam);
             insertPlayerCommand.Parameters.Add(outfitAddonsParam);
-            
+
+            deletePlayerByName.Parameters.Add(playerNameParam);
+
             selectPlayerByNameCommand.Parameters.Add(playerNameParam);
 
             selectPlayerIdByNameCommand.Parameters.Add(playerNameParam);
@@ -355,6 +381,13 @@ namespace SharpOT
             return id;
         }
 
+        public static bool DeleteAccount(long accountId)
+        {
+            accountIdParam.Value = accountId;
+
+            return (1 == deleteAccountCommand.ExecuteNonQuery());
+        }
+
         public static long GetAccountId(string accountName, string password)
         {
             accountNameParam.Value = accountName;
@@ -402,6 +435,12 @@ namespace SharpOT
             }
 
             return id;
+        }
+
+        public static bool DeletePlayerByName(string playerName)
+        {
+            playerNameParam.Value=playerName;
+            return (1 == deletePlayerByName.ExecuteNonQuery());
         }
 
         public static IEnumerable<string> GetAllAccountNames()
@@ -462,6 +501,14 @@ namespace SharpOT
         {
             playerIdParam.Value = id;
             return null != checkPlayerIdCommand.ExecuteScalar();
+        }
+
+        public static bool UpdateAccountPassword(long accountId,string newPassword)
+        {
+            accountIdParam.Value = accountId;
+            passwordParam.Value = Util.Hash.SHA256Hash(newPassword);
+
+            return (1 == updatePasswordByAccountId.ExecuteNonQuery());
         }
 
         #endregion

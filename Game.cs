@@ -61,6 +61,9 @@ namespace SharpOT
         public delegate void AfterLoginHandler(Player player);
         public AfterLoginHandler AfterLogin;
 
+        public delegate void AfterLogoutHandler(Player player);
+        public AfterLogoutHandler AfterLogout;
+
         #endregion
 
         #region Constructor
@@ -429,7 +432,10 @@ namespace SharpOT
         {
             // TODO: Make sure the player can logout
             player.Connection.Close();
-
+            if (AfterLogout != null)
+            {
+                AfterLogout(player);
+            }
             //should be composite packet for players that are spectators AND vips?
             var spectators = GetSpectatorPlayers(player.Tile.Location).Where(s => s != player);
             foreach (var spectator in spectators)

@@ -16,6 +16,8 @@ namespace SharpOT
         {
             Mana = 100;
             MaxMana = 100;
+            Health = 100;
+            MaxHealth = 100;
             Outfit = new Outfit(128, 0);
             Direction = Direction.North;
             LightLevel = 0;
