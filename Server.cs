@@ -88,7 +88,21 @@ namespace SharpOT
                 LogError(e.ToString());
             }
 
-            Console.ReadLine();
+            while (true)
+            {
+                bool exit = false;
+                string line = Console.ReadLine();
+                switch (line.ToLower())
+                {
+                    case "exit":
+                        exit = true;
+                        break;
+                    case "reloadscripts":
+                        ScriptManager.ReloadAllScripts(game);
+                        break;
+                }
+                if (exit) break;
+            }
             connections.ForEach(c => c.Close());
             clientGameListener.Stop();
             clientLoginListener.Stop();

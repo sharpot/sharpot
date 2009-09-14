@@ -33,6 +33,21 @@ namespace SharpOT.Scripting
             return errorLog.ToString();
         }
 
+        public static void ReloadAllScripts(Game game)
+        {
+            UnloadAllScripts();
+            LoadAllScripts(game);
+        }
+
+        public static void UnloadAllScripts()
+        {
+            foreach (IScript script in loadedScripts)
+            {
+                script.Stop();
+            }
+            loadedScripts.Clear();
+        }
+
         public static void LoadScript(Game game, string path)
         {
             Assembly assembly = null;
