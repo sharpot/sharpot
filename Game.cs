@@ -27,30 +27,62 @@ namespace SharpOT
 
         #region Events
 
-        public delegate bool CreatureSpeechHandler(Creature creature, Speech speech);
-        public CreatureSpeechHandler BeforeCreatureSpeech;
+        public delegate bool BeforeCreatureSpeechHandler(Creature creature, Speech speech);
+        public BeforeCreatureSpeechHandler BeforeCreatureSpeech;
 
-        public delegate bool CreatureTurnHandler(Creature creature, Direction direction);
-        public CreatureTurnHandler BeforeCreatureTurn;
+        public delegate void AfterCreatureDefaultSpeechHandler(Creature creature, SpeechType speechType, string message);
+        public AfterCreatureDefaultSpeechHandler AfterCreatureWhisperSpeech;
+        public AfterCreatureDefaultSpeechHandler AfterCreatureSaySpeech;
+        public AfterCreatureDefaultSpeechHandler AfterCreatureYellSpeech;
 
-        public delegate bool PlayerChangeOutfitHandler(Creature creature, Outfit outfit);
-        public PlayerChangeOutfitHandler BeforePlayerChangeOutfit;
+        public delegate void AfterCreaturePrivateSpeechHandler(Creature creature, string receiver, string message);
+        public AfterCreaturePrivateSpeechHandler AfterCreaturePrivateSpeech;
 
-        public delegate bool PrivateChannelOpenHandler(Player player, string receiver);
-        public PrivateChannelOpenHandler BeforePrivateChannelOpen;
+        public delegate void AfterCreatureChannelSpeechHandler(string sender, SpeechType type, ChatChannel channelId, string message);
+        public AfterCreatureChannelSpeechHandler AfterCreatureChannelSpeech;
 
-        public delegate bool CreatureMoveHandler(Creature creature,Direction direction,Location fromLocation,Location toLocation, byte fromStackPosition, Tile toTile);
-        public CreatureMoveHandler BeforeCreatureMove;
+        public delegate bool BeforeCreatureTurnHandler(Creature creature, Direction direction);
+        public BeforeCreatureTurnHandler BeforeCreatureTurn;
+
+        public delegate bool AfterCreatureTurnHandler(Creature creature, Direction direction);
+        public AfterCreatureTurnHandler AfterCreatureTurn;
+
+        public delegate bool BeforePlayerChangeOutfitHandler(Creature creature, Outfit outfit);
+        public BeforePlayerChangeOutfitHandler BeforePlayerChangeOutfit;
+
+        public delegate bool AfterPlayerChangeOutfitHandler(Creature creature, Outfit outfit);
+        public AfterPlayerChangeOutfitHandler AfterPlayerChangeOutfit;
+
+        public delegate bool BeforePrivateChannelOpenHandler(Player player, string receiver);
+        public BeforePrivateChannelOpenHandler BeforePrivateChannelOpen;
+
+        public delegate bool AfterPrivateChannelOpenHandler(Player player, string receiver);
+        public AfterPrivateChannelOpenHandler AfterPrivateChannelOpen;
+
+        public delegate bool BeforeCreatureMoveHandler(Creature creature, Direction direction, Location fromLocation, Location toLocation, byte fromStackPosition, Tile toTile);
+        public BeforeCreatureMoveHandler BeforeCreatureMove;
+
+        public delegate bool AfterCreatureMoveHandler(Creature creature, Direction direction, Location fromLocation, Location toLocation, byte fromStackPosition, Tile toTile);
+        public AfterCreatureMoveHandler AfterCreatureMove;
 
         public delegate bool ChannelHandler(Player creature, ChatChannel channel);
         public ChannelHandler BeforeChannelOpen;
         public ChannelHandler BeforeChannelClose;
 
-        public delegate bool CreatureUpdateHealthHandler(Creature creature, ushort health);
-        public CreatureUpdateHealthHandler BeforeCreatureUpdateHealth;
+        public delegate void AfterChannelOpenHandler(Player creature, ChatChannel channel);
+        public AfterChannelOpenHandler AfterChannelOpen;
 
-        public delegate bool VipAddHandler(Player player, string vipName);
-        public VipAddHandler BeforeVipAdd;
+        public delegate bool BeforeCreatureUpdateHealthHandler(Creature creature, ushort health);
+        public BeforeCreatureUpdateHealthHandler BeforeCreatureUpdateHealth;
+
+        public delegate void AfterCreatureUpdateHealthHandler(Creature creature, ushort health);
+        public AfterCreatureUpdateHealthHandler AfterCreatureUpdateHealth;
+
+        public delegate bool BeforeVipAddHandler(Player player, string vipName);
+        public BeforeVipAddHandler BeforeVipAdd;
+
+        public delegate void AfterVipAddHandler(Player player, string vipName);
+        public AfterVipAddHandler AfterVipAdd;
 
         public delegate bool VipRemoveHandler(Player player, uint vipId);
         public VipRemoveHandler BeforeVipRemove;
@@ -61,8 +93,21 @@ namespace SharpOT
         public delegate void AfterLoginHandler(Player player);
         public AfterLoginHandler AfterLogin;
 
+        public delegate bool BeforeLogoutHandler(Player player);
+        public BeforeLogoutHandler BeforeLogout;
+
         public delegate void AfterLogoutHandler(Player player);
         public AfterLogoutHandler AfterLogout;
+
+        public delegate bool BeforeWalkCancelHandler();
+        public BeforeCreatureTurnHandler BeforeWalkCancel;
+
+        public delegate bool AfterWalkCancelHandler();
+        public AfterWalkCancelHandler AfterWalkCancel;
+
+        public delegate void AddRemoveCreatureHandler(Creature creature);
+        public AddRemoveCreatureHandler AfterAddCreature;
+        public AddRemoveCreatureHandler AfterRemoveCreature;
 
         #endregion
 
@@ -75,17 +120,21 @@ namespace SharpOT
         }
 
         #endregion
-
+        //Events for AddCreature and RemoveCreature
         #region Public Helpers
 
         public void AddCreature(Creature creature)
         {
             creatures.Add(creature.Id, creature);
+            if (AfterAddCreature != null)
+                AfterAddCreature(creature);
         }
 
         public void RemoveCreature(Creature creature)
         {
             creatures.Remove(creature.Id);
+            if (AfterRemoveCreature != null)
+                AfterRemoveCreature(creature);
         }
 
         public IEnumerable<Creature> GetSpectators(Location location)
@@ -104,24 +153,34 @@ namespace SharpOT
         }
 
         #endregion
-
+        //All events done except for CheckAccount and GenerateAvailableId
         #region Public Actions
 
         public void WalkCancel(Player player)
         {
+            if (BeforeWalkCancel != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeWalkCancel.GetInvocationList())
+                {
+                    BeforeWalkCancelHandler subscriber = (BeforeWalkCancelHandler)del;
+                    forward &= (bool)subscriber();
+                }
+                if (!forward) return;
+            }
             player.Connection.SendCancelWalk();
+            if (AfterWalkCancel != null)
+                AfterWalkCancel();
         }
 
         public void CreatureTurn(Creature creature, Direction direction)
         {
-            // TODO: What should we do about recursion? A script shouldn't
-            // call this method when handling this method...
             if (BeforeCreatureTurn != null)
             {
                 bool forward = true;
                 foreach (Delegate del in BeforeCreatureTurn.GetInvocationList())
                 {
-                    CreatureTurnHandler subscriber = (CreatureTurnHandler)del;
+                    BeforeCreatureTurnHandler subscriber = (BeforeCreatureTurnHandler)del;
                     forward &= (bool)subscriber(creature, direction);
                 }
                 if (!forward) return;
@@ -135,6 +194,8 @@ namespace SharpOT
                     player.Connection.SendCreatureTurn(creature);
                 }
             }
+            if(AfterCreatureTurn!=null)
+                AfterCreatureTurn(creature, direction);
         }
 
         public void PlayerChangeOutfit(Player player, Outfit outfit)
@@ -144,7 +205,7 @@ namespace SharpOT
                 bool forward = true;
                 foreach (Delegate del in BeforePlayerChangeOutfit.GetInvocationList())
                 {
-                    PlayerChangeOutfitHandler subscriber = (PlayerChangeOutfitHandler)del;
+                    BeforePlayerChangeOutfitHandler subscriber = (BeforePlayerChangeOutfitHandler)del;
                     forward &= (bool)subscriber(player, outfit);
                 }
                 if (!forward) return;
@@ -155,6 +216,8 @@ namespace SharpOT
             {
                 spectator.Connection.SendCreatureChangeOutfit(player);
             }
+            if(AfterPlayerChangeOutfit!=null)
+                AfterPlayerChangeOutfit(player, outfit);
             Database.SavePlayerByName(player);
         }
 
@@ -165,7 +228,7 @@ namespace SharpOT
                 bool forward = true;
                 foreach (Delegate del in BeforePrivateChannelOpen.GetInvocationList())
                 {
-                    PrivateChannelOpenHandler subscriber = (PrivateChannelOpenHandler)del;
+                    BeforePrivateChannelOpenHandler subscriber = (BeforePrivateChannelOpenHandler)del;
                     forward &= (bool)subscriber(player, receiver);
                 }
                 if (!forward) return;
@@ -175,6 +238,8 @@ namespace SharpOT
             if (selected != null)
             {
                 player.Connection.SendChannelOpenPrivate(selected);
+                if (AfterPrivateChannelOpen != null)
+                    AfterPrivateChannelOpen(player, selected);
             }
             else
             {
@@ -189,7 +254,7 @@ namespace SharpOT
                 bool forward = true;
                 foreach (Delegate del in BeforeCreatureSpeech.GetInvocationList())
                 {
-                    CreatureSpeechHandler subscriber=(CreatureSpeechHandler)del;
+                    BeforeCreatureSpeechHandler subscriber = (BeforeCreatureSpeechHandler)del;
                     forward &= (bool)subscriber(creature, speech);
                 }
                 if (!forward) return;
@@ -241,6 +306,9 @@ namespace SharpOT
 
                 player.Connection.SendChannelOpen(selected);
             }
+
+            if(AfterChannelOpen!=null)
+                AfterChannelOpen(player, channel);
         }
 
         public void ChannelClose(Player player, ChatChannel channel)
@@ -256,7 +324,7 @@ namespace SharpOT
             {
                 player.OpenedChannelList.Remove(selected);
             }
-        }     
+        }
 
         public void CreatureMove(Creature creature, Direction direction)
         {
@@ -270,7 +338,7 @@ namespace SharpOT
                 bool forward = true;
                 foreach (Delegate del in BeforeCreatureMove.GetInvocationList())
                 {
-                    CreatureMoveHandler subscriber = (CreatureMoveHandler)del;
+                    BeforeCreatureMoveHandler subscriber = (BeforeCreatureMoveHandler)del;
                     forward &= (bool)subscriber(creature, direction, fromLocation, toLocation, fromStackPosition, toTile);
                 }
                 if (!forward) return;
@@ -310,6 +378,10 @@ namespace SharpOT
                         player.Connection.SendTileAddCreature(creature);
                     }
                 }
+
+                if(AfterCreatureMove!=null)
+                    AfterCreatureMove(creature, direction, fromLocation, toLocation, fromStackPosition, toTile);
+                
             }
         }
 
@@ -320,7 +392,7 @@ namespace SharpOT
                 bool forward = true;
                 foreach (Delegate del in BeforeCreatureUpdateHealth.GetInvocationList())
                 {
-                    CreatureUpdateHealthHandler subscriber = (CreatureUpdateHealthHandler)del;
+                    BeforeCreatureUpdateHealthHandler subscriber = (BeforeCreatureUpdateHealthHandler)del;
                     forward &= (bool)subscriber(creature, health);
                 }
                 if (!forward) return;
@@ -336,8 +408,9 @@ namespace SharpOT
 
                 player.Connection.SendCreatureUpdateHealth(creature);
             }
+            if (AfterCreatureUpdateHealth != null)
+                AfterCreatureUpdateHealth(creature, health);
         }
-
 
         public void VipAdd(Player player, string vipName)
         {
@@ -346,7 +419,7 @@ namespace SharpOT
                 bool forward = true;
                 foreach (Delegate del in BeforeVipAdd.GetInvocationList())
                 {
-                    VipAddHandler subscriber = (VipAddHandler)del;
+                    BeforeVipAddHandler subscriber = (BeforeVipAddHandler)del;
                     forward &= (bool)subscriber(player, vipName);
                 }
                 if (!forward) return;
@@ -373,6 +446,8 @@ namespace SharpOT
                     LoggedIn = state
                 });
                 player.Connection.SendVipState(selected.Key, selected.Value, state);
+                if (AfterVipAdd != null)
+                    AfterVipAdd(player, vipName);
             }
             else
             {
@@ -430,6 +505,16 @@ namespace SharpOT
 
         public void PlayerLogout(Player player)
         {
+            if (BeforeLogout != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeLogout.GetInvocationList())
+                {
+                    BeforeLogoutHandler subscriber = (BeforeLogoutHandler)del;
+                    forward &= (bool)subscriber(player);
+                }
+                if (!forward) return;
+            }
             // TODO: Make sure the player can logout
             player.Connection.Close();
             if (AfterLogout != null)
@@ -489,7 +574,7 @@ namespace SharpOT
         }
 
         #endregion
-
+        //All events done
         #region Private Helpers
 
         private void PlayerLogin(Player player)
@@ -527,6 +612,9 @@ namespace SharpOT
             {
                 player.Connection.SendChannelSpeech(sender, type, channelId, message);
             }
+
+            if (AfterCreatureChannelSpeech != null)
+                AfterCreatureChannelSpeech(sender, type, channelId, message);
         }
 
         private void CreatureSaySpeech(Creature creature, SpeechType speechType, string message)
@@ -535,6 +623,9 @@ namespace SharpOT
             {
                 spectator.Connection.SendCreatureSpeech(creature, speechType, message);
             }
+
+            if (AfterCreatureSaySpeech != null)
+                AfterCreatureSaySpeech(creature, speechType, message);
         }
 
         private void CreatureYellSpeech(Creature creature, SpeechType speechType, string message)
@@ -555,6 +646,9 @@ namespace SharpOT
             {
                 player.Connection.SendCreatureSpeech(creature, speechType, message.ToUpper());
             }
+
+            if (AfterCreatureYellSpeech != null)
+                AfterCreatureYellSpeech(creature, speechType, message);
         }
 
         private void CreatureWhisperSpeech(Creature creature, SpeechType speechType, string message)
@@ -570,6 +664,9 @@ namespace SharpOT
                     spectator.Connection.SendCreatureSpeech(creature, speechType, "pspsps");
                 }
             }
+
+            if (AfterCreatureWhisperSpeech != null)
+                AfterCreatureWhisperSpeech(creature, speechType, message);
         }
 
         private void CreaturePrivateSpeech(Creature creature, string receiver, string message)
@@ -586,6 +683,8 @@ namespace SharpOT
                 if (creature.IsPlayer)
                     ((Player)creature).Connection.SendTextMessage(TextMessageType.StatusSmall, "A player with this name is not online.");
             }
+            if (AfterCreaturePrivateSpeech != null)
+                AfterCreaturePrivateSpeech(creature, receiver, message);
         }
 
         #endregion
