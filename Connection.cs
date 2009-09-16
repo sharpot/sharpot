@@ -197,7 +197,9 @@ namespace SharpOT
                 //case ClientPacketType.ItemUse:
                 //case ClientPacketType.ItemUseOn:
                 //case ClientPacketType.ItemRotate:
-                //case ClientPacketType.LookAt:
+                case ClientPacketType.LookAt:
+                    ParseLookAt(message);
+                    break;
                 case ClientPacketType.PlayerSpeech:
                     ParsePlayerSpeech(message);
                     break;
@@ -339,6 +341,12 @@ namespace SharpOT
         {
             PrivateChannelOpenPacket packet = PrivateChannelOpenPacket.Parse(message);
             Game.PrivateChannelOpen(Player, packet.Receiver);
+        }
+
+        public void ParseLookAt(NetworkMessage message)
+        {
+            LookAtPacket packet = LookAtPacket.Parse(message);
+            Game.PlayerLookAt(Player, packet.Id, packet.Location, packet.StackPosition);
         }
         
         #endregion

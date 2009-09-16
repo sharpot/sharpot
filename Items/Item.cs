@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml;
 
 namespace SharpOT
 {
@@ -16,35 +17,74 @@ namespace SharpOT
         public Location Location { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string Article { get; set; }
         public string SpecialDescription { get; set; }
         public ushort Armor { get; set; }
 
+        private static Dictionary<ushort, Item> xmlItems = new Dictionary<ushort, Item>();
 
-        #region "Constructors"
-        public Item()
+        public static void LoadItemsXml()
         {
+            xmlItems.Clear();
+            XmlDocument document = new XmlDocument();
+            document.Load(SharpOT.Properties.Settings.Default.ItemsXmlFile);
+            foreach (XmlNode node in document.GetElementsByTagName("item"))
+            {
+                ushort id = ushort.Parse(node.Attributes["id"].InnerText);
+                if (!xmlItems.ContainsKey(id))
+                {
+                    Item item = new Item();
+                    item.Id = id;
+                    if (node.Attributes != null)
+                    {
+                        if (node.Attributes["article"] != null)
+                        {
+                            item.Article = node.Attributes["article"].InnerText;
+                        }
+                        if (node.Attributes["name"] != null)
+                        {
+                            item.Name = node.Attributes["name"].InnerText;
+                        }
+                    }
+                    if (node.HasChildNodes)
+                    {
+                        foreach (XmlNode attrNode in node.ChildNodes)
+                        {
+                            if (attrNode.Attributes != null &&
+                                attrNode.Attributes.Count > 0 &&
+                                attrNode.Attributes["key"] != null && 
+                                attrNode.Attributes["value"] != null && 
+                                attrNode.Attributes["key"].InnerText == "description")
+                            {
+                                item.Description = attrNode.Attributes["value"].InnerText;
+                            }
+                        }
+                    }
+                    xmlItems.Add(id, item);
+                }
+            }
         }
-        public Item(ushort Id, Location Location)
-            : this(Id, Location, "item of type " + Id) { }
 
-        public Item(ushort Id, Location Location, string Name)
-            : this(Id, Location, Name, "")
+        #region Constructors
+
+        private Item()
         {
+
         }
 
-        public Item(ushort Id, Location Location, string Name, string Description)
-            : this(Id, Location, Name, Description, "")
+        public Item(ushort id)
         {
+            Id = id;
+            Article = "an";
+            Name = "item of type " + Id;
+            if (xmlItems.ContainsKey(id))
+            {
+                Article = xmlItems[id].Article;
+                Name = xmlItems[id].Name;
+                Description = xmlItems[id].Description;
+            }
         }
 
-        public Item(ushort Id, Location Location, string Name, string Description, string SpecialDescription)
-        {
-            this.Id = Id;
-            this.Location = Location;
-            this.Name = Name;
-            this.Description = Description;
-            this.SpecialDescription = SpecialDescription;
-        }
         #endregion
 
         protected override ushort GetThingId()
@@ -52,29 +92,21 @@ namespace SharpOT
             return Id;
         }
 
-        #region "LookAt methods"
-        protected virtual void LookAt(Player player)
-        {
-            if (player.Tile.Location.CanSee(Location))
-            {
-                player.Connection.SendTextMessage(TextMessageType.DescriptionGreen,
-                "You see " + GetArticle(Name) + " " + Name +//Name
-                Description + SpecialDescription + Description +
-                "\n It weighs " + Weight + " oz.");//Weight
-            }
-        }
-        public string GetArticle(string text)
-        {
-            if (text.Length == 0) return string.Empty;
+        #region LookAt methods
 
-            if ((text.ToLower()[0] == 'a') || (text.ToLower()[0] == 'e') ||
-            text.ToLower()[0] == 'i' || text.ToLower()[0] == 'o' || text.ToLower()[0] == 'u')
-            {
-                return "an";
-            }
-
-            return "a";
+        public override string GetLookAtString()
+        {
+            string lookat = "You see ";
+            if (Article != null && Article.Length > 0)
+                lookat += Article + " ";
+            lookat += Name + ".";
+            if (Description != null && Description.Length > 0)
+                lookat += "\n" + Description + SpecialDescription;
+            if (Weight > 0)
+                lookat += "\nIt weighs " + Weight + " oz.";
+            return lookat;
         }
+
         #endregion
 
         public DatItem Data

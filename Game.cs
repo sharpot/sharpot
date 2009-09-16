@@ -120,7 +120,7 @@ namespace SharpOT
         }
 
         #endregion
-        //Events for AddCreature and RemoveCreature
+
         #region Public Helpers
 
         public void AddCreature(Creature creature)
@@ -153,7 +153,7 @@ namespace SharpOT
         }
 
         #endregion
-        //All events done except for CheckAccount and GenerateAvailableId
+
         #region Public Actions
 
         public void WalkCancel(Player player)
@@ -542,6 +542,16 @@ namespace SharpOT
             Database.SavePlayerById(player);
         }
 
+        public void PlayerLookAt(Player player, ushort id, Location location, byte stackPosition)
+        {
+            if (player.Tile.Location.CanSee(location))
+            {
+                Tile tile = Map.GetTile(location);
+                Thing thing = tile.GetThingAtStackPosition(stackPosition);
+                player.Connection.SendTextMessage(TextMessageType.DescriptionGreen, thing.GetLookAtString());
+            }
+        }
+
         public long CheckAccount(Connection connection, string accountName, string password)
         {
             long accountId = Database.GetAccountId(accountName, password);
@@ -574,7 +584,7 @@ namespace SharpOT
         }
 
         #endregion
-        //All events done
+
         #region Private Helpers
 
         private void PlayerLogin(Player player)

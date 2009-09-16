@@ -13,7 +13,6 @@ namespace SharpOT
 
         public Tile()
         {
-            Ground = new Item();
             Items = new List<Item>();
             Creatures = new List<Creature>();
             IsWalkable = true;
@@ -29,6 +28,58 @@ namespace SharpOT
         public IEnumerable<Item> GetDownItems()
         {
             return Items.Where(i => i.GetOrder() > 4);
+        }
+
+        public Thing GetThingAtStackPosition(byte stackPosition)
+        {
+            int n = -1;
+
+            if (Ground != null)
+            {
+                ++n;
+                if (stackPosition == n)
+                {
+                    return Ground;
+                }
+            }
+
+            if (Items.Count > 0)
+            {
+                foreach (Item item in GetTopItems())
+                {
+                    n++;
+                    if (stackPosition == n)
+                    {
+                        return item;
+                    }
+                }
+            }
+
+            if (Creatures.Count > 0)
+            {
+                foreach (Creature creature in Creatures)
+                {
+                    ++n;
+                    if (stackPosition == n)
+                    {
+                        return creature;
+                    }
+                }
+            }
+
+            if (Items.Count > 0)
+            {
+                foreach (Item item in GetDownItems())
+                {
+                    n++;
+                    if (stackPosition == n)
+                    {
+                        return item;
+                    }
+                }
+            }
+
+            return null;
         }
 
         public byte GetStackPosition(Thing thing)

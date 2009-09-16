@@ -7,6 +7,8 @@ namespace SharpOT
     {
         protected abstract ushort GetThingId();
 
+        public abstract string GetLookAtString();
+
         // Thanks to Stepler at http://tpforums.org/forum/showpost.php?p=26654&postcount=5
         // The sections are:
         // 0 - Ground
