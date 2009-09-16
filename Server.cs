@@ -56,10 +56,14 @@ namespace SharpOT
                     Database.CreatePlayer(id, "Alice", game.GenerateAvailableId());
             }
 
-            try
-            {
+            //try
+            //{
                 LogStart("Loading data");
                 DatReader.Load();
+                LogDone();
+
+                LogStart("Loading items.xml");
+                Item.LoadItemsXml();
                 LogDone();
 
                 LogStart("Loading map");
@@ -82,11 +86,11 @@ namespace SharpOT
                 clientGameListener.Start();
                 clientGameListener.BeginAcceptSocket(new AsyncCallback(GameListenerCallback), clientGameListener);
                 LogDone();
-            }
-            catch (Exception e)
-            {
-                LogError(e.ToString());
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    LogError(e.ToString());
+            //}
 
             while (true)
             {

@@ -84,6 +84,11 @@ namespace SharpOT
 
         #region Methods
 
+        public override string GetLookAtString()
+        {
+            return "You see " + Name + ".";
+        }
+
         public void Say(string text)
         {
             this.Game.CreatureSpeech(this, new Speech() { Type = SpeechType.Say, Message = text });

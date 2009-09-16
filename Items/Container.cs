@@ -10,18 +10,18 @@ namespace SharpOT
         public byte Volume { get; set; }
         public List<Item> Items { get; set; }
 
-
-         protected override void LookAt(Player player)
+        public Container(ushort id)
+            : base(id)
         {
-            if (player.Tile.Location.CanSee(Location))
-            {
-                player.Connection.SendTextMessage(
-                    TextMessageType.DescriptionGreen,
-                    "You see " + GetArticle(Name) + " " + Name +
-                    ". (Vol:" + Volume +
-                    Description + SpecialDescription +
-                    "\n It weighs " + (Weight += Items.Sum(P => P.Weight)) + " oz.");
-            }
+
+        }
+
+        public override string GetLookAtString()
+        {
+            return "You see " + Article + " " + Name +
+                ". (Vol:" + Volume +
+                Description + SpecialDescription +
+                "\n It weighs " + (Weight += Items.Sum(P => P.Weight)) + " oz.";
         }
     }
 }

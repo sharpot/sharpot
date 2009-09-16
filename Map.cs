@@ -20,8 +20,7 @@ namespace SharpOT
                 {
                     Tile tile = new Tile();
 
-                    Item ground = new Item();
-                    ground.Id = id;
+                    Item ground = new Item(id);
                     tile.Ground = ground;
 
                     tile.Location = new Location(x, y, 7);

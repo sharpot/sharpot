@@ -104,5 +104,17 @@ namespace SharpOT.Properties {
                 this["ScriptsDirectory"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data\\items.xml")]
+        public string ItemsXmlFile {
+            get {
+                return ((string)(this["ItemsXmlFile"]));
+            }
+            set {
+                this["ItemsXmlFile"] = value;
+            }
+        }
     }
 }

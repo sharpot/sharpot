@@ -12,16 +12,17 @@ namespace SharpOT
         public short ExtraAttack { get; set; }
         public short ExtraDefense { get; set; }
 
-
-        protected override void LookAt(Player player)
+        public Weapon(ushort id)
+            : base(id)
         {
-            if (player.Tile.Location.CanSee(Location))
-            {
-                player.Connection.SendTextMessage(TextMessageType.DescriptionGreen,
-                    "You see " + GetArticle(Name) + " " + Name +
+
+        }
+
+        public override string GetLookAtString()
+        {
+            return "You see " + Article + " " + Name +
                     ". " + GetCombatAttributes() + Description + SpecialDescription +
-                    "\n It weighs " + Weight + " oz.");
-            }
+                    "\n It weighs " + Weight + " oz.";
         }
 
         private string GetCombatAttributes()

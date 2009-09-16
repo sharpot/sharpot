@@ -118,10 +118,6 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="uxLog.Text" xml:space="preserve">
-    <value>This program is distributed with NO WARRANTY of usability.
-
-Pieces of code come from the TibiaAPI project. TibiaAPI is a open source project, you can learn more at http://code.google.com/p/tibiaapi/
-
-MapTracker is a effort to dump tiles from the Tibia client by acting at the middle of the connection between you and the server. After dumping the tiles, merge all them inside a OTBM file.</value>
+    <value></value>
   </data>
 </root>
