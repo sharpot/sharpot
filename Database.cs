@@ -5,15 +5,12 @@ using System.Text;
 using System.Data.SQLite;
 using System.Net;
 using System.Security.Cryptography;
+using System.IO;
 
 namespace SharpOT
 {
     public class Database
     {
-        //Player IDs and names are static and stored in the database
-        //p.s.: Names with different casing are considered equal and
-		// shall not be allowed.
-        //e.g.: rIcHarD==richard==Richard
         private static SQLiteConnection connection = new SQLiteConnection(
             SharpOT.Properties.Settings.Default.ConnectionString
         );
@@ -261,9 +258,32 @@ namespace SharpOT
 
         #region Setup
 
-        static Database()
+        public static void Initialize()
         {
             connection.Open();
+
+            // Make sure the database structure exists
+            // If it does not, create it
+            try
+            {
+                selectAllAccountNamesCommand.ExecuteScalar();
+            }
+            catch (SQLiteException e)
+            {
+                if (e.Message.Contains("no such table"))
+                {
+                    string sql = File.ReadAllText(SharpOT.Properties.Settings.Default.SchemaFile);
+                    var transaction = connection.BeginTransaction();
+                    SQLiteCommand command = new SQLiteCommand(connection);
+                    foreach (string query in sql.Split(';'))
+                    {
+                        command.CommandText = query.Trim();
+                        command.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                }
+            }
 
             //Account management parameters
             insertAccountCommand.Parameters.Add(accountNameParam);

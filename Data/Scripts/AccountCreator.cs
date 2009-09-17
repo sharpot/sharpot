@@ -10,6 +10,15 @@ public class AccountCreator:IScript
     public bool Start(Game game)
     {
         this.game = game;
+
+        int id = -1;
+        if (!Database.AccountNameExists("creator"))
+        {
+            id = Database.CreateAccount("creator", "creator");
+            if (id > 0 && !Database.PlayerNameExists("Account Creator"))
+                Database.CreatePlayer(id, "Account Creator", game.GenerateAvailableId());
+        }
+
         game.BeforeCreatureSpeech += BeforeCreatureSpeech;
         game.BeforeCreatureMove += BeforeCreatureMove;
         game.AfterLogin += AfterLogin;

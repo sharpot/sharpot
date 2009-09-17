@@ -28,36 +28,14 @@ namespace SharpOT
 
         void Run()
         {
-            int id = -1;
             game = new Game(this);
 
-            if (!Database.AccountNameExists("creator"))
+            try
             {
-                id = Database.CreateAccount("creator", "creator");
-                if (id > 0 && !Database.PlayerNameExists("Account Creator"))
-                    Database.CreatePlayer(id, "Account Creator", game.GenerateAvailableId());
-            }
-            if (!Database.AccountNameExists("1"))
-            {
-                id = Database.CreateAccount("1", "1");
-                if (id > 0 && !Database.PlayerNameExists("God"))
-                    Database.CreatePlayer(id, "God", game.GenerateAvailableId());
-            }
-            if (!Database.AccountNameExists("2"))
-            {
-                id = Database.CreateAccount("2", "2");
-                if (id > 0 && !Database.PlayerNameExists("Bob"))
-                    Database.CreatePlayer(id, "Bob", game.GenerateAvailableId());
-            }
-            if (!Database.AccountNameExists("3") && !Database.PlayerNameExists("Alice"))
-            {
-                id = Database.CreateAccount("3", "3");
-                if (id > 0 && !Database.PlayerNameExists("Alice"))
-                    Database.CreatePlayer(id, "Alice", game.GenerateAvailableId());
-            }
+                LogStart("Initializing database");
+                Database.Initialize();
+                LogDone();
 
-            //try
-            //{
                 LogStart("Loading data");
                 DatReader.Load();
                 LogDone();
@@ -86,11 +64,11 @@ namespace SharpOT
                 clientGameListener.Start();
                 clientGameListener.BeginAcceptSocket(new AsyncCallback(GameListenerCallback), clientGameListener);
                 LogDone();
-            //}
-            //catch (Exception e)
-            //{
-            //    LogError(e.ToString());
-            //}
+            }
+            catch (Exception e)
+            {
+                LogError(e.ToString());
+            }
 
             while (true)
             {

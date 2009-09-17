@@ -158,7 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Data\sharpot.db">
+    <None Include="Data\sharpot.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Data\Tibia.dat">
@@ -170,6 +170,7 @@
     <Compile Include="Data\Scripts\OnlineCommand.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Data\Scripts\TestingCharacters.cs" />
     <Compile Include="Items\Container.cs" />
     <Compile Include="Items\Weapon.cs" />
     <Compile Include="Packets\Client\LookAtPacket.cs" />
