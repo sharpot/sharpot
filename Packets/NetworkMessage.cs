@@ -242,9 +242,9 @@ namespace SharpOT.Packets
 
         public void AddItem(Item item)
         {
-            AddUInt16(item.Id);
+            AddUInt16(item.Info.SpriteId);
 
-            if (item.Data.HasExtraByte)
+            if (item.Info.HasExtraByte)
             {
                 AddByte(item.Extra);
             }

@@ -364,11 +364,49 @@ namespace SharpOT
         None
     }
 
-    public enum FightModes
+    public enum FightMode
     {
         FullAttack = 1,
         Balanced = 2,
         FullDefense = 3
+    }
+
+    #endregion
+
+    #region Items
+
+    public enum ItemType
+    {
+        Normal,
+        Container,
+        Key,
+        MagicField,
+        Depot,
+        Mailbox,
+        TrashHolder,
+        Teleport,
+        Door,
+        Bed
+    }
+
+    public enum FloorChange
+    {
+        None,
+        Down,
+        North,
+        South,
+        West,
+        East
+    }
+
+    public enum CorpseType
+    {
+        None,
+        Venom,
+        Blood,
+        Undead,
+        Fire,
+        Energy
     }
 
     #endregion

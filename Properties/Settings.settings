@@ -31,6 +31,9 @@
     <Setting Name="ItemsXmlFile" Type="System.String" Scope="User">
       <Value Profile="(Default)">Data\items.xml</Value>
     </Setting>
+    <Setting Name="ItemsOtbFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data\items.otb</Value>
+    </Setting>
     <Setting Name="SchemaFile" Type="System.String" Scope="User">
       <Value Profile="(Default)">Data\sharpot.sql</Value>
     </Setting>

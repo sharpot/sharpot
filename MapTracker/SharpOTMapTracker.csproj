@@ -42,6 +42,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -129,6 +130,10 @@
     <ProjectReference Include="..\..\tibiaapi\tibiaapi\TibiaAPI.csproj">
       <Project>{4D132EB7-B97D-461D-85CF-949FF5A7BA96}</Project>
       <Name>TibiaAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpOT.csproj">
+      <Project>{AC45441C-CEA3-4E04-BD10-8BF094A1A1A7}</Project>
+      <Name>SharpOT</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

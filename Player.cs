@@ -15,7 +15,7 @@ namespace SharpOT
         public Location SavedLocation { get; set; }
         public List<Channel> ChannelList { get; set; }
         public List<Channel> OpenedChannelList { get; set; }
-        public FightModes FightMode { get; set; }
+        public FightMode FightMode { get; set; }
         public bool ChaseMode { get; set; }
         public bool SafeMode { get; set; }
         public Dictionary<uint, Vip> VipList { get; set; }

@@ -158,6 +158,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Data\items.otb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Data\sharpot.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -170,9 +173,14 @@
     <Compile Include="Data\Scripts\OnlineCommand.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="Data\Scripts\TestingCharacters.cs" />
+    <Compile Include="ItemInfo.cs" />
+    <Compile Include="Data\Scripts\TestingCharacters.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Items\Container.cs" />
     <Compile Include="Items\Weapon.cs" />
+    <Compile Include="OpenTibia\OtbReader.cs" />
+    <Compile Include="OpenTibia\Constants.cs" />
     <Compile Include="Packets\Client\LookAtPacket.cs" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
