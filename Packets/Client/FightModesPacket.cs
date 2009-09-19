@@ -7,7 +7,7 @@ namespace SharpOT.Packets
 {
     public class FightModesPacket : Packet
     {
-        public FightModes FightMode { get; set; }
+        public FightMode FightMode { get; set; }
         public bool ChaseMode { get; set; }
         public bool SafeMode { get; set; }
 
@@ -16,7 +16,7 @@ namespace SharpOT.Packets
         {
             FightModesPacket p = new FightModesPacket();
 
-            p.FightMode = (FightModes)msg.GetByte();
+            p.FightMode = (FightMode)msg.GetByte();
             p.ChaseMode =Convert.ToBoolean(msg.GetByte());
             p.SafeMode = Convert.ToBoolean(msg.GetByte());
 

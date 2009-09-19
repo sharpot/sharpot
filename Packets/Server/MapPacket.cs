@@ -81,8 +81,7 @@ namespace SharpOT.Packets
                 int count = 0;
                 if (tile.Ground != null)
                 {
-                    //AddItem(tile.Ground);
-                    message.AddUInt16(tile.Ground.Id);
+                    message.AddItem(tile.Ground);
                     count++;
                 }
 

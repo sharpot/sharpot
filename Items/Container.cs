@@ -18,10 +18,10 @@ namespace SharpOT
 
         public override string GetLookAtString()
         {
-            return "You see " + Article + " " + Name +
+            return "You see " + Info.Article + " " + Info.Name +
                 ". (Vol:" + Volume +
-                Description + SpecialDescription +
-                "\n It weighs " + (Weight += Items.Sum(P => P.Weight)) + " oz.";
+                Info.Description + Info.SpecialDescription +
+                "\n It weighs " + (Info.Weight += Items.Sum(i => i.Info.Weight)) + " oz.";
         }
     }
 }

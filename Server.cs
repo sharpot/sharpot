@@ -40,8 +40,9 @@ namespace SharpOT
                 DatReader.Load();
                 LogDone();
 
-                LogStart("Loading items.xml");
-                Item.LoadItemsXml();
+                LogStart("Loading items");
+                ItemInfo.LoadItemsOtb(SharpOT.Properties.Settings.Default.ItemsOtbFile);
+                ItemInfo.LoadItemsXml(SharpOT.Properties.Settings.Default.ItemsXmlFile);
                 LogDone();
 
                 LogStart("Loading map");

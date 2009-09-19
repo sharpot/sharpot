@@ -20,9 +20,9 @@ namespace SharpOT
 
         public override string GetLookAtString()
         {
-            return "You see " + Article + " " + Name +
-                    ". " + GetCombatAttributes() + Description + SpecialDescription +
-                    "\n It weighs " + Weight + " oz.";
+            return "You see " + Info.Article + " " + Info.Name +
+                    ". " + GetCombatAttributes() + Info.Description + Info.SpecialDescription +
+                    "\n It weighs " + Info.Weight + " oz.";
         }
 
         private string GetCombatAttributes()

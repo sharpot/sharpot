@@ -21,6 +21,7 @@ namespace SharpOTMapTracker
         ProxyBase proxy = null;
         bool useHookProxy = false;
         Client client;
+        Dictionary<ushort, ushort> clientToServerDictionary = new Dictionary<ushort,ushort>();
         Dictionary<Location, MapTile> mapTiles;
         Location mapBoundsNW;
         Location mapBoundsSE;
@@ -55,6 +56,15 @@ namespace SharpOTMapTracker
         {
             mapTiles = new Dictionary<Location, MapTile>();
             packetQueue = new Queue<SplitPacket>();
+
+            SharpOT.OpenTibia.OtbReader reader = new SharpOT.OpenTibia.OtbReader("items.otb");
+            foreach (var kvp in reader.GetServerToSpriteIdPairs())
+            {
+                if (!clientToServerDictionary.ContainsKey(kvp.Value))
+                {
+                    clientToServerDictionary.Add(kvp.Value, kvp.Key);
+                }
+            }
 
             Reset();
 
@@ -144,20 +154,26 @@ namespace SharpOTMapTracker
 
                     foreach (MapTile tile in mapTiles.Values)
                     {
-                        x.Value = tile.Location.X;
-                        y.Value = tile.Location.Y;
-                        z.Value = tile.Location.Z;
-                        groundId.Value = tile.TileId;
-                        tileInsertCmd.ExecuteNonQuery();
-
-                        int i = 1;
-                        foreach (MapItem item in tile.Items)
+                        if (clientToServerDictionary.ContainsKey(tile.TileId))
                         {
-                            stack.Value = i;
-                            id.Value = item.ItemId;
-                            extra.Value = item.Extra;
-                            itemInsertCmd.ExecuteNonQuery();
-                            i++;
+                            x.Value = tile.Location.X;
+                            y.Value = tile.Location.Y;
+                            z.Value = tile.Location.Z;
+                            groundId.Value = clientToServerDictionary[tile.TileId];
+                            tileInsertCmd.ExecuteNonQuery();
+
+                            int i = 1;
+                            foreach (MapItem item in tile.Items)
+                            {
+                                if (clientToServerDictionary.ContainsKey(item.ItemId))
+                                {
+                                    stack.Value = i;
+                                    id.Value = clientToServerDictionary[item.ItemId];
+                                    extra.Value = item.Extra;
+                                    itemInsertCmd.ExecuteNonQuery();
+                                    i++;
+                                }
+                            }
                         }
                     }
                     transaction.Commit();

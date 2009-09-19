@@ -119,6 +119,18 @@ namespace SharpOT.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data\\items.otb")]
+        public string ItemsOtbFile {
+            get {
+                return ((string)(this["ItemsOtbFile"]));
+            }
+            set {
+                this["ItemsOtbFile"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Data\\sharpot.sql")]
         public string SchemaFile {
             get {

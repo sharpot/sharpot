@@ -332,7 +332,7 @@ namespace SharpOT
         public void ParseFightModes(NetworkMessage message)
         {
             FightModesPacket packet = FightModesPacket.Parse(message);
-            Player.FightMode = (FightModes)packet.FightMode;
+            Player.FightMode = (FightMode)packet.FightMode;
             Player.ChaseMode = packet.ChaseMode;
             Player.SafeMode = packet.SafeMode;
         }
