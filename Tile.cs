@@ -20,6 +20,28 @@ namespace SharpOT
 
         public bool IsWalkable { get; set; }
 
+        public FloorChangeDirection FloorChange
+        {
+            get
+            {
+                if (Ground.Info.FloorChange != FloorChangeDirection.None)
+                {
+                    return Ground.Info.FloorChange;
+                }
+                else
+                {
+                    foreach (Item item in Items)
+                    {
+                        if (item.Info.FloorChange != FloorChangeDirection.None)
+                        {
+                            return item.Info.FloorChange;
+                        }
+                    }
+                }
+                return FloorChangeDirection.None;
+            }
+        }
+
         public IEnumerable<Item> GetTopItems()
         {
             return Items.Where(i => i.GetOrder() < 4);

@@ -98,8 +98,6 @@
     <Compile Include="Player.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Outfit.cs" />
-    <Compile Include="Scripter\Script.cs" />
-    <Compile Include="Scripter\Scripter.cs" />
     <Compile Include="Scripting\ScriptManager.cs" />
     <Compile Include="Scripting\IScript.cs" />
     <Compile Include="Speech.cs" />

@@ -21,7 +21,6 @@ namespace SharpOT
         #region Properties
 
         public Map Map { get; private set; }
-        public Scripter Scripter { get; private set; }
 
         #endregion
 
@@ -113,10 +112,9 @@ namespace SharpOT
 
         #region Constructor
 
-        public Game(Server server)
+        public Game()
         {
             Map = new Map();
-            Scripter = new Scripter();
         }
 
         #endregion
@@ -333,6 +331,50 @@ namespace SharpOT
             Location toLocation = creature.Tile.Location.Offset(direction);
             Tile toTile = Map.GetTile(toLocation);
 
+            if (toTile.FloorChange != FloorChangeDirection.None)
+            {
+                Location newToLocation = new Location(toTile.Location);
+                switch (toTile.FloorChange)
+                {
+                    case FloorChangeDirection.North:
+                        newToLocation.Z -= 1;
+                        newToLocation.Y -= 1;
+                        break;
+                    case FloorChangeDirection.South:
+                        newToLocation.Z -= 1;
+                        newToLocation.Y += 1;
+                        break;
+                    case FloorChangeDirection.East:
+                        newToLocation.Z -= 1;
+                        newToLocation.X += 1;
+                        break;
+                    case FloorChangeDirection.West:
+                        newToLocation.Z -= 1;
+                        newToLocation.X -= 1;
+                        break;
+                    case FloorChangeDirection.Down:
+                        newToLocation.Z += 1;
+                        switch (Map.GetTile(newToLocation).FloorChange)
+                        {
+                            case FloorChangeDirection.North:
+                                newToLocation.Y += 1;
+                                break;
+                            case FloorChangeDirection.South:
+                                newToLocation.Y -= 1;
+                                break;
+                            case FloorChangeDirection.East:
+                                newToLocation.X -= 1;
+                                break;
+                            case FloorChangeDirection.West:
+                                newToLocation.X += 1;
+                                break;
+                        }
+                        break;
+                }
+                toLocation = newToLocation;
+                toTile = Map.GetTile(newToLocation);
+            }
+
             if (BeforeCreatureMove != null)
             {
                 bool forward = true;
@@ -379,7 +421,7 @@ namespace SharpOT
                     }
                 }
 
-                if(AfterCreatureMove!=null)
+                if(AfterCreatureMove != null)
                     AfterCreatureMove(creature, direction, fromLocation, toLocation, fromStackPosition, toTile);
                 
             }

@@ -389,7 +389,7 @@ namespace SharpOT
         Bed
     }
 
-    public enum FloorChange
+    public enum FloorChangeDirection
     {
         None,
         Down,
