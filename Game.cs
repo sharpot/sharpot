@@ -335,8 +335,14 @@ namespace SharpOT
             {
                 if (toTile != null && toTile.IsWalkable)
                 {
-                    
-                    ((Player)creature).Connection.SendPlayerMove(fromLocation, fromStackPosition, toLocation);
+                    //We have to move the creature to the tile of the floor change item
+                    //THEN we offset that location and move him from there up a floor.
+                    //Sorta messy but I'm feeling lazy ATM, at least its working
+                    if (creature.IsPlayer)
+                    {
+                        ((Player)creature).Connection.SendPlayerMove(fromLocation, fromStackPosition, toLocation);
+                    }
+
                     creature.Tile.Creatures.Remove(creature);
                     toTile.Creatures.Add(creature);
                     creature.Tile = toTile;
