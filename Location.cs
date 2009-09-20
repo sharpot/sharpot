@@ -16,6 +16,13 @@ namespace SharpOT
             Z = z;
         }
 
+        public Location(Location loc)
+        {
+            X = loc.X;
+            Y = loc.Y;
+            Z = loc.Z;
+        }
+
         public override string ToString()
         {
             return X + ", " + Y + ", " + Z;

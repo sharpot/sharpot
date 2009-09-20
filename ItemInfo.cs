@@ -26,7 +26,7 @@ namespace SharpOT
         public short ExtraDefense = 0;
         public ushort RotateTo = 0;
         public bool ShowCount = false;
-        public FloorChange FloorChange = FloorChange.None;
+        public FloorChangeDirection FloorChange = FloorChangeDirection.None;
         public CorpseType CorpseType = CorpseType.None;
 
         public bool IsGroundTile = false;
@@ -226,19 +226,19 @@ namespace SharpOT
                                     switch (value.ToLower())
                                     {
                                         case "down":
-                                            info.FloorChange = FloorChange.Down;
+                                            info.FloorChange = FloorChangeDirection.Down;
                                             break;
                                         case "north":
-                                            info.FloorChange = FloorChange.North;
+                                            info.FloorChange = FloorChangeDirection.North;
                                             break;
                                         case "south":
-                                            info.FloorChange = FloorChange.South;
+                                            info.FloorChange = FloorChangeDirection.South;
                                             break;
                                         case "west":
-                                            info.FloorChange = FloorChange.West;
+                                            info.FloorChange = FloorChangeDirection.West;
                                             break;
                                         case "east":
-                                            info.FloorChange = FloorChange.East;
+                                            info.FloorChange = FloorChangeDirection.East;
                                             break;
                                     }
                                     break;

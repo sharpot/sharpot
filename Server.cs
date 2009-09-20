@@ -28,7 +28,7 @@ namespace SharpOT
 
         void Run()
         {
-            game = new Game(this);
+            game = new Game();
 
             try
             {
@@ -50,7 +50,6 @@ namespace SharpOT
                 LogDone();
 
                 LogStart("Loading scripts");
-                //game.Scripter.Load();
                 string errors = Scripting.ScriptManager.LoadAllScripts(game);
                 LogDone();
 
