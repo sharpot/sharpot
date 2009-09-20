@@ -333,46 +333,58 @@ namespace SharpOT
 
             if (toTile.FloorChange != FloorChangeDirection.None)
             {
-                Location newToLocation = new Location(toTile.Location);
-                switch (toTile.FloorChange)
+                if (toTile != null && toTile.IsWalkable)
                 {
-                    case FloorChangeDirection.North:
-                        newToLocation.Z -= 1;
-                        newToLocation.Y -= 1;
-                        break;
-                    case FloorChangeDirection.South:
-                        newToLocation.Z -= 1;
-                        newToLocation.Y += 1;
-                        break;
-                    case FloorChangeDirection.East:
-                        newToLocation.Z -= 1;
-                        newToLocation.X += 1;
-                        break;
-                    case FloorChangeDirection.West:
-                        newToLocation.Z -= 1;
-                        newToLocation.X -= 1;
-                        break;
-                    case FloorChangeDirection.Down:
-                        newToLocation.Z += 1;
-                        switch (Map.GetTile(newToLocation).FloorChange)
-                        {
-                            case FloorChangeDirection.North:
-                                newToLocation.Y += 1;
-                                break;
-                            case FloorChangeDirection.South:
-                                newToLocation.Y -= 1;
-                                break;
-                            case FloorChangeDirection.East:
-                                newToLocation.X -= 1;
-                                break;
-                            case FloorChangeDirection.West:
-                                newToLocation.X += 1;
-                                break;
-                        }
-                        break;
+                    
+                    ((Player)creature).Connection.SendPlayerMove(fromLocation, fromStackPosition, toLocation);
+                    creature.Tile.Creatures.Remove(creature);
+                    toTile.Creatures.Add(creature);
+                    creature.Tile = toTile;
+                    fromLocation = toLocation;
+                    fromStackPosition = toTile.GetStackPosition(creature);
+
+                    Location newToLocation = new Location(toTile.Location);
+                    switch (toTile.FloorChange)
+                    {
+                        case FloorChangeDirection.North:
+                            newToLocation.Z -= 1;
+                            newToLocation.Y -= 1;
+                            break;
+                        case FloorChangeDirection.South:
+                            newToLocation.Z -= 1;
+                            newToLocation.Y += 1;
+                            break;
+                        case FloorChangeDirection.East:
+                            newToLocation.Z -= 1;
+                            newToLocation.X += 1;
+                            break;
+                        case FloorChangeDirection.West:
+                            newToLocation.Z -= 1;
+                            newToLocation.X -= 1;
+                            break;
+                        case FloorChangeDirection.Down:
+                            newToLocation.Z += 1;
+                            switch (Map.GetTile(newToLocation).FloorChange)
+                            {
+                                case FloorChangeDirection.North:
+                                    newToLocation.Y += 1;
+                                    break;
+                                case FloorChangeDirection.South:
+                                    newToLocation.Y -= 1;
+                                    break;
+                                case FloorChangeDirection.East:
+                                    newToLocation.X -= 1;
+                                    break;
+                                case FloorChangeDirection.West:
+                                    newToLocation.X += 1;
+                                    break;
+                            }
+                            break;
+                    }
+
+                    toLocation = newToLocation;
+                    toTile = Map.GetTile(newToLocation);
                 }
-                toLocation = newToLocation;
-                toTile = Map.GetTile(newToLocation);
             }
 
             if (BeforeCreatureMove != null)
