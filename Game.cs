@@ -104,10 +104,6 @@ namespace SharpOT
         public delegate bool AfterWalkCancelHandler();
         public AfterWalkCancelHandler AfterWalkCancel;
 
-        public delegate void AddRemoveCreatureHandler(Creature creature);
-        public AddRemoveCreatureHandler AfterAddCreature;
-        public AddRemoveCreatureHandler AfterRemoveCreature;
-
         #endregion
 
         #region Constructor
@@ -119,21 +115,21 @@ namespace SharpOT
 
         #endregion
 
-        #region Public Helpers
+        #region Private Helpers
 
-        public void AddCreature(Creature creature)
+        private void AddCreature(Creature creature)
         {
             creatures.Add(creature.Id, creature);
-            if (AfterAddCreature != null)
-                AfterAddCreature(creature);
         }
 
-        public void RemoveCreature(Creature creature)
+        private void RemoveCreature(Creature creature)
         {
             creatures.Remove(creature.Id);
-            if (AfterRemoveCreature != null)
-                AfterRemoveCreature(creature);
         }
+
+        #endregion
+
+        #region Public Helpers
 
         public IEnumerable<Creature> GetSpectators(Location location)
         {
@@ -340,6 +336,7 @@ namespace SharpOT
                     //Sorta messy but I'm feeling lazy ATM, at least its working
                     if (creature.IsPlayer)
                     {
+                        ((Player)creature).Connection.BeginTransaction();
                         ((Player)creature).Connection.SendPlayerMove(fromLocation, fromStackPosition, toLocation);
                     }
 
@@ -423,7 +420,9 @@ namespace SharpOT
                 {
                     if (player == creature)
                     {
+                        player.Connection.BeginTransaction();
                         player.Connection.SendPlayerMove(fromLocation, fromStackPosition, toLocation);
+                        player.Connection.CommitTransaction();
                     }
                     else if (player.Tile.Location.CanSee(fromLocation) && player.Tile.Location.CanSee(toLocation))
                     {
@@ -462,11 +461,14 @@ namespace SharpOT
             {
                 if (player == creature)
                 {
-                    //TODO: composite packet
+                    player.Connection.BeginTransaction();
                     player.Connection.SendStatus();
                 }
 
+                player.Connection.BeginTransaction();
                 player.Connection.SendCreatureUpdateHealth(creature);
+                player.Connection.CommitTransaction();
+
             }
             if (AfterCreatureUpdateHealth != null)
                 AfterCreatureUpdateHealth(creature, health);
@@ -658,18 +660,22 @@ namespace SharpOT
                 AfterLogin(player);
             }
 
-            //TODO: composite packet for players that are spectators AND vips?
-            var spectators = GetSpectatorPlayers(player.Tile.Location).Where(s => s != player);
-            foreach (var spectator in spectators)
+            foreach (Player p in GetPlayers())
             {
-                spectator.Connection.SendCreatureAppear(player);
-            }
+                p.Connection.BeginTransaction();
 
+                if (p.Tile.Location.CanSee(player.Tile.Location))
+                {
+                    p.Connection.SendCreatureAppear(player);
+                }
 
-            foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
-            {
-                p.VipList[player.Id].LoggedIn = true;
-                p.Connection.SendVipLogin(player.Id);
+                if (p.VipList.ContainsKey(player.Id))
+                {
+                    p.VipList[player.Id].LoggedIn = true;
+                    p.Connection.SendVipLogin(player.Id);
+                }
+
+                p.Connection.CommitTransaction();
             }
         }
 

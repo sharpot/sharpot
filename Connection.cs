@@ -848,12 +848,25 @@ namespace SharpOT
             Send(message);
         }
 
-        public void Send(NetworkMessage message)
+        private bool isInTransaction = false;
+        private NetworkMessage transactionMessage = new NetworkMessage();
+
+        public void BeginTransaction()
         {
-            Send(message, true);
+            if (!isInTransaction)
+            {
+                transactionMessage.Reset();
+                isInTransaction = true;
+            }
         }
 
-        public void Send(NetworkMessage message, bool useEncryption)
+        public void CommitTransaction()
+        {
+            SendMessage(transactionMessage, true);
+            isInTransaction = false;
+        }
+
+        private void SendMessage(NetworkMessage message, bool useEncryption)
         {
             if (useEncryption)
                 message.PrepareToSend(xteaKey);
@@ -861,6 +874,26 @@ namespace SharpOT
                 message.PrepareToSendWithoutEncryption();
 
             stream.BeginWrite(message.Buffer, 0, message.Length, null, null);
+        }
+
+        public void Send(NetworkMessage message)
+        {
+            Send(message, true);
+        }
+
+        public void Send(NetworkMessage message, bool useEncryption)
+        {
+            if (isInTransaction)
+            {
+                if (useEncryption == false)
+                    throw new Exception("Cannot send a packet without encryption as part of a transaction.");
+                
+                transactionMessage.AddBytes(message.GetPacket());
+            }
+            else
+            {
+                SendMessage(message, useEncryption);
+            }
         }
 
         #endregion
