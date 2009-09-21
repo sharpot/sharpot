@@ -33,7 +33,7 @@ namespace SharpOT
             try
             {
                 LogStart("Initializing database");
-                Database.Initialize();
+                Database.Initialize(SharpOT.Properties.Settings.Default.ConnectionString);
                 LogDone();
 
                 LogStart("Loading data");

@@ -64,7 +64,7 @@ namespace SharpOT
 
         public bool IsPlayer
         {
-            get { return Id > 0x40000000; }
+            get { return this is Player; }
         }
 
         public byte HealthPercent
@@ -87,7 +87,8 @@ namespace SharpOT
         public override string GetLookAtString()
         {
             return "You see " + Name + ".";
-        }
+        }
+
 
         public void Say(string text)
         {

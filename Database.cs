@@ -11,9 +11,7 @@ namespace SharpOT
 {
     public class Database
     {
-        private static SQLiteConnection connection = new SQLiteConnection(
-            SharpOT.Properties.Settings.Default.ConnectionString
-        );
+        private static SQLiteConnection connection = new SQLiteConnection();
 
         #region Account Commands
 
@@ -258,8 +256,22 @@ namespace SharpOT
 
         #region Setup
 
-        public static void Initialize()
+        public static void ExecuteScript(string sql)
         {
+            var transaction = connection.BeginTransaction();
+            SQLiteCommand command = new SQLiteCommand(connection);
+            foreach (string query in sql.Split(';'))
+            {
+                command.CommandText = query.Trim();
+                command.ExecuteNonQuery();
+            }
+
+            transaction.Commit();
+        }
+
+        public static void Initialize(string connectionString)
+        {
+            connection.ConnectionString = connectionString;
             connection.Open();
 
             // Make sure the database structure exists
@@ -273,15 +285,7 @@ namespace SharpOT
                 if (e.Message.Contains("no such table"))
                 {
                     string sql = File.ReadAllText(SharpOT.Properties.Settings.Default.SchemaFile);
-                    var transaction = connection.BeginTransaction();
-                    SQLiteCommand command = new SQLiteCommand(connection);
-                    foreach (string query in sql.Split(';'))
-                    {
-                        command.CommandText = query.Trim();
-                        command.ExecuteNonQuery();
-                    }
-
-                    transaction.Commit();
+                    ExecuteScript(sql);
                 }
             }
 
