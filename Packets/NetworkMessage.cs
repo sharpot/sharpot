@@ -38,10 +38,10 @@ namespace SharpOT.Packets
             get { return bufferSize; }
         }
 
-        public byte[] GetData()
+        public byte[] GetPacket()
         {
-            byte[] t = new byte[length];
-            Array.Copy(buffer, t, length);
+            byte[] t = new byte[length - 8];
+            Array.Copy(buffer, 8, t, 0, length - 8);
             return t;
         }
 
@@ -57,12 +57,6 @@ namespace SharpOT.Packets
         public NetworkMessage(int startingIndex)
         {
             Reset(startingIndex);
-        }
-
-        public NetworkMessage(NetworkMessage message)
-            : this(0)
-        {
-            AddBytes(message.GetData());
         }
 
         public void Reset(int startingIndex)
