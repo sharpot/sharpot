@@ -219,20 +219,20 @@ namespace SharpOT
                 //case ClientPacketType.ContainerClose:
                 //case ClientPacketType.ContainerOpenParent:
                 case ClientPacketType.TurnNorth:
-                    Game.CreatureTurn(Player, Direction.North);
+                    ParseTurn(Direction.North);
                     break;
                 case ClientPacketType.TurnWest:
-                    Game.CreatureTurn(Player, Direction.East);
+                    ParseTurn(Direction.East);
                     break;
                 case ClientPacketType.TurnSouth:
-                    Game.CreatureTurn(Player, Direction.South);
+                    ParseTurn(Direction.South);
                     break;
                 case ClientPacketType.TurnEast:
-                    Game.CreatureTurn(Player, Direction.West);
+                    ParseTurn(Direction.West);
                     break;
                 //case ClientPacketType.AutoWalk:
                 case ClientPacketType.AutoWalkCancel:
-                    Game.WalkCancel(Player);
+                    ParseAutoWalkCancel();
                     break;                
                 case ClientPacketType.VipAdd:
                     ParseVipAdd(message);
@@ -258,33 +258,48 @@ namespace SharpOT
                 //case ClientPacketType.NpcChannelClose:
                 //    break;
                 case ClientPacketType.MoveNorth:
-                    Game.CreatureMove(Player,  Direction.North);
+                    ParseMove(Direction.North);
                     break;
                 case ClientPacketType.MoveEast:
-                    Game.CreatureMove(Player,  Direction.East);
+                    ParseMove(Direction.East);
                     break;
                 case ClientPacketType.MoveSouth:
-                    Game.CreatureMove(Player,  Direction.South);
+                    ParseMove(Direction.South);
                     break;
                 case ClientPacketType.MoveWest:
-                    Game.CreatureMove(Player,  Direction.West);
+                    ParseMove(Direction.West);
                     break;
                 case ClientPacketType.MoveNorthEast:
-                    Game.CreatureMove(Player,  Direction.NorthEast);
+                    ParseMove(Direction.NorthEast);
                     break;
                 case ClientPacketType.MoveSouthEast:
-                    Game.CreatureMove(Player,  Direction.SouthEast);
+                    ParseMove(Direction.SouthEast);
                     break;
                 case ClientPacketType.MoveSouthWest:
-                    Game.CreatureMove(Player,  Direction.SouthWest);
+                    ParseMove(Direction.SouthWest);
                     break;
                 case ClientPacketType.MoveNorthWest:
-                    Game.CreatureMove(Player,  Direction.NorthWest);
+                    ParseMove(Direction.NorthWest);
                     break;
                 default:
                     Server.Log("Unhandled packet from " + Player.ToString() + ": " + type);
                     break;
             }
+        }
+
+        public void ParseAutoWalkCancel()
+        {
+            Game.WalkCancel(Player);
+        }
+
+        public void ParseTurn(Direction direction)
+        {
+            Game.CreatureTurn(Player, direction);
+        }
+
+        public void ParseMove(Direction direction)
+        {
+            Game.CreatureMove(Player, direction);
         }
 
         public void ParseLogout()

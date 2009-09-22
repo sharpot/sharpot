@@ -171,6 +171,7 @@
     <Compile Include="Data\Scripts\OnlineCommand.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Scripting\Events.cs" />
     <Compile Include="ItemInfo.cs" />
     <Compile Include="Data\Scripts\TestingCharacters.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
