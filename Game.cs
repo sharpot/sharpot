@@ -6,6 +6,7 @@ using SharpOT.Packets;
 using System.Data.SQLite;
 using System.Net;
 using System.Data.Common;
+using SharpOT.Scripting;
 
 namespace SharpOT
 {
@@ -26,82 +27,57 @@ namespace SharpOT
 
         #region Events
 
-        public delegate bool BeforeCreatureSpeechHandler(Creature creature, Speech speech);
         public BeforeCreatureSpeechHandler BeforeCreatureSpeech;
 
-        public delegate void AfterCreatureDefaultSpeechHandler(Creature creature, SpeechType speechType, string message);
         public AfterCreatureDefaultSpeechHandler AfterCreatureWhisperSpeech;
         public AfterCreatureDefaultSpeechHandler AfterCreatureSaySpeech;
         public AfterCreatureDefaultSpeechHandler AfterCreatureYellSpeech;
 
-        public delegate void AfterCreaturePrivateSpeechHandler(Creature creature, string receiver, string message);
         public AfterCreaturePrivateSpeechHandler AfterCreaturePrivateSpeech;
 
-        public delegate void AfterCreatureChannelSpeechHandler(string sender, SpeechType type, ChatChannel channelId, string message);
         public AfterCreatureChannelSpeechHandler AfterCreatureChannelSpeech;
 
-        public delegate bool BeforeCreatureTurnHandler(Creature creature, Direction direction);
         public BeforeCreatureTurnHandler BeforeCreatureTurn;
 
-        public delegate bool AfterCreatureTurnHandler(Creature creature, Direction direction);
         public AfterCreatureTurnHandler AfterCreatureTurn;
 
-        public delegate bool BeforePlayerChangeOutfitHandler(Creature creature, Outfit outfit);
         public BeforePlayerChangeOutfitHandler BeforePlayerChangeOutfit;
 
-        public delegate bool AfterPlayerChangeOutfitHandler(Creature creature, Outfit outfit);
         public AfterPlayerChangeOutfitHandler AfterPlayerChangeOutfit;
 
-        public delegate bool BeforePrivateChannelOpenHandler(Player player, string receiver);
         public BeforePrivateChannelOpenHandler BeforePrivateChannelOpen;
 
-        public delegate bool AfterPrivateChannelOpenHandler(Player player, string receiver);
         public AfterPrivateChannelOpenHandler AfterPrivateChannelOpen;
 
-        public delegate bool BeforeCreatureMoveHandler(Creature creature, Direction direction, Location fromLocation, Location toLocation, byte fromStackPosition, Tile toTile);
         public BeforeCreatureMoveHandler BeforeCreatureMove;
 
-        public delegate bool AfterCreatureMoveHandler(Creature creature, Direction direction, Location fromLocation, Location toLocation, byte fromStackPosition, Tile toTile);
         public AfterCreatureMoveHandler AfterCreatureMove;
 
-        public delegate bool ChannelHandler(Player creature, ChatChannel channel);
-        public ChannelHandler BeforeChannelOpen;
-        public ChannelHandler BeforeChannelClose;
+        public BeforeChannelHandler BeforeChannelOpen;
+        public BeforeChannelHandler BeforeChannelClose;
 
-        public delegate void AfterChannelOpenHandler(Player creature, ChatChannel channel);
         public AfterChannelOpenHandler AfterChannelOpen;
 
-        public delegate bool BeforeCreatureUpdateHealthHandler(Creature creature, ushort health);
         public BeforeCreatureUpdateHealthHandler BeforeCreatureUpdateHealth;
 
-        public delegate void AfterCreatureUpdateHealthHandler(Creature creature, ushort health);
         public AfterCreatureUpdateHealthHandler AfterCreatureUpdateHealth;
 
-        public delegate bool BeforeVipAddHandler(Player player, string vipName);
         public BeforeVipAddHandler BeforeVipAdd;
 
-        public delegate void AfterVipAddHandler(Player player, string vipName);
         public AfterVipAddHandler AfterVipAdd;
 
-        public delegate bool VipRemoveHandler(Player player, uint vipId);
         public VipRemoveHandler BeforeVipRemove;
 
-        public delegate bool BeforeLoginHandler(Connection connection, string playerName);
         public BeforeLoginHandler BeforeLogin;
 
-        public delegate void AfterLoginHandler(Player player);
         public AfterLoginHandler AfterLogin;
 
-        public delegate bool BeforeLogoutHandler(Player player);
         public BeforeLogoutHandler BeforeLogout;
 
-        public delegate void AfterLogoutHandler(Player player);
         public AfterLogoutHandler AfterLogout;
 
-        public delegate bool BeforeWalkCancelHandler();
         public BeforeCreatureTurnHandler BeforeWalkCancel;
 
-        public delegate bool AfterWalkCancelHandler();
         public AfterWalkCancelHandler AfterWalkCancel;
 
         #endregion
@@ -284,7 +260,7 @@ namespace SharpOT
                 bool forward = true;
                 foreach (Delegate del in BeforeChannelOpen.GetInvocationList())
                 {
-                    ChannelHandler subscriber = (ChannelHandler)del;
+                    BeforeChannelHandler subscriber = (BeforeChannelHandler)del;
                     forward &= (bool)subscriber(player, channel);
                 }
                 if (!forward) return;
