@@ -188,7 +188,7 @@ namespace SharpOT
             }
             if(AfterPlayerChangeOutfit!=null)
                 AfterPlayerChangeOutfit(player, outfit);
-            Database.SavePlayerByName(player);
+            Database.SavePlayerById(player);
         }
 
         public void PrivateChannelOpen(Player player, string receiver)
@@ -228,6 +228,13 @@ namespace SharpOT
                     forward &= (bool)subscriber(creature, speech);
                 }
                 if (!forward) return;
+            }
+
+            if (creature.IsPlayer)
+            {
+                bool doPropagate =
+                    Commands.ExecuteCommand((Player)creature, speech.Message);
+                if (!doPropagate) return;
             }
 
             switch (speech.Type)
