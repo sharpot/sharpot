@@ -1,38 +1,30 @@
 using SharpOT;
 using SharpOT.Scripting;
 
-public class OnlineCommand : IScript
+public class OnlineCommand : ICommand
 {
-    Game game;
-    public bool Start(Game game)
+    public string GetWords()
     {
-        this.game = game;
-        game.BeforeCreatureSpeech += BeforeCreatureSpeech;
+        return "/online";
+    }
+
+    public bool CanBeUsedBy(Player player)
+    {
         return true;
     }
 
-    public bool BeforeCreatureSpeech(Creature creature, Speech speech)
+    public bool Action(Game game, Player player, string args)
     {
-        if (creature.IsPlayer && speech.Message.ToLower().Equals("/online"))
+        string online = "";
+        foreach (Player p in game.GetPlayers())
         {
-            string online = "";
-            foreach (Player player in game.GetPlayers())
+            if (online.Length > 0)
             {
-                if (online.Length > 0)
-                {
-                    online += ", ";
-                }
-                online += player.Name;
+                online += ", ";
             }
-            ((Player)creature).Connection.SendTextMessage(TextMessageType.EventDefault, "Online: " + online);
-            return false;
+            online += p.Name;
         }
-        return true;
-    }
-
-    public bool Stop()
-    {
-        game.BeforeCreatureSpeech -= BeforeCreatureSpeech;
-        return true;
+        player.Connection.SendTextMessage(TextMessageType.EventDefault, "Online: " + online);
+        return false;
     }
 }

@@ -9,7 +9,7 @@ namespace SharpOT
     {
         string GetWords();
         bool CanBeUsedBy(Player player);
-        bool Action(Player player, string args);
+        bool Action(Game game, Player player, string args);
     }
 
     public interface ISpell : ICommand
@@ -48,10 +48,13 @@ namespace SharpOT
             commandList.Remove(commandList.Find(command));
         }
 
-        public static bool ExecuteCommand(Player player, string words)
+        public static bool ExecuteCommand(Game game, Player player, string words)
         {
             foreach (ICommand cmd in commandList)
             {
+                if (!cmd.CanBeUsedBy(player))
+                    continue;
+
                 if (cmd is ISpell)
                 {
                     string[] split = words.Split('"');
@@ -60,7 +63,7 @@ namespace SharpOT
                         string args = "";
                         if (split.Length > 1)
                             args = split[1];
-                        return cmd.Action(player, args);
+                        return cmd.Action(game, player, args);
                     }
                 }
                 else
@@ -69,7 +72,7 @@ namespace SharpOT
                     if (split[0].Trim() == cmd.GetWords())
                     {
                         string args = words.Substring(split[0].Length).Trim();
-                        return cmd.Action(player, args);
+                        return cmd.Action(game, player, args);
                     }
                 } 
             }
