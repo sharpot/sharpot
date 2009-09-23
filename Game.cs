@@ -233,7 +233,7 @@ namespace SharpOT
             if (creature.IsPlayer)
             {
                 bool doPropagate =
-                    Commands.ExecuteCommand((Player)creature, speech.Message);
+                    Commands.ExecuteCommand(this, (Player)creature, speech.Message);
                 if (!doPropagate) return;
             }
 

@@ -66,10 +66,14 @@ namespace SharpOT.Scripting
 
             if (assembly != null)
             {
-                foreach (IScript script in FindScripts(assembly))
+                foreach (IScript script in FindInterfaces<IScript>(assembly))
                 {
                     loadedScripts.Add(script);
                     script.Start(game);
+                }
+                foreach (ICommand cmd in FindInterfaces<ICommand>(assembly))
+                {
+                    Commands.RegisterCommand(cmd);
                 }
             }
         }
@@ -95,13 +99,13 @@ namespace SharpOT.Scripting
             return null;
         }
 
-        public static IEnumerable<IScript> FindScripts(Assembly assembly)
-        {
+        public static IEnumerable<IType> FindInterfaces<IType>(Assembly assembly)
+        {   
             foreach (Type t in assembly.GetTypes())
             {
-                if (t.GetInterface("IScript", true) != null)
+                if (t.GetInterface(typeof(IType).Name, true) != null)
                 {
-                    yield return (IScript)assembly.CreateInstance(t.FullName);
+                    yield return (IType)assembly.CreateInstance(t.FullName);
                 }
             }
         }
