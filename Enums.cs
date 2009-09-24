@@ -339,7 +339,7 @@ namespace SharpOT
         Black = 5
     }
 
-    public enum Party
+    public enum Party : byte
     {
         None = 0,
         Host = 1,
@@ -349,10 +349,12 @@ namespace SharpOT
         MemberSharedExp = 5,
         LeaderSharedExp = 6,
         MemberSharedExpInactive = 7,
-        LeaderSharedExpInactive = 8
+        LeaderSharedExpInactive = 8,
+        MemberNoSharedExp = 9,
+        LeaderNoSharedExp = 10
     }
 
-    public enum Gender
+    public enum Gender : byte
     {
         Male,
         Female
@@ -364,11 +366,86 @@ namespace SharpOT
         None
     }
 
-    public enum FightMode
+    public enum FightMode : byte
     {
         FullAttack = 1,
         Balanced = 2,
         FullDefense = 3
+    }
+
+    public enum FluidColor : byte
+    {
+        Empty = 0,
+        Blue = 1,
+        Red = 2,
+        Brown = 3,
+        Green = 4,
+        Yellow = 5,
+        White = 6,
+        Purple = 7
+    }
+
+    public enum Fluid : byte
+    {
+        Empty,
+        Water,
+        Blood,
+        Beer,
+        Slime,
+        Lemonade,
+        Milk,
+        Mana,
+        Life,
+        Oil,
+        Urine,
+        CoconutMilk,
+        Wine,
+        Mud,
+        FruitJuice,
+        Lava,
+        Rum,
+        Swamp
+    }
+
+    public enum WeaponType : byte
+    {
+        None,
+        Sword,
+        Club,
+        Axe,
+        Shield,
+        Dist,
+        Wand,
+        Ammo
+    }
+
+    public enum AmmoType : byte
+    {
+        None = 0,
+        Bolt,
+        Arrow,
+        Spear,
+        ThrowingStar,
+        ThrowingKnife,
+        Stone,
+        Snowball
+    }
+
+    public enum SlotType
+    {
+        None,
+        Head,
+        Neck,
+        Back,
+        Armor,
+        Right,
+        Left,
+        Legs,
+        Feet,
+        Ring,
+        Ammo,
+        Depot,
+        TwoHanded
     }
 
     #endregion
