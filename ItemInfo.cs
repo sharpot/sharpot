@@ -28,6 +28,10 @@ namespace SharpOT
         public bool ShowCount = false;
         public FloorChangeDirection FloorChange = FloorChangeDirection.None;
         public CorpseType CorpseType = CorpseType.None;
+        public Fluid FluidSource = Fluid.Empty;
+        public ushort MaxTextLength = 0;
+        public ushort WriteOnceItemId = 0;
+        public SlotType SlotType = SlotType.None;
 
         public bool IsGroundTile = false;
         public ushort Speed = 0;
