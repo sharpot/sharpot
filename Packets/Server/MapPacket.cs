@@ -82,12 +82,13 @@ namespace SharpOT.Packets
                 if (tile.Ground != null)
                 {
                     message.AddItem(tile.Ground);
-                    count++;
+                    ++count;
                 }
 
                 foreach (Item item in tile.GetTopItems())
                 {
                     message.AddItem(item);
+                    ++count;
                 }
 
                 foreach (Creature creature in tile.Creatures)
@@ -104,6 +105,7 @@ namespace SharpOT.Packets
                 foreach (Item item in tile.GetDownItems())
                 {
                     message.AddItem(item);
+                    ++count;
                 }
             }
         }

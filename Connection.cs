@@ -18,6 +18,7 @@ namespace SharpOT
         uint[] xteaKey = new uint[4];
         bool remove = false;
         HashSet<uint> knownCreatures = new HashSet<uint>();
+        Queue<Direction> walkDirections;
 
         #endregion
 
@@ -230,7 +231,9 @@ namespace SharpOT
                 case ClientPacketType.TurnEast:
                     ParseTurn(Direction.West);
                     break;
-                //case ClientPacketType.AutoWalk:
+                case ClientPacketType.AutoWalk:
+                    ParseAutoWalk(message);
+                    break;
                 case ClientPacketType.AutoWalkCancel:
                     ParseAutoWalkCancel();
                     break;                
@@ -285,6 +288,13 @@ namespace SharpOT
                     Server.Log("Unhandled packet from " + Player.ToString() + ": " + type);
                     break;
             }
+        }
+
+        public void ParseAutoWalk(NetworkMessage message)
+        {
+            AutoWalkPacket packet = AutoWalkPacket.Parse(message);
+            walkDirections = packet.Directions;
+            DoAutoWalk();
         }
 
         public void ParseAutoWalkCancel()
@@ -936,6 +946,26 @@ namespace SharpOT
             remove = true;
             stream.Close();
             socket.Close();
+        }
+
+        #endregion
+
+        #region Private
+
+        private void DoAutoWalk()
+        {
+            if (walkDirections.Count > 0)
+            {
+                Direction direction = walkDirections.Dequeue();
+                Game.CreatureMove(Player, direction);
+                if (walkDirections.Count > 0)
+                {
+                    Scheduler.AddTask(
+                        this.DoAutoWalk,
+                        null,
+                        (int)Player.GetStepDuration());
+                }
+            }
         }
 
         #endregion
