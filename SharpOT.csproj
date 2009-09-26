@@ -172,6 +172,8 @@
     <Compile Include="Data\Scripts\OnlineCommand.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Packets\Client\AutoWalkPacket.cs" />
+    <Compile Include="Util\Scheduler.cs" />
     <Compile Include="Scripting\Events.cs" />
     <Compile Include="ItemInfo.cs" />
     <Compile Include="Data\Scripts\TestingCharacters.cs">
