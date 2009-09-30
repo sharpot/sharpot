@@ -22,13 +22,17 @@ namespace SharpOT
             uint id = GetThingId();
             if ((id >= 0x0061) && (id <= 0x0063)) return 4;
 
+            byte itemInfoTopOrder = ItemInfo.GetItemInfo((ushort)id).TopOrder;
+            byte topOrder = 5;
+
             DatItem di = DatReader.GetItem(id);
 
-            if (di.IsGroundTile) return 0;
-            else if (di.TopOrder1) return 1;
-            else if (di.TopOrder2) return 2;
-            else if (di.TopOrder3) return 3;
-            else return 5;
+            if (di.IsGroundTile) topOrder = 0;
+            else if (di.TopOrder1) topOrder = 1;
+            else if (di.TopOrder2) topOrder = 2;
+            else if (di.TopOrder3) topOrder = 3;
+
+            return topOrder;
         }
     }
 }
