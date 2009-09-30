@@ -9,7 +9,7 @@ namespace SharpOT
     public class ItemInfo
     {
         public ushort Id;
-        public ushort SpriteId;
+        public ushort SpriteId = 100;
         public ItemType Type = ItemType.Normal;
         public double Weight = 0.0;
         public string Name;
@@ -35,9 +35,7 @@ namespace SharpOT
 
         public bool IsGroundTile = false;
         public ushort Speed = 0;
-        public bool TopOrder1 = false;
-        public bool TopOrder2 = false;
-        public bool TopOrder3 = false;
+        public byte TopOrder = 5;
         public bool IsBlocking = false;
         public bool IsContainer = false;
         public bool IsStackable = false;
@@ -84,20 +82,11 @@ namespace SharpOT
         public static void LoadItemsOtb(string fileName)
         {
             OpenTibia.OtbReader reader = new SharpOT.OpenTibia.OtbReader(fileName);
-            foreach (var kvp in reader.GetServerToSpriteIdPairs())
+            foreach (var info in reader.GetAllItemInfo())
             {
-                ItemInfo info = null;
-                if (itemInfoDictionary.ContainsKey(kvp.Key))
+                if (!itemInfoDictionary.ContainsKey(info.Id))
                 {
-                    info = itemInfoDictionary[kvp.Key];
-                    info.SpriteId = kvp.Value;
-                }
-                else
-                {
-                    info = new ItemInfo();
-                    info.Id = kvp.Key;
-                    info.SpriteId = kvp.Value;
-                    itemInfoDictionary.Add(kvp.Key, info);
+                    itemInfoDictionary.Add(info.Id, info);
                 }
             }
         }
@@ -116,9 +105,8 @@ namespace SharpOT
                 }
                 else
                 {
-                    info = new ItemInfo();
-                    info.Id = id;
-                    itemInfoDictionary.Add(id, info);
+                    continue;
+                    // TODO: Unknown item
                 }
                 info.Article = "an";
                 info.Name = "item of type " + id;

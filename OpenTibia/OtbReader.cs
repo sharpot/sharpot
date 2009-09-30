@@ -9,103 +9,87 @@ namespace SharpOT.OpenTibia
     public class OtbReader
     {
         private string fileName;
-        FileStream stream;
         byte[] buffer = new byte[128];
 
         public OtbReader(string fileName)
         {
             this.fileName = fileName;
         }
-        
-        public IEnumerable<KeyValuePair<ushort, ushort>> GetServerToSpriteIdPairs()
-        {
-            stream = File.OpenRead(fileName);
 
-            KeyValuePair<ushort, ushort>? kvp = null;
-            bool unparseNext = false;
-            int cur;
-            while ((cur = stream.ReadByte()) != -1)
+        public IEnumerable<ItemInfo> GetAllItemInfo()
+        {
+            FileLoader loader = new FileLoader();
+            loader.OpenFile(fileName);
+            Node node = loader.GetRootNode();
+
+            BinaryReader props;
+
+            if (loader.GetProps(node, out props))
             {
-                switch (cur)
+                // 4 byte flags
+                // attributes
+                // 0x01 = version data
+                uint flags = props.ReadUInt32();
+                byte attr = props.ReadByte();
+                if (attr == 0x01)
                 {
-                    case Constants.NodeStart:
-                        if (unparseNext)
-                        {
-                            unparseNext = false;
-                        }
-                        else
-                        {
-                            int type = stream.ReadByte();
-                            if (type >=0 && type <= 13)
-                                kvp = HandleItem();
-                            if (kvp != null)
-                                yield return kvp.Value;
+                    ushort datalen = props.ReadUInt16();
+                    if (datalen != 140)
+                    {
+                        yield return null;
+                        yield break;
+                    }
+                    uint majorVersion = props.ReadUInt32();
+                    uint minorVersion = props.ReadUInt32();
+                    uint buildNumber = props.ReadUInt32();
+                }
+            }
+
+            node = node.Child;
+
+            while (node != null)
+            {
+                if (!loader.GetProps(node, out props))
+                {
+                    yield return null;
+                    yield break;
+                }
+
+                ItemInfo info = new ItemInfo();
+                // info.Group = node.Type;
+
+                uint flags = props.ReadUInt32();
+
+                // process flags
+
+                byte attr;
+                ushort datalen;
+                while (props.PeekChar() != -1)
+                {
+                    attr = props.ReadByte();
+                    datalen = props.ReadUInt16();
+                    switch ((ItemAttribute)attr)
+                    {
+                        case ItemAttribute.ServerId:
+                            info.Id = props.ReadUInt16();
                             break;
-                        }
-                        break;
-                    case Constants.NodeEnd:
-                        if (unparseNext)
-                        {
-                            unparseNext = false;
-                        }
-                        else
-                        {
-
-                        }
-                        break;
-                    case Constants.Escape:
-                        unparseNext = true;
-                        break;
+                        case ItemAttribute.ClientId:
+                            info.SpriteId = props.ReadUInt16();
+                            break;
+                        case ItemAttribute.Speed:
+                            info.Speed = props.ReadUInt16();
+                            break;
+                        case ItemAttribute.TopOrder:
+                            info.TopOrder = props.ReadByte();
+                            break;
+                        default:
+                            props.ReadBytes(datalen);
+                            break;
+                    }
                 }
+                yield return info;
+                node = node.Next;
             }
-        }
-
-        private KeyValuePair<ushort, ushort>? HandleItem()
-        {
-            ushort serverId = 0;
-            ushort clientId = 0;
-            // skip 4 flag bytes
-            ReadAndUnescape(4);
-
-            byte attr = ReadAndUnescape(1)[0];
-            ushort len = BitConverter.ToUInt16(ReadAndUnescape(2), 0);
-
-            if (attr == 0x10)
-            {
-                serverId = BitConverter.ToUInt16(ReadAndUnescape(2), 0);
-            }
-            attr = ReadAndUnescape(1)[0];
-            if (attr == 0x11)
-            {
-                len = BitConverter.ToUInt16(ReadAndUnescape(2), 0);
-                clientId = BitConverter.ToUInt16(ReadAndUnescape(2), 0);
-            }
-
-            if (clientId > 0 )
-            {
-                return new KeyValuePair<ushort,ushort>(serverId, clientId);
-            }
-            return null;
-        }
-
-        private byte[] ReadAndUnescape(int count)
-        {
-            byte[] buffer = new byte[count];
-            for (int i = 0; i < count; i++)
-            {
-                // read the server and client ids
-                byte tmp = (byte)stream.ReadByte();
-
-                if (tmp == Constants.Escape)
-                {
-                    buffer[i] = (byte)stream.ReadByte();
-                }
-                else
-                {
-                    buffer[i] = tmp;
-                }
-            }
-            return buffer;
         }
     }
 }

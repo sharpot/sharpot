@@ -54,7 +54,11 @@ namespace SharpOT.OpenTibia
                     {
                         // search child and next node
                         val = fileStream.ReadByte();
-                        if (val == Constants.NodeStart)
+                        if (val == -1)
+                        {
+                            break;
+                        }
+                        else if (val == Constants.NodeStart)
                         {
                             Node childNode = new Node();
                             childNode.Start = fileStream.Position;
@@ -108,6 +112,10 @@ namespace SharpOT.OpenTibia
                                 return true;
                             }
                         }
+                        else if (val == Constants.Escape)
+                        {
+                            fileStream.ReadByte();
+                        }
                     }
                 }
                 else
@@ -123,7 +131,7 @@ namespace SharpOT.OpenTibia
             {
                 buffer = new byte[node.PropsSize];
             }
-            fileStream.Seek(node.Start + 2, SeekOrigin.Begin);
+            fileStream.Seek(node.Start + 1, SeekOrigin.Begin);
             fileStream.Read(buffer, 0, (int)node.PropsSize);
             uint j = 0;
             bool escaped = false;
@@ -155,7 +163,7 @@ namespace SharpOT.OpenTibia
             }
             else
             {
-                props = new BinaryReader(new MemoryStream(buff));
+                props = new BinaryReader(new MemoryStream(buff, 0, (int)size));
                 return true;
             }
         }
