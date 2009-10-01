@@ -26,6 +26,11 @@ namespace SharpOT.Util
 
         #region Packets
 
+        public static bool HasFlag(this ItemFlags e, ItemFlags x)
+        {
+            return (e & x) == x;
+        }
+
         public static byte[] ToByteArray(this uint[] unsignedIntegers)
         {
             byte[] temp = new byte[unsignedIntegers.Length * 4];
