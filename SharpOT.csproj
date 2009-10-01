@@ -104,8 +104,6 @@
     <Compile Include="Thing.cs" />
     <Compile Include="Items\Item.cs" />
     <Compile Include="Creature.cs" />
-    <Compile Include="DatItem.cs" />
-    <Compile Include="DatReader.cs" />
     <Compile Include="Packets\Client\ChangeOutfitPacket.cs" />
     <Compile Include="Packets\Server\PlayerWalkCancelPacket.cs" />
     <Compile Include="Packets\Server\CreatureChangeOutfitPacket.cs" />
@@ -160,9 +158,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Data\sharpot.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\Tibia.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="Commands.cs" />

@@ -30,14 +30,10 @@ namespace SharpOT
         {
             game = new Game();
 
-            //try
-            //{
+            try
+            {
                 LogStart("Initializing database");
                 Database.Initialize(SharpOT.Properties.Settings.Default.ConnectionString);
-                LogDone();
-
-                LogStart("Loading data");
-                DatReader.Load();
                 LogDone();
 
                 LogStart("Loading items");
@@ -64,11 +60,11 @@ namespace SharpOT
                 clientGameListener.Start();
                 clientGameListener.BeginAcceptSocket(new AsyncCallback(GameListenerCallback), clientGameListener);
                 LogDone();
-            //}
-            //catch (Exception e)
-            //{
-            //    LogError(e.ToString());
-            //}
+            }
+            catch (Exception e)
+            {
+                LogError(e.ToString());
+            }
 
             while (true)
             {
