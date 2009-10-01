@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using SharpOT.Util;
 
 namespace SharpOT.OpenTibia
 {
@@ -58,7 +59,8 @@ namespace SharpOT.OpenTibia
                 ItemInfo info = new ItemInfo();
                 // info.Group = node.Type;
 
-                uint flags = props.ReadUInt32();
+                ItemFlags flags = (ItemFlags)props.ReadUInt32();
+                info.IsBlocking = flags.HasFlag(ItemFlags.FLAG_BLOCK_SOLID);
 
                 // process flags
 
