@@ -61,6 +61,22 @@ namespace SharpOT.OpenTibia
 
                 ItemFlags flags = (ItemFlags)props.ReadUInt32();
                 info.IsBlocking = flags.HasFlag(ItemFlags.FLAG_BLOCK_SOLID);
+                info.IsProjectileBlocking = flags.HasFlag(ItemFlags.FLAG_BLOCK_PROJECTILE);
+                info.IsPathBlocking = flags.HasFlag(ItemFlags.FLAG_BLOCK_PATHFIND);
+                info.HasHeight = flags.HasFlag(ItemFlags.FLAG_HAS_HEIGHT);
+                info.IsUseable = flags.HasFlag(ItemFlags.FLAG_USEABLE);
+                info.IsPickupable = flags.HasFlag(ItemFlags.FLAG_PICKUPABLE);
+                info.IsMoveable = flags.HasFlag(ItemFlags.FLAG_MOVEABLE);
+                info.IsStackable = flags.HasFlag(ItemFlags.FLAG_STACKABLE);
+                info.IsAlwaysOnTop = flags.HasFlag(ItemFlags.FLAG_ALWAYSONTOP);
+                info.IsVertical = flags.HasFlag(ItemFlags.FLAG_VERTICAL);
+                info.IsHorizontal = flags.HasFlag(ItemFlags.FLAG_HORIZONTAL);
+                info.IsHangable = flags.HasFlag(ItemFlags.FLAG_HANGABLE);
+                info.IsDistanceReadable = flags.HasFlag(ItemFlags.FLAG_ALLOWDISTREAD);
+                info.IsRotatable = flags.HasFlag(ItemFlags.FLAG_ROTABLE);
+                info.IsReadable = flags.HasFlag(ItemFlags.FLAG_READABLE);
+                info.HasClientCharges = flags.HasFlag(ItemFlags.FLAG_CLIENTCHARGES);
+                info.CanLookThrough = flags.HasFlag(ItemFlags.FLAG_LOOKTHROUGH);
 
                 // process flags
 

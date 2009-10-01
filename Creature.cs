@@ -90,7 +90,8 @@ namespace SharpOT
             if (Tile.Ground != null)
             {
                 uint groundSpeed = Tile.Ground.Info.Speed;
-                if (groundSpeed <= 0) groundSpeed = 100;
+                if (groundSpeed <= 0)
+                    groundSpeed = 100;
                 uint stepSpeed = Speed;
                 if (stepSpeed > 0)
                 {
