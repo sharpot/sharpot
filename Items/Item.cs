@@ -25,8 +25,7 @@ namespace SharpOT
 
         protected override ushort GetThingId()
         {
-            //return Id;
-            return Info.SpriteId;
+            return Id;
         }
 
         #region LookAt methods
