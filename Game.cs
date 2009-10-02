@@ -535,13 +535,19 @@ namespace SharpOT
             }
 
             Player player = Database.GetPlayerByName(connection.AccountId, characterName);
+
+            if (creatures.ContainsKey(player.Id))
+            {
+                connection.SendDisconnectGame("You are already logged in.");
+                return;
+            }
+            
             if (player.SavedLocation == null || Map.GetTile(player.SavedLocation) == null)
             {
                 player.SavedLocation = new Location(97, 205, 7);
             }
             Tile tile = Map.GetTile(player.SavedLocation);
             player.Tile = tile;
-            tile.Creatures.Add(player);
             connection.Player = player;
             player.Connection = connection;
             player.Game = this;
@@ -604,7 +610,7 @@ namespace SharpOT
             
             if (accountId < 0)
             {
-                connection.SendDisconnect("Account name or password incorrect.");
+                connection.SendDisconnectLogin("Account name or password incorrect.");
             }
 
             return accountId;
@@ -635,6 +641,7 @@ namespace SharpOT
 
         private void PlayerLogin(Player player)
         {
+            player.Tile.Creatures.Add(player);
             AddCreature(player);
 
             player.Connection.SendInitialPacket();
