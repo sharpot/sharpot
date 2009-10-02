@@ -2,30 +2,6 @@
 
 namespace SharpOT
 {
-    #region Scripting
-
-    public enum EventType : byte
-    {
-        //Items
-        OnItemUse = 0x01,
-        OnItemLook = 0x02,
-        OnItemRelocate = 0x03,
-        OnItemDrop = 0x04,
-        OnItemPickup = 0x05,
-        OnItemEquip = 0x06,
-        OnIemUnEquip = 0x07,
-        //Creatures
-        OnCreatureLook = 0x08,
-        OnCreatureTarget = 0x09,
-        OnCreatureAttacked = 0x0A,
-        OnCreatureCreated = 0x0B, //Monsters and NPCs only
-        //player
-        OnPlayerLogin =0x98,
-        OnPlayerSay = 0x99
-    }
-
-    #endregion
-
     #region Packets
 
     public enum ServerPacketType : byte

@@ -649,7 +649,7 @@ namespace SharpOT
 
             EffectPacket.Add(
                 message,
-                Effect.EnergyDamage,
+                Effect.Teleport,
                 creature.Tile.Location
             );
 
@@ -791,14 +791,6 @@ namespace SharpOT
             Send(message);
         }
 
-        public void SendDisconnect(string reason)
-        {
-            NetworkMessage message = new NetworkMessage();
-            message.AddByte((byte)ServerPacketType.Disconnect);
-            message.AddString(reason);
-            Send(message);
-        }
-
         public void SendChannelOpenPrivate(string name)
         {
             NetworkMessage message = new NetworkMessage();
@@ -870,6 +862,22 @@ namespace SharpOT
                 message,
                 id
             );
+            Send(message);
+        }
+
+        public void SendDisconnectLogin(string reason)
+        {
+            NetworkMessage message = new NetworkMessage();
+            message.AddByte((byte)ServerPacketType.Disconnect);
+            message.AddString(reason);
+            Send(message);
+        }
+
+        public void SendDisconnectGame(string reason)
+        {
+            NetworkMessage message = new NetworkMessage();
+            message.AddByte((byte)ServerPacketType.ErrorMessage);
+            message.AddString(reason);
             Send(message);
         }
 
