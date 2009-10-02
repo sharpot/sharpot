@@ -539,7 +539,6 @@ namespace SharpOT
             {
                 player.SavedLocation = new Location(97, 205, 7);
             }
-            //player.Id = 0x01000000 + (uint)random.Next(0xFFFFFF);
             Tile tile = Map.GetTile(player.SavedLocation);
             player.Tile = tile;
             tile.Creatures.Add(player);
@@ -647,20 +646,23 @@ namespace SharpOT
 
             foreach (Player p in GetPlayers())
             {
-                p.Connection.BeginTransaction();
-
-                if (p.Tile.Location.CanSee(player.Tile.Location))
+                if (p != player)
                 {
-                    p.Connection.SendCreatureAppear(player);
-                }
+                    p.Connection.BeginTransaction();
 
-                if (p.VipList.ContainsKey(player.Id))
-                {
-                    p.VipList[player.Id].LoggedIn = true;
-                    p.Connection.SendVipLogin(player.Id);
-                }
+                    if (p.Tile.Location.CanSee(player.Tile.Location))
+                    {
+                        p.Connection.SendCreatureAppear(player);
+                    }
 
-                p.Connection.CommitTransaction();
+                    if (p.VipList.ContainsKey(player.Id))
+                    {
+                        p.VipList[player.Id].LoggedIn = true;
+                        p.Connection.SendVipLogin(player.Id);
+                    }
+
+                    p.Connection.CommitTransaction();
+                }
             }
         }
 
