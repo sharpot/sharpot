@@ -168,6 +168,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="OpenTibia\FileLoader.cs" />
+    <Compile Include="OpenTibia\ItemsXmlReader.cs" />
     <Compile Include="Packets\Client\AutoWalkPacket.cs" />
     <Compile Include="Util\Scheduler.cs" />
     <Compile Include="Scripting\Events.cs" />
