@@ -67,6 +67,15 @@ namespace SharpOT
             return itemInfoDictionary[itemId];
         }
 
+        public static IEnumerable<ItemInfo> GetEnumerator()
+        {
+            foreach (ItemInfo info in itemInfoDictionary.Values)
+            {
+                if (info != null)
+                    yield return info;
+            }
+        }
+
         public static void LoadItemsOtb(string fileName)
         {
             OpenTibia.OtbReader reader = new SharpOT.OpenTibia.OtbReader(fileName);

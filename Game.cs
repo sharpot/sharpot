@@ -635,6 +635,22 @@ namespace SharpOT
             throw new Exception("No available player ids.");
         }
 
+        public void TileAddItem(Location location, Item item)
+        {
+            Tile tile = Map.GetTile(location);
+            tile.Items.Add(item);
+            byte stackPosition = tile.GetStackPosition(item);
+
+            foreach (Player player in GetSpectatorPlayers(location))
+            {
+                player.Connection.SendTileAddItem(
+                    location,
+                    stackPosition,
+                    item
+                );
+            }
+        }
+
         #endregion
 
         #region Private Helpers

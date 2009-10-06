@@ -164,12 +164,16 @@
     <Compile Include="Data\Scripts\AccountManager.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Data\Scripts\CreateItemCommand.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Data\Scripts\OnlineCommand.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="OpenTibia\FileLoader.cs" />
     <Compile Include="OpenTibia\ItemsXmlReader.cs" />
     <Compile Include="Packets\Client\AutoWalkPacket.cs" />
+    <Compile Include="Packets\Server\TileAddItemPacket.cs" />
     <Compile Include="Util\Scheduler.cs" />
     <Compile Include="Scripting\Events.cs" />
     <Compile Include="ItemInfo.cs" />
