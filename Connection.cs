@@ -667,6 +667,20 @@ namespace SharpOT
             Send(message);
         }
 
+        public void SendTileAddItem(Location location, byte stackPosition, Item item)
+        {
+            NetworkMessage message = new NetworkMessage();
+
+            TileAddItemPacket.Add(
+                message,
+                location,
+                stackPosition,
+                item
+            );
+
+            Send(message);
+        }
+
         public void SendTileAddCreature(Creature creature)
         {
             NetworkMessage message = new NetworkMessage();

@@ -119,9 +119,14 @@ namespace SharpOT
 
             if (Items.Count > 0)
             {
-                // check all top items
-                // or increment by top item count
-                n += GetTopItems().Count();
+                foreach (Item item in GetTopItems())
+                {
+                    ++n;
+                    if (thing == item)
+                    {
+                        return (byte)n;
+                    }
+                }
             }
 
             if (Creatures.Count > 0)
@@ -138,7 +143,14 @@ namespace SharpOT
 
             if (Items.Count > 0)
             {
-                // check all down items
+                foreach (Item item in GetDownItems())
+                {
+                    ++n;
+                    if (thing == item)
+                    {
+                        return (byte)n;
+                    }
+                }
             }
 
             throw new Exception("Thing not found in tile.");
