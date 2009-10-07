@@ -170,8 +170,10 @@
     <Compile Include="Data\Scripts\OnlineCommand.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="OpenTibia\OtbmReader.cs" />
     <Compile Include="OpenTibia\FileLoader.cs" />
     <Compile Include="OpenTibia\ItemsXmlReader.cs" />
+    <Compile Include="OpenTibia\PropertyReader.cs" />
     <Compile Include="Packets\Client\AutoWalkPacket.cs" />
     <Compile Include="Packets\Server\TileAddItemPacket.cs" />
     <Compile Include="Util\Scheduler.cs" />

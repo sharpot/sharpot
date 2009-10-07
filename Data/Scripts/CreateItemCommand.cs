@@ -23,6 +23,7 @@ public class CreateItemCommand : ICommand
             ushort itemId = 0;
             if (!ushort.TryParse(first, out itemId))
             {
+                // TODO: Create a list of all matching names, display to user
                 bool found = false;
                 foreach (ItemInfo info in ItemInfo.GetEnumerator())
                 {

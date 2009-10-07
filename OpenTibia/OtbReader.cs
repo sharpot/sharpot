@@ -23,7 +23,7 @@ namespace SharpOT.OpenTibia
             loader.OpenFile(fileName);
             Node node = loader.GetRootNode();
 
-            BinaryReader props;
+            PropertyReader props;
 
             if (loader.GetProps(node, out props))
             {
