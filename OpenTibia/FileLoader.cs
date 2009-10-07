@@ -152,7 +152,7 @@ namespace SharpOT.OpenTibia
             return buffer;
         }
 
-        public bool GetProps(Node node, out BinaryReader props)
+        public bool GetProps(Node node, out PropertyReader props)
         {
             long size;
             byte[] buff = GetProps(node, out size);
@@ -163,7 +163,7 @@ namespace SharpOT.OpenTibia
             }
             else
             {
-                props = new BinaryReader(new MemoryStream(buff, 0, (int)size));
+                props = new PropertyReader(new MemoryStream(buff, 0, (int)size));
                 return true;
             }
         }

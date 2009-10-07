@@ -544,7 +544,7 @@ namespace SharpOT
             
             if (player.SavedLocation == null || Map.GetTile(player.SavedLocation) == null)
             {
-                player.SavedLocation = new Location(97, 205, 7);
+                player.SavedLocation = Map.GetDefaultLocation();
             }
             Tile tile = Map.GetTile(player.SavedLocation);
             player.Tile = tile;
