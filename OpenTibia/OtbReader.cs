@@ -57,7 +57,8 @@ namespace SharpOT.OpenTibia
                 }
 
                 ItemInfo info = new ItemInfo();
-                // info.Group = node.Type;
+
+                info.Group = (ItemGroup)node.Type;
 
                 ItemFlags flags = (ItemFlags)props.ReadUInt32();
                 info.IsBlocking = flags.HasFlag(ItemFlags.FLAG_BLOCK_SOLID);

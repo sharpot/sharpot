@@ -8,6 +8,10 @@ namespace SharpOT
 {
     public class Map
     {
+        public string Description { get; set; }
+        public string SpawnFile { get; set; }
+        public string HouseFile { get; set; }
+
         Dictionary<Location, Tile> tiles = new Dictionary<Location, Tile>();
         Location defaultLocation = new Location(32097, 32205, 7);
 

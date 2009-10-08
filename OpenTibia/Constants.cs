@@ -56,7 +56,39 @@ namespace SharpOT.OpenTibia
         OTBM_ATTR_SLEEPERGUID = 20,
         OTBM_ATTR_SLEEPSTART = 21,
         OTBM_ATTR_CHARGES = 22
-    };
+    }
+
+    enum TileFlags
+    {
+        TILESTATE_NONE = 0,
+        TILESTATE_PROTECTIONZONE = 1 << 0,
+        TILESTATE_DEPRECATED_HOUSE = 1 << 1,
+        TILESTATE_NOPVPZONE = 1 << 2,
+        TILESTATE_NOLOGOUT = 1 << 3,
+        TILESTATE_PVPZONE = 1 << 4,
+        TILESTATE_REFRESH = 1 << 5,
+
+        //internal usage
+        TILESTATE_HOUSE = 1 << 6,
+        TILESTATE_FLOORCHANGE = 1 << 7,
+        TILESTATE_FLOORCHANGE_DOWN = 1 << 8,
+        TILESTATE_FLOORCHANGE_NORTH = 1 << 9,
+        TILESTATE_FLOORCHANGE_SOUTH = 1 << 10,
+        TILESTATE_FLOORCHANGE_EAST = 1 << 11,
+        TILESTATE_FLOORCHANGE_WEST = 1 << 12,
+        TILESTATE_TELEPORT = 1 << 13,
+        TILESTATE_MAGICFIELD = 1 << 14,
+        TILESTATE_MAILBOX = 1 << 15,
+        TILESTATE_TRASHHOLDER = 1 << 16,
+        TILESTATE_BED = 1 << 17,
+        TILESTATE_BLOCKSOLID = 1 << 18,
+        TILESTATE_BLOCKPATH = 1 << 19,
+        TILESTATE_IMMOVABLEBLOCKSOLID = 1 << 20,
+        TILESTATE_IMMOVABLEBLOCKPATH = 1 << 21,
+        TILESTATE_IMMOVABLENOFIELDBLOCKPATH = 1 << 22,
+        TILESTATE_NOFIELDBLOCKPATH = 1 << 23,
+        TILESTATE_DYNAMIC_TILE = 1 << 24
+    }
 
     public enum ItemAttribute : byte
     {
