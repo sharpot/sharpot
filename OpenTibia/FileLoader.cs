@@ -125,7 +125,7 @@ namespace SharpOT.OpenTibia
             }
         }
 
-        public byte[] GetProps(Node node, out long size)
+        private byte[] GetProps(Node node, out long size)
         {
             if (buffer == null || buffer.Length < node.PropsSize)
             {

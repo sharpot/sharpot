@@ -428,6 +428,26 @@ namespace SharpOT
 
     #region Items
 
+    // TODO: Merge group and type
+    public enum ItemGroup
+    {
+        None = 0,
+        Ground,
+        Container,
+        Weapon,		/*deprecated*/
+        Ammunition,	/*deprecated*/
+        Armor,		/*deprecated*/
+        Charges,
+        Teleport,	/*deprecated*/
+        MagicField,	/*deprecated*/
+        Writeable,	/*deprecated*/
+        Key,			/*deprecated*/
+        Splash,
+        Fluid,
+        Door,		/*deprecated*/
+        Deprecated
+    }
+
     public enum ItemType
     {
         Normal,

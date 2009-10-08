@@ -11,6 +11,12 @@ namespace SharpOT
         public List<Item> Items { get; set; }
         public List<Creature> Creatures { get; set; }
 
+        public bool IsProtectionZone = false;
+        public bool IsNoPvpZone = false;
+        public bool IsPvpZone = false;
+        public bool IsNoLogoutZone = false;
+        public bool IsRefreshZone = false;
+
         public Tile()
         {
             Items = new List<Item>();
