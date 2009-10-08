@@ -8,22 +8,27 @@ namespace SharpOT
 {
     public class Map
     {
+        public List<Town> Towns { get; private set; }
         public string Description { get; set; }
         public string SpawnFile { get; set; }
         public string HouseFile { get; set; }
 
         Dictionary<Location, Tile> tiles = new Dictionary<Location, Tile>();
-        Location defaultLocation = new Location(32097, 32205, 7);
+
+        public Map()
+        {
+            Towns = new List<Town>();
+        }
 
         public void Load()
         {
-            Database.GetMapTiles(this);
-            Database.GetMapItems(this);
+            OpenTibia.OtbmReader reader = new SharpOT.OpenTibia.OtbmReader(@"Data\map.otbm");
+            reader.GetMapTiles(this);
         }
 
         public Location GetDefaultLocation()
         {
-            return new Location(defaultLocation);
+            return Towns[0].TempleLocation;
         }
 
         public Tile GetTile(Location location)

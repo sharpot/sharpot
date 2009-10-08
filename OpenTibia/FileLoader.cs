@@ -76,10 +76,6 @@ namespace SharpOT.OpenTibia
                             {
                                 currentNode.PropsSize = fileStream.Position - currentNode.Start - 2;
                             }
-                            else
-                            {
-                                return false;
-                            }
 
                             val = fileStream.ReadByte();
 
@@ -98,6 +94,7 @@ namespace SharpOT.OpenTibia
                                 {
                                     // up 1 level and move 1 position back
                                     // safeTell(pos) && safeSeek(pos)
+                                    fileStream.Seek(-1, SeekOrigin.Current);
                                     return true;
                                 }
                                 else
