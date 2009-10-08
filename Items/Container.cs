@@ -7,13 +7,14 @@ namespace SharpOT
 {
     class Container : Item
     {
-        public byte Volume { get; set; }
-        public List<Item> Items { get; set; }
+        public byte Volume { get; private set; }
+        public List<Item> Items { get; private set; }
 
         public Container(ushort id)
             : base(id)
         {
-
+            Volume = Info.Volume;
+            Items = new List<Item>(Volume);
         }
 
         public override string GetLookAtString()

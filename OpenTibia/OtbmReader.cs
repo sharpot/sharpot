@@ -40,7 +40,7 @@ namespace SharpOT.OpenTibia
 
             node = node.Child;
 
-            if ((OtbmNodeType)node.Type != OtbmNodeType.OTBM_MAP_DATA)
+            if ((OtbmNodeType)node.Type != OtbmNodeType.MapData)
             {
                 lastError = "Could not read data node.";
                 return false;
@@ -58,13 +58,13 @@ namespace SharpOT.OpenTibia
                 attribute = props.ReadByte();
                 switch ((OtbmAttribute)attribute)
                 {
-                    case OtbmAttribute.OTBM_ATTR_DESCRIPTION:
+                    case OtbmAttribute.Description:
                         map.Description = props.GetString();
                         break;
-                    case OtbmAttribute.OTBM_ATTR_EXT_SPAWN_FILE:
+                    case OtbmAttribute.ExtSpawnFile:
                         map.SpawnFile = props.GetString();
                         break;
-                    case OtbmAttribute.OTBM_ATTR_EXT_HOUSE_FILE:
+                    case OtbmAttribute.ExtHouseFile:
                         map.HouseFile = props.GetString();
                         break;
                     default:
@@ -73,16 +73,20 @@ namespace SharpOT.OpenTibia
                 }
             }
 
-            node = node.Child;
+            Node nodeMapData = node.Child;
 
-            while (node != null)
+            while (nodeMapData != null)
             {
-                switch ((OtbmNodeType)node.Type)
+                switch ((OtbmNodeType)nodeMapData.Type)
                 {
-                    case OtbmNodeType.OTBM_TILE_AREA:
-                        if (!ParseTileArea(map, loader, node)) return false;
+                    case OtbmNodeType.TileArea:
+                        if (!ParseTileArea(map, loader, nodeMapData)) return false;
+                        break;
+                    case OtbmNodeType.Towns:
+                        if (!ParseTowns(map, loader, nodeMapData)) return false;
                         break;
                 }
+                nodeMapData = nodeMapData.Next;
             }
 
             return true;
@@ -101,13 +105,15 @@ namespace SharpOT.OpenTibia
             int baseY = props.ReadUInt16();
             int baseZ = props.ReadByte();
 
-            node = node.Child;
+            Node nodeTile = node.Child;
 
-            while (node != null)
+            while (nodeTile != null)
             {
-                if (node.Type == (long)OtbmNodeType.OTBM_TILE ||
-                    node.Type == (long)OtbmNodeType.OTBM_HOUSETILE)
+                if (nodeTile.Type == (long)OtbmNodeType.Tile ||
+                    nodeTile.Type == (long)OtbmNodeType.HouseTile)
                 {
+                    loader.GetProps(nodeTile, out props);
+
                     int tileX = baseX + props.ReadByte();
                     int tileY = baseY + props.ReadByte();
                     int tileZ = baseZ;
@@ -115,9 +121,10 @@ namespace SharpOT.OpenTibia
                     Tile tile = new Tile();
                     tile.Location = new Location(tileX, tileY, tileZ);
 
+                    // TODO: houses
                     bool isHouseTile = false;
 
-                    if (node.Type == (long)OtbmNodeType.OTBM_HOUSETILE)
+                    if (nodeTile.Type == (long)OtbmNodeType.HouseTile)
                     {
                         uint houseId = props.ReadUInt32();
                         isHouseTile = true;
@@ -129,35 +136,35 @@ namespace SharpOT.OpenTibia
                         attribute = props.ReadByte();
                         switch ((OtbmAttribute)attribute)
                         {
-                            case OtbmAttribute.OTBM_ATTR_TILE_FLAGS:
+                            case OtbmAttribute.TileFlags:
                             {
                                 TileFlags flags = (TileFlags)props.ReadUInt32();
-                                if ((flags & TileFlags.TILESTATE_PROTECTIONZONE) == TileFlags.TILESTATE_PROTECTIONZONE)
+                                if ((flags & TileFlags.ProtectionZone) == TileFlags.ProtectionZone)
                                 {
                                     tile.IsProtectionZone = true;
                                 }
-                                else if ((flags & TileFlags.TILESTATE_NOPVPZONE) == TileFlags.TILESTATE_NOPVPZONE)
+                                else if ((flags & TileFlags.NoPvpZone) == TileFlags.NoPvpZone)
                                 {
                                     tile.IsNoPvpZone = true;
                                 }
-                                else if ((flags & TileFlags.TILESTATE_PVPZONE) == TileFlags.TILESTATE_PVPZONE)
+                                else if ((flags & TileFlags.PvpZone) == TileFlags.PvpZone)
                                 {
                                     tile.IsPvpZone = true;
                                 }
 
-                                if ((flags & TileFlags.TILESTATE_NOLOGOUT) == TileFlags.TILESTATE_NOLOGOUT)
+                                if ((flags & TileFlags.NoLogout) == TileFlags.NoLogout)
                                 {
                                     tile.IsNoLogoutZone = true;
                                 }
 
-                                if ((flags & TileFlags.TILESTATE_REFRESH) == TileFlags.TILESTATE_REFRESH)
+                                if ((flags & TileFlags.Refresh) == TileFlags.Refresh)
                                 {
                                     // TODO: Warn about house
                                     tile.IsRefreshZone = true;
                                 }
                                 break;
                             }
-                            case OtbmAttribute.OTBM_ATTR_ITEM:
+                            case OtbmAttribute.Item:
                             {
                                 ushort itemId = props.ReadUInt16();
                                 Item item = new Item(itemId);
@@ -180,11 +187,11 @@ namespace SharpOT.OpenTibia
                         }
                     }
 
-                    Node nodeItem = node.Child;
+                    Node nodeItem = nodeTile.Child;
 
                     while (nodeItem != null)
                     {
-                        if (nodeItem.Type == (long)OtbmNodeType.OTBM_ITEM)
+                        if (nodeItem.Type == (long)OtbmNodeType.Item)
                         {
                             loader.GetProps(nodeItem, out props);
                             ushort itemId = props.ReadUInt16();
@@ -192,17 +199,58 @@ namespace SharpOT.OpenTibia
                             // TODO: subclass item, different deserializations
                             // for different types
                             Item item = new Item(itemId);
-
+                            if (item.Info.Group == ItemGroup.Ground)
+                            {
+                                tile.Ground = item;
+                            }
+                            else
+                            {
+                                tile.Items.Add(item);
+                            }
                         }
                         else
                         {
                             lastError += tile.Location + " Unknown node type.";
                             return false;
                         }
+                        nodeItem = nodeItem.Next;
                     }
+
+                    map.SetTile(tile.Location, tile);
                 }
+                nodeTile = nodeTile.Next;
             }
 
+            return true;
+        }
+
+        private bool ParseTowns(Map map, FileLoader loader, Node node)
+        {
+            PropertyReader props;
+            Node nodeTown = node.Child;
+            while (nodeTown != null)
+            {
+                if (!loader.GetProps(nodeTown, out props))
+                {
+                    lastError = "Could not read town data.";
+                    return false;
+                }
+
+                uint townid = props.ReadUInt32();
+                string townName = props.GetString();
+                ushort townTempleX = props.ReadUInt16();
+                ushort townTempleY = props.ReadUInt16();
+                byte townTempleZ = props.ReadByte();
+
+                Town town = new Town(
+                    townid,
+                    townName,
+                    new Location(townTempleX, townTempleY, townTempleZ));
+
+                map.Towns.Add(town);
+
+                nodeTown = nodeTown.Next;
+            }
             return true;
         }
     }

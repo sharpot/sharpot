@@ -157,6 +157,9 @@
     <None Include="Data\items.otb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Data\map.otbm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Data\sharpot.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -170,12 +173,20 @@
     <Compile Include="Data\Scripts\OnlineCommand.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Items\Depot.cs" />
+    <Compile Include="Items\MagicField.cs" />
+    <Compile Include="Items\Door.cs" />
+    <Compile Include="Items\TrashHolder.cs" />
+    <Compile Include="Items\Mailbox.cs" />
+    <Compile Include="Items\Bed.cs" />
+    <Compile Include="Items\Teleport.cs" />
     <Compile Include="OpenTibia\OtbmReader.cs" />
     <Compile Include="OpenTibia\FileLoader.cs" />
     <Compile Include="OpenTibia\ItemsXmlReader.cs" />
     <Compile Include="OpenTibia\PropertyReader.cs" />
     <Compile Include="Packets\Client\AutoWalkPacket.cs" />
     <Compile Include="Packets\Server\TileAddItemPacket.cs" />
+    <Compile Include="Town.cs" />
     <Compile Include="Util\Scheduler.cs" />
     <Compile Include="Scripting\Events.cs" />
     <Compile Include="ItemInfo.cs" />
@@ -201,6 +212,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Data\map-house.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\map-spawn.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

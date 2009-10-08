@@ -61,23 +61,23 @@ namespace SharpOT.OpenTibia
                 info.Group = (ItemGroup)node.Type;
 
                 ItemFlags flags = (ItemFlags)props.ReadUInt32();
-                info.IsBlocking = flags.HasFlag(ItemFlags.FLAG_BLOCK_SOLID);
-                info.IsProjectileBlocking = flags.HasFlag(ItemFlags.FLAG_BLOCK_PROJECTILE);
-                info.IsPathBlocking = flags.HasFlag(ItemFlags.FLAG_BLOCK_PATHFIND);
-                info.HasHeight = flags.HasFlag(ItemFlags.FLAG_HAS_HEIGHT);
-                info.IsUseable = flags.HasFlag(ItemFlags.FLAG_USEABLE);
-                info.IsPickupable = flags.HasFlag(ItemFlags.FLAG_PICKUPABLE);
-                info.IsMoveable = flags.HasFlag(ItemFlags.FLAG_MOVEABLE);
-                info.IsStackable = flags.HasFlag(ItemFlags.FLAG_STACKABLE);
-                info.IsAlwaysOnTop = flags.HasFlag(ItemFlags.FLAG_ALWAYSONTOP);
-                info.IsVertical = flags.HasFlag(ItemFlags.FLAG_VERTICAL);
-                info.IsHorizontal = flags.HasFlag(ItemFlags.FLAG_HORIZONTAL);
-                info.IsHangable = flags.HasFlag(ItemFlags.FLAG_HANGABLE);
-                info.IsDistanceReadable = flags.HasFlag(ItemFlags.FLAG_ALLOWDISTREAD);
-                info.IsRotatable = flags.HasFlag(ItemFlags.FLAG_ROTABLE);
-                info.IsReadable = flags.HasFlag(ItemFlags.FLAG_READABLE);
-                info.HasClientCharges = flags.HasFlag(ItemFlags.FLAG_CLIENTCHARGES);
-                info.CanLookThrough = flags.HasFlag(ItemFlags.FLAG_LOOKTHROUGH);
+                info.IsBlocking = flags.HasFlag(ItemFlags.BlocksSolid);
+                info.IsProjectileBlocking = flags.HasFlag(ItemFlags.BlocksProjectile);
+                info.IsPathBlocking = flags.HasFlag(ItemFlags.BlocksPathFinding);
+                info.HasHeight = flags.HasFlag(ItemFlags.HasHeight);
+                info.IsUseable = flags.HasFlag(ItemFlags.Useable);
+                info.IsPickupable = flags.HasFlag(ItemFlags.Pickupable);
+                info.IsMoveable = flags.HasFlag(ItemFlags.Moveable);
+                info.IsStackable = flags.HasFlag(ItemFlags.Stackable);
+                info.IsAlwaysOnTop = flags.HasFlag(ItemFlags.AlwaysOnTop);
+                info.IsVertical = flags.HasFlag(ItemFlags.Vertical);
+                info.IsHorizontal = flags.HasFlag(ItemFlags.Horizontal);
+                info.IsHangable = flags.HasFlag(ItemFlags.Hangable);
+                info.IsDistanceReadable = flags.HasFlag(ItemFlags.AllowDistanceRead);
+                info.IsRotatable = flags.HasFlag(ItemFlags.Rotatable);
+                info.IsReadable = flags.HasFlag(ItemFlags.Readable);
+                info.HasClientCharges = flags.HasFlag(ItemFlags.ClientCharges);
+                info.CanLookThrough = flags.HasFlag(ItemFlags.LookThrough);
 
                 // process flags
 
