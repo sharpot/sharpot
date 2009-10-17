@@ -191,7 +191,9 @@ namespace SharpOT
                 case ClientPacketType.Logout:
                     ParseLogout();
                     break;
-                //case ClientPacketType.ItemMove:
+                case ClientPacketType.MoveThing:
+                    ParseMoveThing(message);
+                    break;
                 //case ClientPacketType.ShopBuy:
                 //case ClientPacketType.ShopSell:
                 //case ClientPacketType.ShopClose:
@@ -295,6 +297,12 @@ namespace SharpOT
             AutoWalkPacket packet = AutoWalkPacket.Parse(message);
             walkDirections = packet.Directions;
             DoAutoWalk();
+        }
+
+        public void ParseMoveThing(NetworkMessage message)
+        {
+            MoveThingPacket packet = MoveThingPacket.Parse(message);
+            Game.MoveThing(packet.SpriteId, packet.FromLocation, packet.FromStackPosition, packet.ToLocation, packet.Count);
         }
 
         public void ParseAutoWalkCancel()
