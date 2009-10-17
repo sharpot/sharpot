@@ -126,6 +126,42 @@ namespace SharpOT
 
         #region Public Actions
 
+        public void MoveThing(ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
+        {
+            // TODO: parse moving to/from inventory
+            // TODO: check if item is moveable
+            Tile fromTile = Map.GetTile(fromLocation);
+            Thing thing = fromTile.GetThingAtStackPosition(fromStackPosition);
+            Tile toTile = Map.GetTile(toLocation);
+
+            if (thing is Item)
+            {
+                // TODO: move only count
+                Item item = (Item)thing;
+                fromTile.Items.Remove(item);
+                toTile.Items.Add(item);
+
+                foreach (var player in GetPlayers())
+                {
+                    bool canSee = false;
+                    if (player.Tile.Location.CanSee(fromLocation))
+                    {
+                        player.Connection.BeginTransaction();
+                        player.Connection.SendTileRemoveThing(fromLocation, fromStackPosition);
+                        canSee = true;
+                    }
+                    if (player.Tile.Location.CanSee(toLocation))
+                    {
+                        player.Connection.BeginTransaction();
+                        player.Connection.SendTileAddItem(toLocation, toTile.GetStackPosition(item), item);
+                        canSee = true;
+                    }
+                    if (canSee) player.Connection.CommitTransaction();
+                }
+            }
+            // TODO: else if (thing is Creature)
+        }
+
         public void WalkCancel(Player player)
         {
             if (BeforeWalkCancel != null)

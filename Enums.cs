@@ -87,7 +87,7 @@ namespace SharpOT
         LoginServerRequest = 0x01,
         GameServerRequest = 0x0A,
         Logout = 0x14,
-        ItemMove = 0x78,
+        MoveThing = 0x78,
         ShopBuy = 0x7A,
         ShopSell = 0x7B,
         ShopClose = 0x7C,

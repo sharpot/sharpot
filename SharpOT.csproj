@@ -185,6 +185,7 @@
     <Compile Include="OpenTibia\ItemsXmlReader.cs" />
     <Compile Include="OpenTibia\PropertyReader.cs" />
     <Compile Include="Packets\Client\AutoWalkPacket.cs" />
+    <Compile Include="Packets\Client\MoveThingPacket.cs" />
     <Compile Include="Packets\Server\TileAddItemPacket.cs" />
     <Compile Include="Town.cs" />
     <Compile Include="Util\Scheduler.cs" />
