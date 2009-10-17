@@ -171,32 +171,6 @@ namespace SharpOT
             connection
         );
 
-        private static SQLiteCommand updatePlayerByNameCommand = new SQLiteCommand(
-            @"update Player
-              set
-                  Id = @playerId,
-                  Gender = @gender,
-                  Vocation = @vocation,
-                  Level = @level,
-                  MagicLevel = @magicLevel,
-                  Experience = @experience,
-                  MaxHealth = @maxHealth,
-                  MaxMana = @maxMana,
-                  Capacity = @capacity,
-                  OutfitLookType = @outfitLookType,
-                  OutfitHead = @outfitHead,
-                  OutfitBody = @outfitBody,
-                  OutfitLegs = @outfitLegs,
-                  OutfitFeet = @outfitFeet,
-                  OutfitAddons = @outfitAddons,
-                  LocationX = @locationX,
-                  LocationY = @locationY,
-                  LocationZ = @locationZ,
-                  Direction = @direction
-              where Name = @name",
-            connection
-        );
-
         private static SQLiteCommand updatePlayerByIdCommand = new SQLiteCommand(
             @"update Player
               set
@@ -336,10 +310,6 @@ namespace SharpOT
             selectPlayerByIdCommand.Parameters.Add(playerIdParam);
 
             selectPlayerNameByIdCommand.Parameters.Add(playerIdParam);
-
-            updatePlayerByNameCommand.Parameters.Add(playerIdParam);
-            AddUpdateParams(updatePlayerByNameCommand);
-            updatePlayerByNameCommand.Parameters.Add(playerNameParam);
             
             updatePlayerByIdCommand.Parameters.Add(playerNameParam);
             AddUpdateParams(updatePlayerByIdCommand);
@@ -621,13 +591,6 @@ namespace SharpOT
             return player;
         }
 
-        public static bool SavePlayerByName(Player player)
-        {
-            PlayerInfoToParams(player);
-
-            return (1 == updatePlayerByNameCommand.ExecuteNonQuery());
-        }
-
         public static bool SavePlayerById(Player player)
         {
             PlayerInfoToParams(player);
@@ -637,7 +600,6 @@ namespace SharpOT
 
         private static void PlayerInfoToParams(Player player)
         {
-            accountIdParam.Value = player.Connection.AccountId;
             playerIdParam.Value = player.Id;
             playerNameParam.Value = player.Name;
             genderParam.Value = player.Gender;
@@ -654,9 +616,26 @@ namespace SharpOT
             outfitLegsParam.Value = player.Outfit.Legs;
             outfitFeetParam.Value = player.Outfit.Feet;
             outfitAddonsParam.Value = player.Outfit.Addons;
-            locationXParam.Value = player.Tile.Location.X;
-            locationYParam.Value = player.Tile.Location.Y;
-            locationZParam.Value = player.Tile.Location.Z;
+
+            if (player.Tile != null)
+            {
+                locationXParam.Value = player.Tile.Location.X;
+                locationYParam.Value = player.Tile.Location.Y;
+                locationZParam.Value = player.Tile.Location.Z;
+            }
+            else if (player.SavedLocation != null)
+            {
+                locationXParam.Value = player.SavedLocation.X;
+                locationYParam.Value = player.SavedLocation.Y;
+                locationZParam.Value = player.SavedLocation.Z;
+            }
+            else
+            {
+                locationXParam.Value = null;
+                locationYParam.Value = null;
+                locationZParam.Value = null;
+            }
+
             directionParam.Value = player.Direction;
         }
 

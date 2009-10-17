@@ -174,6 +174,50 @@ namespace SharpOT.OpenTibia
                                 case "containersize":
                                     info.Volume = Byte.Parse(value);
                                     break;
+                                case "fluidsource":
+                                    info.FluidSource = (Fluid)Enum.Parse(typeof(Fluid), value, true);
+                                    break;
+                                case "readable":
+                                    info.IsReadable = UInt16.Parse(value) != 0;
+                                    break;
+                                case "writeable":
+                                    info.IsWriteable = UInt16.Parse(value) != 0;
+                                    break;
+                                case "maxtextlen":
+                                    info.MaxTextLength = UInt16.Parse(value);
+                                    break;
+                                case "writeonceitemid":
+                                    info.WriteOnceItemId = UInt16.Parse(value);
+                                    break;
+                                case "weapontype":
+                                    info.WeaponType = (WeaponType)Enum.Parse(typeof(WeaponType), value, true);
+                                    break;
+                                case "slottype":
+                                    switch (value.ToLower())
+                                    {
+                                        case "head":
+                                            info.SlotType = SlotType.Head;
+                                            break;
+                                        case "body":
+                                            info.SlotType = SlotType.Armor;
+                                            break;
+                                        case "legs":
+                                            info.SlotType = SlotType.Legs;
+                                            break;
+                                        case "feet":
+                                            info.SlotType = SlotType.Feet;
+                                            break;
+                                        case "backpack":
+                                            info.SlotType = SlotType.Back;
+                                            break;
+                                        case "two-handed":
+                                            info.SlotType = SlotType.TwoHanded;
+                                            break;
+                                        case "necklace":
+                                            info.SlotType = SlotType.Neck;
+                                            break;
+                                    }
+                                    break;
                                 // TODO: Many more to go
                             }
                         }
