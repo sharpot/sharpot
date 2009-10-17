@@ -28,8 +28,6 @@ namespace SharpOT
             return Id;
         }
 
-        #region LookAt methods
-
         public override string GetLookAtString()
         {
             string lookat = "You see ";
@@ -43,7 +41,10 @@ namespace SharpOT
             return lookat;
         }
 
-        #endregion
+        public virtual double GetWeight()
+        {
+            return Info.Weight;
+        }
 
         public ItemInfo Info
         {

@@ -390,9 +390,9 @@ namespace SharpOT
         Club,
         Axe,
         Shield,
-        Dist,
+        Distance,
         Wand,
-        Ammo
+        Ammunition
     }
 
     public enum AmmoType : byte

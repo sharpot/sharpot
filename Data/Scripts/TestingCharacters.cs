@@ -13,7 +13,12 @@ public class TestingCharacters : IScript
         {
             id = Database.CreateAccount("1", "1");
             if (id > 0 && !Database.PlayerNameExists("God"))
-                Database.CreatePlayer(id, "God", game.GenerateAvailableId());
+            {
+                id = Database.CreatePlayer(id, "God", game.GenerateAvailableId());
+                Player player = Database.GetPlayerById((uint)id);
+                player.Speed = 1500;
+                Database.SavePlayerById(player);
+            }
         }
         if (!Database.AccountNameExists("2"))
         {

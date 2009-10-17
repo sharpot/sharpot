@@ -17,6 +17,11 @@ namespace SharpOT
             Items = new List<Item>(Volume);
         }
 
+        public override double GetWeight()
+        {
+            return Info.Weight + Items.Sum(i => i.Info.Weight);
+        }
+
         public override string GetLookAtString()
         {
             return "You see " + Info.Article + " " + Info.Name +

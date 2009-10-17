@@ -32,6 +32,7 @@ namespace SharpOT
         public ushort MaxTextLength = 0;
         public ushort WriteOnceItemId = 0;
         public SlotType SlotType = SlotType.None;
+        public WeaponType WeaponType = WeaponType.None;
 
         public ItemGroup Group = ItemGroup.None;
 
@@ -52,6 +53,7 @@ namespace SharpOT
         public bool IsDistanceReadable = false;
         public bool IsRotatable = false;
         public bool IsReadable = false;
+        public bool IsWriteable = false;
         public bool HasClientCharges = false;
         public bool CanLookThrough = false;
 
