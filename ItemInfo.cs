@@ -10,7 +10,6 @@ namespace SharpOT
     {
         public ushort Id;
         public ushort SpriteId = 100;
-        public ItemType Type = ItemType.Normal;
         public double Weight = 0.0;
         public string Name;
         public string Description;

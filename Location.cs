@@ -113,17 +113,59 @@ namespace SharpOT
 	        return false;
         }
 
-        public bool IsInRange(Location second, bool sameFloor, double range)
+        public Direction GetDirectionTo(Location to)
         {
-            return IsInRange(this, second, sameFloor, range);
+            return GetDirectionTo(this, to);
         }
 
-        public static bool IsInRange(Location first, Location second, bool sameFloor, double range)
+        public static Direction GetDirectionTo(Location from, Location to)
+        {
+            int dx = from.X - to.X;
+            int dy = from.Y - to.Y;
+
+            if (dx == 0)
+            {
+                if (dy < 0) return Direction.South;
+                else return Direction.North; // if (dy > 0)
+            }
+            else if (dx < 0)
+            {
+                if (dy == 0) return Direction.East;
+                else if (dy < 0) return Direction.SouthEast;
+                else return Direction.NorthEast; // if (dy > 0)
+            }
+            else // dx > 0
+            {
+                if (dy == 0) return Direction.West;
+                else if (dy < 0) return Direction.SouthWest;
+                else return Direction.NorthWest; // if (dy > 0)
+            }
+        }
+
+        public bool IsNextTo(Location second)
+        {
+            return IsNextTo(this, second);
+        }
+
+        public static bool IsNextTo(Location first, Location second)
+        {
+            if (first.Z != second.Z) return false;
+            int dx = first.X - second.X;
+            int dy = first.Y - second.Y;
+            return dx <= 1 && dx >= -1 && dy <= 1 && dy >= -1;
+        }
+
+        public bool IsInRange(Location second, double range, bool sameFloor)
+        {
+            return IsInRange(this, second, range, sameFloor);
+        }
+
+        public static bool IsInRange(Location first, Location second, double range, bool sameFloor)
         {
             if (sameFloor && first.Z != second.Z) return false;
             int dx = first.X - second.X;
             int dy = first.Y - second.Y;
-            return Math.Sqrt(Math.Pow(dx, 2.0) + Math.Pow(dy, 2.0)) <= range;
+            return Math.Sqrt(dx * dx + dy * dy) <= range;
         }
     }
 }
