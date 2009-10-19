@@ -302,7 +302,7 @@ namespace SharpOT
         public void ParseMoveThing(NetworkMessage message)
         {
             MoveThingPacket packet = MoveThingPacket.Parse(message);
-            Game.MoveThing(packet.SpriteId, packet.FromLocation, packet.FromStackPosition, packet.ToLocation, packet.Count);
+            Game.MoveThing(Player, packet.SpriteId, packet.FromLocation, packet.FromStackPosition, packet.ToLocation, packet.Count);
         }
 
         public void ParseAutoWalkCancel()

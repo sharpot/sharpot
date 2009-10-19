@@ -126,8 +126,14 @@ namespace SharpOT
 
         #region Public Actions
 
-        public void MoveThing(ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
+        public void MoveThing(Player mover, ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
         {
+            if (mover != null && !mover.Tile.Location.IsNextTo(fromLocation))
+            {
+                // TODO: move the player to the item
+                return;
+            }
+
             // TODO: parse moving to/from inventory
             // TODO: check if item is moveable
             Tile fromTile = Map.GetTile(fromLocation);
@@ -137,6 +143,7 @@ namespace SharpOT
             if (thing is Item)
             {
                 // TODO: move only count
+                // TODO: check line of throwing
                 Item item = (Item)thing;
                 fromTile.Items.Remove(item);
                 toTile.Items.Add(item);
@@ -159,7 +166,18 @@ namespace SharpOT
                     if (canSee) player.Connection.CommitTransaction();
                 }
             }
-            // TODO: else if (thing is Creature)
+            else if (thing is Creature)
+            {
+                if (!toLocation.IsNextTo(fromLocation))
+                {
+                    // TODO: send a message, can't move here
+                    return;
+                }
+
+                // TODO: walk delays
+
+                CreatureMove((Creature)thing, fromLocation.GetDirectionTo(toLocation));
+            }
         }
 
         public void WalkCancel(Player player)
@@ -764,7 +782,7 @@ namespace SharpOT
             }
 
             bool sameFloor = creature.Tile.Location.Z > 7;
-            foreach (Player player in GetPlayers().Where(p => p.Tile.Location.IsInRange(creature.Tile.Location, sameFloor, 50)))
+            foreach (Player player in GetPlayers().Where(p => p.Tile.Location.IsInRange(creature.Tile.Location, 50, sameFloor)))
             {
                 player.Connection.SendCreatureSpeech(creature, speechType, message.ToUpper());
             }
@@ -777,7 +795,7 @@ namespace SharpOT
         {
             foreach (Player spectator in GetSpectatorPlayers(creature.Tile.Location))
             {
-                if (spectator.Tile.Location.IsInRange(creature.Tile.Location, true, 1.42))
+                if (spectator.Tile.Location.IsInRange(creature.Tile.Location, 1.42, true))
                 {
                     spectator.Connection.SendCreatureSpeech(creature, speechType, message);
                 }

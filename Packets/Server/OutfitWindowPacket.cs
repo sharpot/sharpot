@@ -11,7 +11,7 @@ namespace SharpOT.Packets
         {
             message.AddByte((byte)ServerPacketType.OutfitWindow);
             message.AddOutfit(player.Outfit);
-            //TODO: send list of outfits
+            
             message.AddByte((byte)outfits.Count());
 
             foreach (Outfit outfit in outfits)

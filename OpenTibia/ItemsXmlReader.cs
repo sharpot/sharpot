@@ -58,31 +58,31 @@ namespace SharpOT.OpenTibia
                                     switch (value)
                                     {
                                         case "container":
-                                            info.Type = ItemType.Container;
+                                            info.Group = ItemGroup.Container;
                                             break;
                                         case "key":
-                                            info.Type = ItemType.Key;
+                                            info.Group = ItemGroup.Key;
                                             break;
                                         case "magicfield":
-                                            info.Type = ItemType.MagicField;
+                                            info.Group = ItemGroup.MagicField;
                                             break;
                                         case "depot":
-                                            info.Type = ItemType.Depot;
+                                            info.Group = ItemGroup.Depot;
                                             break;
                                         case "mailbox":
-                                            info.Type = ItemType.Mailbox;
+                                            info.Group = ItemGroup.Mailbox;
                                             break;
                                         case "trashholder":
-                                            info.Type = ItemType.TrashHolder;
+                                            info.Group = ItemGroup.TrashHolder;
                                             break;
                                         case "teleport":
-                                            info.Type = ItemType.Teleport;
+                                            info.Group = ItemGroup.Teleport;
                                             break;
                                         case "door":
-                                            info.Type = ItemType.Door;
+                                            info.Group = ItemGroup.Door;
                                             break;
                                         case "bed":
-                                            info.Type = ItemType.Bed;
+                                            info.Group = ItemGroup.Bed;
                                             break;
                                     }
                                     break;
