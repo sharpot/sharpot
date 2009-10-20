@@ -192,7 +192,7 @@ namespace SharpOT
                     ParseLogout();
                     break;
                 case ClientPacketType.MoveThing:
-                    ParseMoveThing(message);
+                    ParseThingMove(message);
                     break;
                 //case ClientPacketType.ShopBuy:
                 //case ClientPacketType.ShopSell:
@@ -263,28 +263,28 @@ namespace SharpOT
                 //case ClientPacketType.NpcChannelClose:
                 //    break;
                 case ClientPacketType.MoveNorth:
-                    ParseMove(Direction.North);
+                    ParseWalk(Direction.North);
                     break;
                 case ClientPacketType.MoveEast:
-                    ParseMove(Direction.East);
+                    ParseWalk(Direction.East);
                     break;
                 case ClientPacketType.MoveSouth:
-                    ParseMove(Direction.South);
+                    ParseWalk(Direction.South);
                     break;
                 case ClientPacketType.MoveWest:
-                    ParseMove(Direction.West);
+                    ParseWalk(Direction.West);
                     break;
                 case ClientPacketType.MoveNorthEast:
-                    ParseMove(Direction.NorthEast);
+                    ParseWalk(Direction.NorthEast);
                     break;
                 case ClientPacketType.MoveSouthEast:
-                    ParseMove(Direction.SouthEast);
+                    ParseWalk(Direction.SouthEast);
                     break;
                 case ClientPacketType.MoveSouthWest:
-                    ParseMove(Direction.SouthWest);
+                    ParseWalk(Direction.SouthWest);
                     break;
                 case ClientPacketType.MoveNorthWest:
-                    ParseMove(Direction.NorthWest);
+                    ParseWalk(Direction.NorthWest);
                     break;
                 default:
                     Server.Log("Unhandled packet from " + Player.ToString() + ": " + type);
@@ -299,10 +299,10 @@ namespace SharpOT
             DoAutoWalk();
         }
 
-        public void ParseMoveThing(NetworkMessage message)
+        public void ParseThingMove(NetworkMessage message)
         {
-            MoveThingPacket packet = MoveThingPacket.Parse(message);
-            Game.MoveThing(Player, packet.SpriteId, packet.FromLocation, packet.FromStackPosition, packet.ToLocation, packet.Count);
+            ThingMovePacket packet = ThingMovePacket.Parse(message);
+            Game.ThingMove(Player, packet.SpriteId, packet.FromLocation, packet.FromStackPosition, packet.ToLocation, packet.Count);
         }
 
         public void ParseAutoWalkCancel()
@@ -315,9 +315,9 @@ namespace SharpOT
             Game.CreatureTurn(Player, direction);
         }
 
-        public void ParseMove(Direction direction)
+        public void ParseWalk(Direction direction)
         {
-            Game.CreatureMove(Player, direction);
+            Game.CreatureWalk(Player, direction);
         }
 
         public void ParseLogout()
@@ -987,7 +987,7 @@ namespace SharpOT
             if (walkDirections.Count > 0)
             {
                 Direction direction = walkDirections.Dequeue();
-                Game.CreatureMove(Player, direction);
+                Game.CreatureWalk(Player, direction);
                 if (walkDirections.Count > 0)
                 {
                     Scheduler.AddTask(

@@ -30,6 +30,7 @@ namespace SharpOT
         {
             get
             {
+                // TODO: compute this only when items change
                 if (Ground.Info.FloorChange != FloorChangeDirection.None)
                 {
                     return Ground.Info.FloorChange;

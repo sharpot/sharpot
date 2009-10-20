@@ -124,7 +124,7 @@ namespace SharpOT
 
         public void Step(Direction dir)
         {
-            this.Game.CreatureMove(this, dir);
+            this.Game.CreatureWalk(this, dir);
         }
 
         public void Turn(Direction dir)
