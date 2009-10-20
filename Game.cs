@@ -126,7 +126,7 @@ namespace SharpOT
 
         #region Public Actions
 
-        public void MoveThing(Player mover, ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
+        public void ThingMove(Player mover, ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
         {
             if (mover != null && !mover.Tile.Location.IsNextTo(fromLocation))
             {
@@ -139,6 +139,12 @@ namespace SharpOT
             Tile fromTile = Map.GetTile(fromLocation);
             Thing thing = fromTile.GetThingAtStackPosition(fromStackPosition);
             Tile toTile = Map.GetTile(toLocation);
+
+            if (toTile.FloorChange != FloorChangeDirection.None)
+            {
+                toLocation = FloorChangeLocationOffset(toTile.FloorChange, toLocation);
+                toTile = Map.GetTile(toLocation);
+            }
 
             if (thing is Item)
             {
@@ -175,8 +181,7 @@ namespace SharpOT
                 }
 
                 // TODO: walk delays
-
-                CreatureMove((Creature)thing, fromLocation.GetDirectionTo(toLocation));
+                CreatureMove((Creature)thing, toLocation);
             }
         }
 
@@ -356,19 +361,23 @@ namespace SharpOT
                 player.OpenedChannelList.Remove(selected);
             }
         }
-
-        public void CreatureMove(Creature creature, Direction direction)
+        public void CreatureWalk(Creature creature, Direction direction)
+        {
+            CreatureMove(creature, creature.Tile.Location.Offset(direction));
+        }
+            
+        public void CreatureMove(Creature creature, Location toLocation)
         {
             Tile fromTile = creature.Tile;
             Location fromLocation = fromTile.Location;
             byte fromStackPosition = fromTile.GetStackPosition(creature);
-            Location toLocation = fromTile.Location.Offset(direction);
             Tile toTile = Map.GetTile(toLocation);
 
             if (toTile.FloorChange != FloorChangeDirection.None)
             {
                 if (toTile != null && toTile.IsWalkable)
                 {
+                    // TODO: Clean up
                     //We have to move the creature to the tile of the floor change item
                     //THEN we offset that location and move him from there up a floor.
                     //Sorta messy but I'm feeling lazy ATM, at least its working
@@ -381,51 +390,13 @@ namespace SharpOT
                     fromTile.Creatures.Remove(creature);
                     toTile.Creatures.Add(creature);
                     creature.Tile = toTile;
+
                     fromTile = toTile;
                     fromLocation = toLocation;
                     fromStackPosition = toTile.GetStackPosition(creature);
 
-                    Location newToLocation = new Location(toTile.Location);
-                    switch (toTile.FloorChange)
-                    {
-                        case FloorChangeDirection.North:
-                            newToLocation.Z -= 1;
-                            newToLocation.Y -= 1;
-                            break;
-                        case FloorChangeDirection.South:
-                            newToLocation.Z -= 1;
-                            newToLocation.Y += 1;
-                            break;
-                        case FloorChangeDirection.East:
-                            newToLocation.Z -= 1;
-                            newToLocation.X += 1;
-                            break;
-                        case FloorChangeDirection.West:
-                            newToLocation.Z -= 1;
-                            newToLocation.X -= 1;
-                            break;
-                        case FloorChangeDirection.Down:
-                            newToLocation.Z += 1;
-                            switch (Map.GetTile(newToLocation).FloorChange)
-                            {
-                                case FloorChangeDirection.North:
-                                    newToLocation.Y += 1;
-                                    break;
-                                case FloorChangeDirection.South:
-                                    newToLocation.Y -= 1;
-                                    break;
-                                case FloorChangeDirection.East:
-                                    newToLocation.X -= 1;
-                                    break;
-                                case FloorChangeDirection.West:
-                                    newToLocation.X += 1;
-                                    break;
-                            }
-                            break;
-                    }
-
-                    toLocation = newToLocation;
-                    toTile = Map.GetTile(newToLocation);
+                    toLocation = FloorChangeLocationOffset(toTile.FloorChange, toLocation); ;
+                    toTile = Map.GetTile(toLocation);
                 }
             }
 
@@ -435,7 +406,7 @@ namespace SharpOT
                 foreach (Delegate del in BeforeCreatureMove.GetInvocationList())
                 {
                     BeforeCreatureMoveHandler subscriber = (BeforeCreatureMoveHandler)del;
-                    forward &= (bool)subscriber(creature, direction, fromLocation, toLocation, fromStackPosition, toTile);
+                    forward &= (bool)subscriber(creature, fromLocation, toLocation, fromStackPosition, toTile);
                 }
                 if (!forward) return;
             }
@@ -478,9 +449,52 @@ namespace SharpOT
                 }
 
                 if(AfterCreatureMove != null)
-                    AfterCreatureMove(creature, direction, fromLocation, toLocation, fromStackPosition, toTile);
+                    AfterCreatureMove(creature, fromLocation, toLocation, fromStackPosition, toTile);
                 
             }
+        }
+
+        private Location FloorChangeLocationOffset(FloorChangeDirection floorChange, Location oldToLocation)
+        {
+            Location newToLocation = new Location(oldToLocation);
+            switch (floorChange)
+            {
+                case FloorChangeDirection.North:
+                    newToLocation.Z -= 1;
+                    newToLocation.Y -= 1;
+                    break;
+                case FloorChangeDirection.South:
+                    newToLocation.Z -= 1;
+                    newToLocation.Y += 1;
+                    break;
+                case FloorChangeDirection.East:
+                    newToLocation.Z -= 1;
+                    newToLocation.X += 1;
+                    break;
+                case FloorChangeDirection.West:
+                    newToLocation.Z -= 1;
+                    newToLocation.X -= 1;
+                    break;
+                case FloorChangeDirection.Down:
+                    newToLocation.Z += 1;
+                    switch (Map.GetTile(newToLocation).FloorChange)
+                    {
+                        case FloorChangeDirection.North:
+                            newToLocation.Y += 1;
+                            break;
+                        case FloorChangeDirection.South:
+                            newToLocation.Y -= 1;
+                            break;
+                        case FloorChangeDirection.East:
+                            newToLocation.X -= 1;
+                            break;
+                        case FloorChangeDirection.West:
+                            newToLocation.X += 1;
+                            break;
+                    }
+                    break;
+            }
+            return newToLocation;
         }
 
         public void CreatureUpdateHealth(Creature creature, ushort health)

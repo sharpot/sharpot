@@ -27,7 +27,7 @@ public class CreateItemCommand : ICommand
                 bool found = false;
                 foreach (ItemInfo info in ItemInfo.GetEnumerator())
                 {
-                    if (info.Name != null && info.Name.ToLower().Contains(first))
+                    if (info.Name != null && info.Name.ToLower().Equals(first))
                     {
                         itemId = info.Id;
                         found = true;

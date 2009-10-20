@@ -58,7 +58,7 @@ public class AccountCreator:IScript
 
     }
 
-    public bool BeforeCreatureMove(Creature creature, Direction direction, Location fromLocation, Location toLocation, byte fromStackPosition, Tile toTile)
+    public bool BeforeCreatureMove(Creature creature, Location fromLocation, Location toLocation, byte fromStackPosition, Tile toTile)
     {
         if (creature.IsPlayer && creature.Name == "Account Creator")
         {
