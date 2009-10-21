@@ -181,7 +181,7 @@ namespace SharpOT
                 }
 
                 // TODO: walk delays
-                CreatureMove((Creature)thing, toLocation);
+                CreatureMove((Creature)thing, toLocation, false);
             }
         }
 
@@ -363,17 +363,17 @@ namespace SharpOT
         }
         public void CreatureWalk(Creature creature, Direction direction)
         {
-            CreatureMove(creature, creature.Tile.Location.Offset(direction));
+            CreatureMove(creature, creature.Tile.Location.Offset(direction), false);
         }
             
-        public void CreatureMove(Creature creature, Location toLocation)
+        public void CreatureMove(Creature creature, Location toLocation, bool teleport)
         {
             Tile fromTile = creature.Tile;
             Location fromLocation = fromTile.Location;
             byte fromStackPosition = fromTile.GetStackPosition(creature);
             Tile toTile = Map.GetTile(toLocation);
 
-            if (toTile.FloorChange != FloorChangeDirection.None)
+            if (!teleport && toTile.FloorChange != FloorChangeDirection.None)
             {
                 if (toTile != null && toTile.IsWalkable)
                 {
@@ -411,32 +411,53 @@ namespace SharpOT
                 if (!forward) return;
             }
 
+            // TODO: actually check if it is walkable
             if (toTile != null && toTile.IsWalkable)
             {
                 fromTile.Creatures.Remove(creature);
                 toTile.Creatures.Add(creature);
                 creature.Tile = toTile;
 
-                if (fromLocation.Y > toLocation.Y)
-                    creature.Direction = Direction.North;
-                else if (fromLocation.Y < toLocation.Y)
-                    creature.Direction = Direction.South;
-                if (fromLocation.X < toLocation.X)
-                    creature.Direction = Direction.East;
-                else if (fromLocation.X > toLocation.X)
-                    creature.Direction = Direction.West;
+                if (!teleport)
+                {
+                    if (fromLocation.Y > toLocation.Y)
+                        creature.Direction = Direction.North;
+                    else if (fromLocation.Y < toLocation.Y)
+                        creature.Direction = Direction.South;
+                    if (fromLocation.X < toLocation.X)
+                        creature.Direction = Direction.East;
+                    else if (fromLocation.X > toLocation.X)
+                        creature.Direction = Direction.West;
+                }
 
                 foreach (var player in GetPlayers())
                 {
                     if (player == creature)
                     {
-                        player.Connection.BeginTransaction();
-                        player.Connection.SendPlayerMove(fromLocation, fromStackPosition, toLocation);
-                        player.Connection.CommitTransaction();
+                        if (teleport)
+                        {
+                            player.Connection.SendPlayerTeleport(fromLocation, fromStackPosition, toLocation);
+                        }
+                        else
+                        {
+                            player.Connection.BeginTransaction();
+                            player.Connection.SendPlayerMove(fromLocation, fromStackPosition, toLocation);
+                            player.Connection.CommitTransaction();
+                        }
                     }
                     else if (player.Tile.Location.CanSee(fromLocation) && player.Tile.Location.CanSee(toLocation))
                     {
-                        player.Connection.SendCreatureMove(fromLocation, fromStackPosition, toLocation);
+                        if (teleport)
+                        {
+                            player.Connection.BeginTransaction();
+                            player.Connection.SendTileRemoveThing(fromLocation, fromStackPosition);
+                            player.Connection.SendTileAddCreature(creature);
+                            player.Connection.CommitTransaction();
+                        }
+                        else
+                        {
+                            player.Connection.SendCreatureMove(fromLocation, fromStackPosition, toLocation);
+                        }
                     }
                     else if (player.Tile.Location.CanSee(fromLocation))
                     {

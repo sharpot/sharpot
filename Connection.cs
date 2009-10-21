@@ -705,6 +705,25 @@ namespace SharpOT
             Send(message);
         }
 
+        public void SendPlayerTeleport(Location fromLocation, byte fromStackPosition, Location toLocation)
+        {
+            NetworkMessage outMessage = new NetworkMessage();
+
+            TileRemoveThingPacket.Add(
+                outMessage, 
+                fromLocation, 
+                fromStackPosition
+            );
+
+            MapDescriptionPacket.Add(
+                this, 
+                outMessage, 
+                toLocation
+            );
+
+            Send(outMessage);
+        }
+
         public void SendPlayerMove(Location fromLocation, byte fromStackPosition, Location toLocation)
         {
             NetworkMessage outMessage = new NetworkMessage();
