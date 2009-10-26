@@ -167,6 +167,9 @@
     <Compile Include="Data\Scripts\AccountManager.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Data\Scripts\TeleportCommand.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Data\Scripts\CreateItemCommand.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
@@ -185,7 +188,8 @@
     <Compile Include="OpenTibia\ItemsXmlReader.cs" />
     <Compile Include="OpenTibia\PropertyReader.cs" />
     <Compile Include="Packets\Client\AutoWalkPacket.cs" />
-    <Compile Include="Packets\Client\ThingMovePacket.cs" />
+    <Compile Include="Packets\Client\ItemUsePacket.cs" />
+    <Compile Include="Packets\Client\ItemMovePacket.cs" />
     <Compile Include="Packets\Server\TileAddItemPacket.cs" />
     <Compile Include="Town.cs" />
     <Compile Include="Util\Scheduler.cs" />

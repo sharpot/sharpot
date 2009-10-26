@@ -191,13 +191,15 @@ namespace SharpOT
                 case ClientPacketType.Logout:
                     ParseLogout();
                     break;
-                case ClientPacketType.MoveThing:
-                    ParseThingMove(message);
+                case ClientPacketType.ItemMove:
+                    ParseItemMove(message);
                     break;
                 //case ClientPacketType.ShopBuy:
                 //case ClientPacketType.ShopSell:
                 //case ClientPacketType.ShopClose:
-                //case ClientPacketType.ItemUse:
+                case ClientPacketType.ItemUse:
+                    ParseItemUse(message);
+                    break;
                 //case ClientPacketType.ItemUseOn:
                 //case ClientPacketType.ItemRotate:
                 case ClientPacketType.LookAt:
@@ -299,10 +301,16 @@ namespace SharpOT
             DoAutoWalk();
         }
 
-        public void ParseThingMove(NetworkMessage message)
+        public void ParseItemUse(NetworkMessage message)
         {
-            ThingMovePacket packet = ThingMovePacket.Parse(message);
-            Game.ThingMove(Player, packet.SpriteId, packet.FromLocation, packet.FromStackPosition, packet.ToLocation, packet.Count);
+            ItemUsePacket packet = ItemUsePacket.Parse(message);
+            Game.ItemUse(Player, packet.SpriteId, packet.FromLocation, packet.FromStackPosition, packet.Index);
+        }
+
+        public void ParseItemMove(NetworkMessage message)
+        {
+            ItemMovePacket packet = ItemMovePacket.Parse(message);
+            Game.ItemMove(Player, packet.SpriteId, packet.FromLocation, packet.FromStackPosition, packet.ToLocation, packet.Count);
         }
 
         public void ParseAutoWalkCancel()

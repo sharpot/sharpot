@@ -126,7 +126,27 @@ namespace SharpOT
 
         #region Public Actions
 
-        public void ThingMove(Player mover, ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
+        public void ItemUse(Player user, ushort spriteId, Location fromLocation, byte fromStackPosition, byte index)
+        {
+            if (user != null && !user.Tile.Location.IsNextTo(fromLocation))
+            {
+                // TODO: move the player
+                return;
+            }
+
+            Tile toTile = Map.GetTile(fromLocation);
+
+            // TODO: read teleport location from map for ladders
+
+            if (toTile.FloorChange != FloorChangeDirection.None)
+            {
+                Location moveToLocation = FloorChangeLocationOffset(toTile.FloorChange, fromLocation);
+                Tile moveToTile = Map.GetTile(moveToLocation);
+                CreatureMove(user, moveToLocation, true);
+            }
+        }
+
+        public void ItemMove(Player mover, ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
         {
             if (mover != null && !mover.Tile.Location.IsNextTo(fromLocation))
             {
@@ -495,6 +515,10 @@ namespace SharpOT
                 case FloorChangeDirection.West:
                     newToLocation.Z -= 1;
                     newToLocation.X -= 1;
+                    break;
+                case FloorChangeDirection.Up:
+                    newToLocation.Z -= 1;
+                    newToLocation.Y += 1;
                     break;
                 case FloorChangeDirection.Down:
                     newToLocation.Z += 1;

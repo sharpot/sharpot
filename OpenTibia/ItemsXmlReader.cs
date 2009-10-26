@@ -134,6 +134,9 @@ namespace SharpOT.OpenTibia
                                 case "floorchange":
                                     switch (value.ToLower())
                                     {
+                                        case "up":
+                                            info.FloorChange = FloorChangeDirection.Up;
+                                            break;
                                         case "down":
                                             info.FloorChange = FloorChangeDirection.Down;
                                             break;
