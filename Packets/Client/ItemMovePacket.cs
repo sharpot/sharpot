@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SharpOT.Packets
 {
-    public class ThingMovePacket : Packet
+    public class ItemMovePacket : Packet
     {
         public Location FromLocation { get; set; }
         public ushort SpriteId { get; set; }
@@ -13,9 +13,9 @@ namespace SharpOT.Packets
         public Location ToLocation { get; set; }
         public byte Count { get; set; }
 
-        public static ThingMovePacket Parse(NetworkMessage message)
+        public static ItemMovePacket Parse(NetworkMessage message)
         {
-            ThingMovePacket packet = new ThingMovePacket();
+            ItemMovePacket packet = new ItemMovePacket();
 
             packet.FromLocation = message.GetLocation();
             packet.SpriteId = message.GetUInt16();
