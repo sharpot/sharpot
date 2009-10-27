@@ -24,7 +24,44 @@ namespace SharpOT.Util
             return result.Insert(0, instr, n).ToString();
         }
 
-        #region Packets
+        public static AmmoType GetAmmoType(this ShootType shootType)
+        {
+            switch (shootType)
+            {
+                case ShootType.Spear:
+                case ShootType.RoyalSpear:
+                case ShootType.EtherealSpear:
+                case ShootType.EnchantedSpear:
+                case ShootType.HuntingSpear:
+                    return AmmoType.Spear;
+                case ShootType.Bolt:
+                case ShootType.PowerBolt:
+                case ShootType.InfernalBolt:
+                case ShootType.PiercingBolt:
+                    return AmmoType.Bolt;
+                case ShootType.Arrow:
+                case ShootType.OnyxArrow:
+                case ShootType.PoisonArrow:
+                case ShootType.FlamingArrow:
+                case ShootType.FlashArrow:
+                case ShootType.BurstArrow:
+                case ShootType.SniperArrow:
+                case ShootType.ShiverArrow:
+                case ShootType.EarthArrow:
+                    return AmmoType.Arrow;
+                case ShootType.ThrowingStar:
+                    return AmmoType.ThrowingStar;
+                case ShootType.ThrowingKnife:
+                    return AmmoType.ThrowingKnife;
+                case ShootType.SmallStone:
+                case ShootType.LargeRock:
+                    return AmmoType.Stone;
+                case ShootType.Snowball:
+                    return AmmoType.Snowball;
+                default:
+                    return AmmoType.None;
+            }
+        }
 
         public static bool HasFlag(this ItemFlags e, ItemFlags x)
         {
@@ -198,6 +235,5 @@ namespace SharpOT.Util
         {
             return data.ToHexString(0, data.Length);
         }
-        #endregion
     }
 }

@@ -32,7 +32,8 @@ namespace SharpOT
         public ushort WriteOnceItemId = 0;
         public SlotType SlotType = SlotType.None;
         public WeaponType WeaponType = WeaponType.None;
-
+        public ShootType ShootType = ShootType.None;
+        public AmmoType AmmoType = AmmoType.None;
         public ItemGroup Group = ItemGroup.None;
 
         public ushort Speed = 0;

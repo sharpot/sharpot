@@ -407,6 +407,56 @@ namespace SharpOT
         Snowball
     }
 
+    public enum ShootType
+    {
+        Spear = 0x00,
+        Bolt = 0x01,
+        Arrow = 0x02,
+        Fire = 0x03,
+        Energy = 0x04,
+        PoisonArrow = 0x05,
+        BurstArrow = 0x06,
+        ThrowingStar = 0x07,
+        ThrowingKnife = 0x08,
+        SmallStone = 0x09,
+        Death = 0x0A, //10
+        LargeRock = 0x0B, //11
+        Snowball = 0x0C, //12
+        PowerBolt = 0x0D, //13
+        PoisonField = 0x0E, //14
+        InfernalBolt = 0x0F, //15
+        HuntingSpear = 0x10, //16
+        EnchantedSpear = 0x11, //17
+        RedStar = 0x12, //18
+        GreenStar = 0x13, //19
+        RoyalSpear = 0x14, //20
+        SniperArrow = 0x15, //21
+        OnyxArrow = 0x16, //22
+        PiercingBolt = 0x17, //23
+        WhirlwindSword= 0x18, //24
+        WhirlwindAxe= 0x19, //25
+        WhirlwindClub = 0x1A, //26
+        EtherealSpear = 0x1B, //27
+        Ice = 0x1C, //28
+        Earth = 0x1D, //29
+        Holy = 0x1E, //30
+        SuddenDeath = 0x1F, //31
+        FlashArrow = 0x20, //32
+        FlamingArrow = 0x21, //33
+        ShiverArrow = 0x22, //34
+        EnergyBall = 0x23, //35
+        SmallIce = 0x24, //36
+        SmallHoly = 0x25, //37
+        SmallEarth = 0x26, //38
+        EarthArrow = 0x27, //39
+        Explosion = 0x28, //40
+        Cake = 0x29, //41
+        //for internal use, dont send to client
+        WeaponType = 0xFE, //254
+        None = 0xFF,
+        Unknown = 0xFFFF
+    }
+
     public enum SlotType
     {
         None,

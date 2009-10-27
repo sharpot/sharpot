@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using SharpOT.Util;
 
 namespace SharpOT.OpenTibia
 {
@@ -220,6 +221,13 @@ namespace SharpOT.OpenTibia
                                             info.SlotType = SlotType.Neck;
                                             break;
                                     }
+                                    break;
+                                case "ammotype":
+                                    var shootType = (ShootType)Enum.Parse(typeof(ShootType), value, true);
+                                    info.AmmoType = shootType.GetAmmoType();
+                                    break;
+                                case "shoottype":
+                                    info.ShootType = (ShootType)Enum.Parse(typeof(ShootType), value, true);
                                     break;
                                 // TODO: Many more to go
                             }
