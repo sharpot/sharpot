@@ -20,6 +20,7 @@ namespace SharpOT.Scripting
 
         public static string LoadAllScripts(Game game)
         {
+            // TODO: load scripts from the current assembly, don't copy them to the output folder
             errorLog = new StringBuilder();
             foreach (string directory in SharpOT.Properties.Settings.Default.ScriptsDirectory.Split(';'))
             {

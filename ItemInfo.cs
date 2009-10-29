@@ -35,7 +35,17 @@ namespace SharpOT
         public ShootType ShootType = ShootType.None;
         public AmmoType AmmoType = AmmoType.None;
         public ItemGroup Group = ItemGroup.None;
-
+        public Effect Effect = Effect.None;
+        public int Range = 0;
+        public int StopDuration = 0;
+        public ushort DecayTo = 0;
+        public ushort TransformEquipTo = 0;
+        public ushort TransformDequipTo = 0;
+        public int Duration = 0;
+        public bool ShowDuration = false;
+        public int Charges = 0;
+        public bool ShowCharges = false;
+        public int BreakChance = 0;
         public ushort Speed = 0;
         public bool IsAlwaysOnTop = false;
         public byte TopOrder = 0;
