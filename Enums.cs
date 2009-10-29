@@ -274,7 +274,8 @@ namespace SharpOT
         StepsVertical = 0x40,
         YalahariGhost = 0x41,
         Bats = 0x42,
-        Smoke = 0x43
+        Smoke = 0x43,
+        None = 0xFF
     }
 
     public static class LightLevel

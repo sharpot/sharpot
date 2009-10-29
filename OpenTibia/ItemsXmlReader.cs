@@ -229,6 +229,211 @@ namespace SharpOT.OpenTibia
                                 case "shoottype":
                                     info.ShootType = (ShootType)Enum.Parse(typeof(ShootType), value, true);
                                     break;
+                                case "effect":
+                                    switch (value)
+                                    {
+                                        case "redspark":
+                                            info.Effect = Effect.DrawBlood;
+                                            break;
+                                        case "bluebubble":
+                                            info.Effect = Effect.LoseEnergy;
+                                            break;
+                                        case "poff":
+                                            info.Effect = Effect.Puff;
+                                            break;
+                                        case "yellowspark":
+                                            info.Effect = Effect.BlockHit;
+                                            break;
+                                        case "explosionarea":
+                                            info.Effect = Effect.ExplosionArea;
+                                            break;
+                                        case "explosion":
+                                            info.Effect = Effect.ExplosionDamage;
+                                            break;
+                                        case "firearea":
+                                            info.Effect = Effect.FireArea;
+                                            break;
+                                        case "yellowbubble":
+                                            info.Effect = Effect.YellowEnergy;
+                                            break;
+                                        case "greenbubble":
+                                            info.Effect = Effect.PoisonRings;
+                                            break;
+                                        case "blackspark":
+                                            info.Effect = Effect.HitArea;
+                                            break;
+                                        case "teleport":
+                                            info.Effect = Effect.Teleport;
+                                            break;
+                                        case "energy":
+                                            info.Effect = Effect.EnergyDamage;
+                                            break;
+                                        case "blueshimmer":
+                                            info.Effect = Effect.MagicEnergy;
+                                            break;
+                                        case "redshimmer":
+                                            info.Effect = Effect.MagicBlood;
+                                            break;
+                                        case "greenshimmer":
+                                            info.Effect = Effect.MagicPoison;
+                                            break;
+                                        case "fire":
+                                            info.Effect = Effect.HitByFire;
+                                            break;
+                                        case "greenspark":
+                                            info.Effect = Effect.Poison;
+                                            break;
+                                        case "mortarea":
+                                            info.Effect = Effect.MortArea;
+                                            break;
+                                        case "greennote":
+                                            info.Effect = Effect.SoundGreen;
+                                            break;
+                                        case "rednote":
+                                            info.Effect = Effect.SoundRed;
+                                            break;
+                                        case "poison":
+                                            info.Effect = Effect.Poison;
+                                            break;
+                                        case "yellownote":
+                                            info.Effect = Effect.SoundYellow;
+                                            break;
+                                        case "purplenote":
+                                            info.Effect = Effect.SoundPurple;
+                                            break;
+                                        case "bluenote":
+                                            info.Effect = Effect.SoundBlue;
+                                            break;
+                                        case "whitenote":
+                                            info.Effect = Effect.SoundWhite;
+                                            break;
+                                        case "bubbles":
+                                            info.Effect = Effect.Bubbles;
+                                            break;
+                                        case "dice":
+                                            info.Effect = Effect.Craps;
+                                            break;
+                                        case "giftwraps":
+                                            info.Effect = Effect.GiftWraps;
+                                            break;
+                                        case "yellowfirework":
+                                            info.Effect = Effect.FireworkYellow;
+                                            break;
+                                        case "redfirework":
+                                            info.Effect = Effect.FireworkRed;
+                                            break;
+                                        case "bluefirework":
+                                            info.Effect = Effect.FireworkBlue;
+                                            break;
+                                        case "stun":
+                                            info.Effect = Effect.Stun;
+                                            break;
+                                        case "sleep":
+                                            info.Effect = Effect.Sleep;
+                                            break;
+                                        case "watercreature":
+                                            info.Effect = Effect.WaterCreature;
+                                            break;
+                                        case "groundshaker":
+                                            info.Effect = Effect.Groundshaker;
+                                            break;
+                                        case "hearts":
+                                            info.Effect = Effect.Hearts;
+                                            break;
+                                        case "fireattack":
+                                            info.Effect = Effect.FireAttack;
+                                            break;
+                                        case "energyarea":
+                                            info.Effect = Effect.EnergyArea;
+                                            break;
+                                        case "smallclouds":
+                                            info.Effect = Effect.SmallClouds;
+                                            break;
+                                        case "holydamage":
+                                            info.Effect = Effect.HolyDamage;
+                                            break;
+                                        case "bigclouds":
+                                            info.Effect = Effect.BigClouds;
+                                            break;
+                                        case "icearea":
+                                            info.Effect = Effect.IceArea;
+                                            break;
+                                        case "icetornado":
+                                            info.Effect = Effect.IceTornado;
+                                            break;
+                                        case "iceattack":
+                                            info.Effect = Effect.IceAttack;
+                                            break;
+                                        case "stones":
+                                            info.Effect = Effect.Stones;
+                                            break;
+                                        case "smallplants":
+                                            info.Effect = Effect.SmallPlants;
+                                            break;
+                                        case "carniphila":
+                                            info.Effect = Effect.Carniphilia;
+                                            break;
+                                        case "purpleenergy":
+                                            info.Effect = Effect.PurpleEnergy;
+                                            break;
+                                        case "yellowenergy":
+                                            info.Effect = Effect.YellowEnergy;
+                                            break;
+                                        case "holyarea":
+                                            info.Effect = Effect.HolyArea;
+                                            break;
+                                        case "bigplants":
+                                            info.Effect = Effect.BigPlants;
+                                            break;
+                                        case "cake":
+                                            info.Effect = Effect.Cake;
+                                            break;
+                                        case "giantice":
+                                            info.Effect = Effect.GiantIce;
+                                            break;
+                                        case "watersplash":
+                                            info.Effect = Effect.WaterSplash;
+                                            break;
+                                        case "plantattack":
+                                            info.Effect = Effect.PlantAttack;
+                                            break;
+                                        case "tutorialarrow":
+                                            info.Effect = Effect.TutorialArrow;
+                                            break;
+                                        case "tutorialsquare":
+                                            info.Effect = Effect.TutorialSquare;
+                                            break;
+                                    }
+                                    break;
+                                case "range":
+                                    info.Range = int.Parse(value);
+                                    break;
+                                case "stopduration":
+                                    info.StopDuration = int.Parse(value);
+                                    break;
+                                case "decayto":
+                                    info.DecayTo = ushort.Parse(value);
+                                    break;
+                                case "transformequipto":
+                                    info.TransformEquipTo = ushort.Parse(value);
+                                    break;
+                                case "transformdequipto":
+                                    info.TransformDequipTo = ushort.Parse(value);
+                                    break;
+                                case "showduration":
+                                    info.ShowDuration = int.Parse(value) != 0;
+                                    break;
+                                case "charges":
+                                    info.Charges = int.Parse(value);
+                                    break;
+                                case "showcharges":
+                                    info.ShowCharges = int.Parse(value) != 0;
+                                    break;
+                                case "breakchance":
+                                    info.BreakChance = int.Parse(value);
+                                    if (info.BreakChance < 0) info.BreakChance = 0;
+                                    if (info.BreakChance > 100) info.BreakChance = 100;
+                                    break;
                                 // TODO: Many more to go
                             }
                         }
