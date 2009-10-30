@@ -775,6 +775,10 @@ namespace SharpOT
 
             player.Connection.SendInitialPacket();
 
+            player.LastLogin = DateTime.Now;
+
+            Database.SavePlayerById(player);
+
             if (AfterLogin != null)
             {
                 AfterLogin(player);

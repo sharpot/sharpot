@@ -45,5 +45,6 @@ CREATE TABLE [Player] (
     [LocationY] integer,
     [LocationZ] integer,
     [Direction] integer,
+    [LastLogin] integer NOT NULL DEFAULT 0,
     CONSTRAINT [FK_Player_0] FOREIGN KEY ([AccountId]) REFERENCES [Account] ([Id])
 );

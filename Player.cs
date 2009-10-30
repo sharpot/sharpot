@@ -21,6 +21,7 @@ namespace SharpOT
         public bool SafeMode { get; set; }
         public Dictionary<uint, Vip> VipList { get; set; }
         public int LastYellTime { get; set; }
+        public DateTime LastLogin { get; set; }
 
         public Player()
         {

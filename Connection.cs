@@ -461,11 +461,15 @@ namespace SharpOT
                 LightColor.None
             );
 
-            // TODO: Save last login.
+            string welcomeMessage = "Welcome to Utopia!";
+            if (Player.LastLogin > DateTime.MinValue)
+            {
+                welcomeMessage += " Last login: " + Player.LastLogin + ".";
+            }
             TextMessagePacket.Add(
                 message,
                 TextMessageType.EventDefault,
-                "Welcome to Utopia! Last login: yesterday."
+                welcomeMessage
             );
 
             PlayerStatusPacket.Add(

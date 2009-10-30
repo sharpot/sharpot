@@ -118,10 +118,10 @@ namespace SharpOT
 
         private static SQLiteCommand selectPlayerByNameCommand = new SQLiteCommand(
             @"select
-                Id, Gender, Vocation, Level, MagicLevel,Experience, MaxHealth, 
+                Id, Name, Gender, Vocation, Level, MagicLevel,Experience, MaxHealth, 
                 MaxMana, Capacity, OutfitLookType, OutfitHead, OutfitBody, 
                 OutfitLegs, OutfitFeet, OutfitAddons, LocationX, LocationY, 
-                LocationZ, Direction
+                LocationZ, Direction, LastLogin
               from Player
               where Name = @name",
             connection
@@ -129,10 +129,10 @@ namespace SharpOT
 
         private static SQLiteCommand selectPlayerByIdCommand = new SQLiteCommand(
             @"select
-                Name, Gender, Vocation, Level, MagicLevel,Experience, MaxHealth, 
+                Id, Name, Gender, Vocation, Level, MagicLevel,Experience, MaxHealth, 
                 MaxMana, Capacity, OutfitLookType, OutfitHead, OutfitBody, 
                 OutfitLegs, OutfitFeet, OutfitAddons, LocationX, LocationY, 
-                LocationZ, Direction
+                LocationZ, Direction, LastLogin
               from Player
               where Id = @playerId",
             connection
@@ -143,7 +143,7 @@ namespace SharpOT
                 Id, Name, Gender, Vocation, Level, MagicLevel,Experience, MaxHealth, 
                 MaxMana, Capacity, OutfitLookType, OutfitHead, OutfitBody, 
                 OutfitLegs, OutfitFeet, OutfitAddons, LocationX, LocationY, 
-                LocationZ, Direction
+                LocationZ, Direction, LastLogin
               from Player",
             connection
         );
@@ -192,7 +192,8 @@ namespace SharpOT
                   LocationX = @locationX,
                   LocationY = @locationY,
                   LocationZ = @locationZ,
-                  Direction = @direction
+                  Direction = @direction,
+                  LastLogin = @lastLogin
               where Id = @playerId",
             connection
         );
@@ -225,6 +226,7 @@ namespace SharpOT
         private static SQLiteParameter locationYParam = new SQLiteParameter("locationY");
         private static SQLiteParameter locationZParam = new SQLiteParameter("locationZ");
         private static SQLiteParameter directionParam = new SQLiteParameter("direction");
+        private static SQLiteParameter lastLoginParam = new SQLiteParameter("lastLogin");
 
         #endregion
 
@@ -243,9 +245,15 @@ namespace SharpOT
             transaction.Commit();
         }
 
-        public static void Initialize(string connectionString)
+        public static void Initialize(string databaseFile)
         {
-            connection.ConnectionString = connectionString;
+            if (!File.Exists(databaseFile))
+            {
+                SQLiteConnection.CreateFile(databaseFile);
+            }
+
+            connection.ConnectionString = "data source=" + databaseFile + ";synchronous=Full";
+            
             connection.Open();
 
             // Make sure the database structure exists
@@ -336,7 +344,7 @@ namespace SharpOT
             command.Parameters.Add(locationYParam);
             command.Parameters.Add(locationZParam);
             command.Parameters.Add(directionParam);
-
+            command.Parameters.Add(lastLoginParam);
         }
 
         public static void Close()
@@ -518,33 +526,7 @@ namespace SharpOT
             if (reader.Read())
             {
                 player = new Player();
-                player.Name = name;
-                player.Id =(uint) reader.GetInt32(0);
-                player.Gender = (Gender)reader.GetByte(1);
-                player.Vocation = (Vocation)reader.GetByte(2);
-                player.Level = (ushort)reader.GetInt16(3);
-                player.MagicLevel = reader.GetByte(4);
-                player.Experience = (uint)reader.GetInt32(5);
-                player.MaxHealth = (ushort)reader.GetInt16(6);
-                player.MaxMana = (ushort)reader.GetInt16(7);
-                player.Capacity = (uint)reader.GetInt32(8);
-                player.Outfit.LookType = (ushort)reader.GetInt16(9);
-                player.Outfit.Head = reader.GetByte(10);
-                player.Outfit.Body = reader.GetByte(11);
-                player.Outfit.Legs = reader.GetByte(12);
-                player.Outfit.Feet = reader.GetByte(13);
-                player.Outfit.Addons = reader.GetByte(14);
-
-                if (!reader.IsDBNull(15))
-                {
-                    int x = reader.GetInt32(15);
-                    int y = reader.GetInt32(16);
-                    int z = reader.GetInt32(17);
-                    player.SavedLocation = new Location(x, y, z);
-                    player.Direction = (Direction)reader.GetByte(18);
-                }
-
-                player.Speed = (ushort)(220 + (2 * (player.Level - 1)));
+                ReadPlayerInfo(reader, player);
             }
             reader.Close();
             return player;
@@ -559,33 +541,7 @@ namespace SharpOT
             if (reader.Read())
             {
                 player = new Player();
-                player.Name = reader.GetString(0);
-                player.Id = playerId;
-                player.Gender = (Gender)reader.GetByte(1);
-                player.Vocation = (Vocation)reader.GetByte(2);
-                player.Level = (ushort)reader.GetInt16(3);
-                player.MagicLevel = reader.GetByte(4);
-                player.Experience = (uint)reader.GetInt32(5);
-                player.MaxHealth = (ushort)reader.GetInt16(6);
-                player.MaxMana = (ushort)reader.GetInt16(7);
-                player.Capacity = (uint)reader.GetInt32(8);
-                player.Outfit.LookType = (ushort)reader.GetInt16(9);
-                player.Outfit.Head = reader.GetByte(10);
-                player.Outfit.Body = reader.GetByte(11);
-                player.Outfit.Legs = reader.GetByte(12);
-                player.Outfit.Feet = reader.GetByte(13);
-                player.Outfit.Addons = reader.GetByte(14);
-
-                if (!reader.IsDBNull(15))
-                {
-                    int x = reader.GetInt32(15);
-                    int y = reader.GetInt32(16);
-                    int z = reader.GetInt32(17);
-                    player.SavedLocation = new Location(x, y, z);
-                    player.Direction = (Direction)reader.GetByte(18);
-                }
-
-                player.Speed = (ushort)(220 + (2 * (player.Level - 1)));
+                ReadPlayerInfo(reader, player);
             }
             reader.Close();
             return player;
@@ -637,6 +593,7 @@ namespace SharpOT
             }
 
             directionParam.Value = player.Direction;
+            lastLoginParam.Value = player.LastLogin.Ticks;
         }
 
         public static IEnumerable<Player> GetAllPlayers()
@@ -647,30 +604,7 @@ namespace SharpOT
                 while (reader.Read())
                 {
                     Player player = new Player();
-                    player.Id =(uint) reader.GetInt32(0);
-                    player.Name = reader.GetString(1);
-                    player.Gender = (Gender)reader.GetByte(2);
-                    player.Vocation = (Vocation)reader.GetByte(3);
-                    player.Level = (ushort)reader.GetInt16(4);
-                    player.MagicLevel = reader.GetByte(5);
-                    player.Experience = (uint)reader.GetInt32(6);
-                    player.MaxHealth = (ushort)reader.GetInt16(7);
-                    player.MaxMana = (ushort)reader.GetInt16(8);
-                    player.Capacity = (uint)reader.GetInt32(9);
-                    player.Outfit.LookType = (ushort)reader.GetInt16(10);
-                    player.Outfit.Head = reader.GetByte(11);
-                    player.Outfit.Body = reader.GetByte(12);
-                    player.Outfit.Legs = reader.GetByte(13);
-                    player.Outfit.Feet = reader.GetByte(14);
-                    player.Outfit.Addons = reader.GetByte(15);
-                    if (!reader.IsDBNull(16))
-                    {
-                        int x = reader.GetInt32(16);
-                        int y = reader.GetInt32(17);
-                        int z = reader.GetInt32(18);
-                        player.SavedLocation = new Location(x, y, z);
-                        player.Direction = (Direction)reader.GetByte(19);
-                    }
+                    ReadPlayerInfo(reader, player);
                     yield return player;
                 }
             }
@@ -678,6 +612,36 @@ namespace SharpOT
             {
                 reader.Close();
             }
+        }
+
+        private static void ReadPlayerInfo(SQLiteDataReader reader, Player player)
+        {
+            player.Id = (uint)reader.GetInt32(0);
+            player.Name = reader.GetString(1);
+            player.Gender = (Gender)reader.GetByte(2);
+            player.Vocation = (Vocation)reader.GetByte(3);
+            player.Level = (ushort)reader.GetInt16(4);
+            player.MagicLevel = reader.GetByte(5);
+            player.Experience = (uint)reader.GetInt32(6);
+            player.MaxHealth = (ushort)reader.GetInt16(7);
+            player.MaxMana = (ushort)reader.GetInt16(8);
+            player.Capacity = (uint)reader.GetInt32(9);
+            player.Outfit.LookType = (ushort)reader.GetInt16(10);
+            player.Outfit.Head = reader.GetByte(11);
+            player.Outfit.Body = reader.GetByte(12);
+            player.Outfit.Legs = reader.GetByte(13);
+            player.Outfit.Feet = reader.GetByte(14);
+            player.Outfit.Addons = reader.GetByte(15);
+            if (reader.GetInt64(20) > 0)
+            {
+                int x = reader.GetInt32(16);
+                int y = reader.GetInt32(17);
+                int z = reader.GetInt32(18);
+                player.SavedLocation = new Location(x, y, z);
+                player.Direction = (Direction)reader.GetByte(19);
+                player.LastLogin = new DateTime(reader.GetInt64(20));
+            }
+            player.Speed = (ushort)(220 + (2 * (player.Level - 1)));
         }
 
         public static Dictionary<uint, string> GetPlayerIdNameDictionary()
