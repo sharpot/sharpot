@@ -445,8 +445,18 @@ namespace SharpOT
                 Player.Tile.Location
             );
 
-            // Inventory
-            //message.AddBytes("78 01 1A 0D 78 03 26 0B 78 04 1E 0D 78 05 52 0D 78 06 D3 0C 78 08 E0 0D 78 0A 9B 0D".ToBytesAsHex());
+            for (SlotType i = SlotType.First; i < SlotType.Last; i++)
+            {
+                Item item = Player.Inventory.GetItemInSlot(i);
+                if (item != null)
+                {
+                    InventorySetSlotPacket.Add(
+                        message,
+                        i,
+                        item
+                    );
+                }
+            }
 
             WorldLightPacket.Add(
                 message,
@@ -596,6 +606,33 @@ namespace SharpOT
             );
 
             Send(outMessage);
+        }
+
+        public void SendSlotUpdate(SlotType slot)
+        {
+            if (slot < SlotType.First || slot > SlotType.Last) return;
+
+            Item item = Player.Inventory.GetItemInSlot(slot);
+
+            NetworkMessage message = new NetworkMessage();
+
+            if (item == null)
+            {
+                InventoryClearSlotPacket.Add(
+                    message,
+                    slot
+                );
+            }
+            else
+            {
+                InventorySetSlotPacket.Add(
+                    message,
+                    slot,
+                    item
+                );
+            }
+
+            Send(message);
         }
 
         public void SendCreatureChangeOutfit(Creature creature)

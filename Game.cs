@@ -156,6 +156,7 @@ namespace SharpOT
 
             // TODO: parse moving to/from inventory
             // TODO: check if item is moveable
+
             Tile fromTile = Map.GetTile(fromLocation);
             Thing thing = fromTile.GetThingAtStackPosition(fromStackPosition);
             Tile toTile = Map.GetTile(toLocation);

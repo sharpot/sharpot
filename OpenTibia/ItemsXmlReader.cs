@@ -220,6 +220,9 @@ namespace SharpOT.OpenTibia
                                         case "necklace":
                                             info.SlotType = SlotType.Neck;
                                             break;
+                                        case "ring":
+                                            info.SlotType = SlotType.Ring;
+                                            break;
                                     }
                                     break;
                                 case "ammotype":

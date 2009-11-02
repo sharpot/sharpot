@@ -176,6 +176,7 @@
     <Compile Include="Data\Scripts\OnlineCommand.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Inventory.cs" />
     <Compile Include="Items\Depot.cs" />
     <Compile Include="Items\MagicField.cs" />
     <Compile Include="Items\Door.cs" />
@@ -190,6 +191,8 @@
     <Compile Include="Packets\Client\AutoWalkPacket.cs" />
     <Compile Include="Packets\Client\ItemUsePacket.cs" />
     <Compile Include="Packets\Client\ItemMovePacket.cs" />
+    <Compile Include="Packets\Server\InventoryClearSlotPacket.cs" />
+    <Compile Include="Packets\Server\InventorySetSlotPacket.cs" />
     <Compile Include="Packets\Server\TileAddItemPacket.cs" />
     <Compile Include="Town.cs" />
     <Compile Include="Util\Scheduler.cs" />

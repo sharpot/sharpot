@@ -5,7 +5,6 @@ namespace SharpOT
 {
     public class Location
     {
-
         public int X { get; set; }
         public int Y { get; set; }
         public int Z { get; set; }
@@ -22,6 +21,40 @@ namespace SharpOT
             X = loc.X;
             Y = loc.Y;
             Z = loc.Z;
+        }
+
+        public ItemLocationType GetItemLocationType()
+        {
+            if (X == 0xFFFF)
+            {
+                if ((Y & 0x40) != 0)
+                {
+                    return ItemLocationType.Container;
+                }
+                else
+                {
+                    return ItemLocationType.Slot;
+                }
+            }
+            else
+            {
+                return ItemLocationType.Ground;
+            }
+        }
+
+        public SlotType GetSlot()
+        {
+            return (SlotType)Convert.ToByte(Y);
+        }
+
+        public byte GetContainer()
+        {
+            return Convert.ToByte(Y);
+        }
+
+        public byte GetContainerPosition()
+        {
+            return Convert.ToByte(Z);
         }
 
         public override bool Equals(object other)

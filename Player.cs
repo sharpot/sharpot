@@ -7,6 +7,7 @@ namespace SharpOT
     public class Player : Creature
     {
         public Connection Connection { get; set; }
+        public Inventory Inventory { get; private set; }
         public Gender Gender { get; set; }
         public Vocation Vocation { get; set; }
         public ushort Level { get; set; }
@@ -25,6 +26,7 @@ namespace SharpOT
 
         public Player()
         {
+            Inventory = new Inventory();
             Gender = Gender.Male;
             Vocation = Vocation.None;
             ChannelList = new List<Channel>();

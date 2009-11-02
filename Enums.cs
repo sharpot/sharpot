@@ -34,7 +34,7 @@ namespace SharpOT
         ContainerUpdateItem = 0x71,
         ContainerRemoveItem = 0x72,
         InventorySetSlot = 0x78,
-        InventoryResetSlot = 0x79,
+        InventoryClearSlot = 0x79,
         ShopWindowOpen = 0x7A,
         ShopSaleGoldCount = 0x7B,
         ShopWindowClose = 0x7C,
@@ -458,9 +458,9 @@ namespace SharpOT
         Unknown = 0xFFFF
     }
 
-    public enum SlotType
+    public enum SlotType : byte
     {
-        None,
+        None = 0,
         Head,
         Neck,
         Back,
@@ -471,13 +471,22 @@ namespace SharpOT
         Feet,
         Ring,
         Ammo,
-        Depot,
-        TwoHanded
+        Depot, // Internal only
+        TwoHanded, // Internal only
+        First = Head,
+        Last = Ammo
     }
 
     #endregion
 
     #region Items
+
+    public enum ItemLocationType
+    {
+        Container,
+        Slot,
+        Ground
+    }
 
     public enum ItemGroup
     {
