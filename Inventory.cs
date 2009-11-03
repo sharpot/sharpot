@@ -7,11 +7,21 @@ namespace SharpOT
 {
     public class Inventory
     {
-        List<Item> slotItems = new List<Item>((int)SlotType.Last + 1);
+        Item[] slotItems = new Item[(int)SlotType.Last + 1];
 
         public Item GetItemInSlot(SlotType fromSlot)
         {
-            return slotItems[(int)fromSlot];
+            return slotItems[(int)fromSlot - 1];
+        }
+
+        public void SetItemInSlot(SlotType slot, Item item)
+        {
+            slotItems[(int)slot - 1] = item;
+        }
+
+        public void ClearSlot(SlotType slot)
+        {
+            slotItems[(int)slot - 1] = null;
         }
 
         public Item FindItem(uint id)
