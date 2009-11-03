@@ -148,61 +148,93 @@ namespace SharpOT
 
         public void ItemMove(Player mover, ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
         {
-            if (mover != null && !mover.Tile.Location.IsNextTo(fromLocation))
-            {
-                // TODO: move the player to the item
-                return;
-            }
-
+            // ground -> ground
+            // ground -> slot
+            // ground -> container
+            // slot -> slot
+            // slot -> ground
+            // slot -> container
+            Thing thing = null;
+            
             // TODO: parse moving to/from inventory
             // TODO: check if item is moveable
-
-            Tile fromTile = Map.GetTile(fromLocation);
-            Thing thing = fromTile.GetThingAtStackPosition(fromStackPosition);
-            Tile toTile = Map.GetTile(toLocation);
-
-            if (toTile.FloorChange != FloorChangeDirection.None)
+            if (fromLocation.GetItemLocationType() == ItemLocationType.Ground)
             {
-                toLocation = FloorChangeLocationOffset(toTile.FloorChange, toLocation);
-                toTile = Map.GetTile(toLocation);
-            }
-
-            if (thing is Item)
-            {
-                // TODO: move only count
-                // TODO: check line of throwing
-                Item item = (Item)thing;
-                fromTile.Items.Remove(item);
-                toTile.Items.Add(item);
-
-                foreach (var player in GetPlayers())
+                if (mover != null && !mover.Tile.Location.IsNextTo(fromLocation))
                 {
-                    bool canSee = false;
-                    if (player.Tile.Location.CanSee(fromLocation))
-                    {
-                        player.Connection.BeginTransaction();
-                        player.Connection.SendTileRemoveThing(fromLocation, fromStackPosition);
-                        canSee = true;
-                    }
-                    if (player.Tile.Location.CanSee(toLocation))
-                    {
-                        player.Connection.BeginTransaction();
-                        player.Connection.SendTileAddItem(toLocation, toTile.GetStackPosition(item), item);
-                        canSee = true;
-                    }
-                    if (canSee) player.Connection.CommitTransaction();
-                }
-            }
-            else if (thing is Creature)
-            {
-                if (!toLocation.IsNextTo(fromLocation))
-                {
-                    // TODO: send a message, can't move here
+                    // TODO: move the player to the item
                     return;
                 }
 
-                // TODO: walk delays
-                CreatureMove((Creature)thing, toLocation, false);
+                Tile fromTile = Map.GetTile(fromLocation);
+                thing = fromTile.GetThingAtStackPosition(fromStackPosition);
+
+                if (thing is Creature && 
+                    toLocation.GetItemLocationType() != ItemLocationType.Ground)
+                    return;
+
+                if (thing is Item)
+                    fromTile.Items.Remove((Item)thing);
+
+                foreach (var spec in GetSpectatorPlayers(fromLocation))
+                {
+                    spec.Connection.SendTileRemoveThing(fromLocation, fromStackPosition);
+                }
+            }
+            else if (fromLocation.GetItemLocationType() == ItemLocationType.Slot)
+            {
+                SlotType fromSlot = fromLocation.GetSlot();
+                thing = mover.Inventory.GetItemInSlot(fromSlot);
+                mover.Inventory.ClearSlot(fromSlot);
+                mover.Connection.SendSlotUpdate(fromSlot);
+            }
+
+            if (toLocation.GetItemLocationType() == ItemLocationType.Ground)
+            {
+                Tile toTile = Map.GetTile(toLocation);
+
+                if (toTile.FloorChange != FloorChangeDirection.None)
+                {
+                    toLocation = FloorChangeLocationOffset(toTile.FloorChange, toLocation);
+                    toTile = Map.GetTile(toLocation);
+                }
+
+                if (thing is Item)
+                {
+                    // TODO: move only count
+                    // TODO: check line of throwing
+                    Item item = (Item)thing;
+                    toTile.Items.Add(item);
+
+                    foreach (var player in GetSpectatorPlayers(toLocation))
+                    {
+                        player.Connection.SendTileAddItem(toLocation, toTile.GetStackPosition(item), item);
+                    }
+                }
+                else if (thing is Creature)
+                {
+                    if (!toLocation.IsNextTo(fromLocation))
+                    {
+                        // TODO: send a message, can't move here
+                        return;
+                    }
+
+                    // TODO: walk delays
+                    CreatureMove((Creature)thing, toLocation, false);
+                }
+            }
+            else if (toLocation.GetItemLocationType() == ItemLocationType.Slot)
+            {
+                if (thing is Item)
+                {
+                    SlotType toSlot = toLocation.GetSlot();
+                    Item currentItem = mover.Inventory.GetItemInSlot(toSlot);
+                    if (currentItem == null)
+                    {
+                        mover.Inventory.SetItemInSlot(toSlot, (Item)thing);
+                        mover.Connection.SendSlotUpdate(toSlot);
+                    }
+                }
             }
         }
 
