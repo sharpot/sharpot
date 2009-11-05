@@ -1054,8 +1054,11 @@ namespace SharpOT
         {
             if (walkDirections.Count > 0)
             {
-                Direction direction = walkDirections.Dequeue();
-                Game.CreatureWalk(Player, direction);
+                if (Player.LastStepTime + Player.GetStepDuration() < DateTime.Now.Ticks)
+                {
+                    Direction direction = walkDirections.Dequeue();
+                    Game.CreatureWalk(Player, direction);
+                }
                 if (walkDirections.Count > 0)
                 {
                     Scheduler.AddTask(

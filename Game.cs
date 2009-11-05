@@ -148,16 +148,8 @@ namespace SharpOT
 
         public void ItemMove(Player mover, ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
         {
-            // ground -> ground
-            // ground -> slot
-            // ground -> container
-            // slot -> slot
-            // slot -> ground
-            // slot -> container
             Thing thing = null;
-            
-            // TODO: parse moving to/from inventory
-            // TODO: check if item is moveable
+
             if (fromLocation.GetItemLocationType() == ItemLocationType.Ground)
             {
                 if (mover != null && !mover.Tile.Location.IsNextTo(fromLocation))
@@ -169,12 +161,10 @@ namespace SharpOT
                 Tile fromTile = Map.GetTile(fromLocation);
                 thing = fromTile.GetThingAtStackPosition(fromStackPosition);
 
-                if (thing is Creature && 
-                    toLocation.GetItemLocationType() != ItemLocationType.Ground)
+                if (CheckMoveTo(mover, thing, fromLocation, toLocation) <= 0)
                     return;
 
-                if (thing is Item)
-                    fromTile.Items.Remove((Item)thing);
+                fromTile.Items.Remove((Item)thing);
 
                 foreach (var spec in GetSpectatorPlayers(fromLocation))
                 {
@@ -185,8 +175,17 @@ namespace SharpOT
             {
                 SlotType fromSlot = fromLocation.GetSlot();
                 thing = mover.Inventory.GetItemInSlot(fromSlot);
+
+                if (CheckMoveTo(mover, thing, fromLocation, toLocation) <= 0)
+                    return;
+
                 mover.Inventory.ClearSlot(fromSlot);
                 mover.Connection.SendSlotUpdate(fromSlot);
+            }
+            else if (fromLocation.GetItemLocationType() == ItemLocationType.Container)
+            {
+                // TODO: handle containers
+                return;
             }
 
             if (toLocation.GetItemLocationType() == ItemLocationType.Ground)
@@ -235,6 +234,58 @@ namespace SharpOT
                         mover.Connection.SendSlotUpdate(toSlot);
                     }
                 }
+            }
+        }
+
+        private int CheckMoveTo(Player mover, Thing thing, Location fromLocation, Location toLocation)
+        {
+            if (thing is Item)
+            {
+                if (((Item)thing).Info.IsMoveable == false)
+                    return 0;
+            }
+            switch (toLocation.GetItemLocationType())
+            {
+                case ItemLocationType.Container:
+                    return 0;
+                case ItemLocationType.Slot:
+                    if (!(thing is Item)) return 0;
+                    Item item = (Item)thing;
+                    if (!CheckItemSlot(item, toLocation.GetSlot()))
+                        return 0;
+                    Item current = mover.Inventory.GetItemInSlot(toLocation.GetSlot());
+                    if (current == null)
+                    {
+                        if (item.Info.IsStackable)
+                            return item.Extra;
+                        else
+                            return 1;
+                    }
+                    else if (current.Info.IsStackable && current.Id == item.Id && current.Extra != 100)
+                    {
+                        return Math.Min(100 - current.Extra, item.Extra);
+                    }
+                    return 0;
+                case ItemLocationType.Ground:
+                    // TODO: check line of throwing
+                    if (thing is Creature && !fromLocation.IsNextTo(toLocation))
+                        return 0;
+                    return 1;
+                default:
+                    return 0;
+            }
+        }
+
+        private bool CheckItemSlot(Item item, SlotType slot)
+        {
+            switch (slot)
+            {
+                case SlotType.Ammo:
+                case SlotType.Left:
+                case SlotType.Right:
+                    return true;
+                default:
+                    return item.Info.SlotType == slot;
             }
         }
 
@@ -416,6 +467,16 @@ namespace SharpOT
         }
         public void CreatureWalk(Creature creature, Direction direction)
         {
+            creature.LastStepTime = DateTime.Now.Ticks;
+            if (direction > Direction.West) // moving diagonally
+            {
+                creature.LastStepCost = 2;
+            }
+            else
+            {
+                creature.LastStepCost = 1;
+            }
+
             CreatureMove(creature, creature.Tile.Location.Offset(direction), false);
         }
             
