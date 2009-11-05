@@ -803,12 +803,22 @@ namespace SharpOT
 
         public void PlayerLookAt(Player player, ushort id, Location location, byte stackPosition)
         {
-            if (player.Tile.Location.CanSee(location))
+            Thing thing = null;
+            switch (location.GetItemLocationType())
             {
-                Tile tile = Map.GetTile(location);
-                Thing thing = tile.GetThingAtStackPosition(stackPosition);
-                player.Connection.SendTextMessage(TextMessageType.DescriptionGreen, thing.GetLookAtString());
+                case ItemLocationType.Ground:
+                    if (player.Tile.Location.CanSee(location))
+                    {
+                        Tile tile = Map.GetTile(location);
+                        thing = tile.GetThingAtStackPosition(stackPosition);
+                    }
+                    break;
+                case ItemLocationType.Slot:
+                    thing = player.Inventory.GetItemInSlot(location.GetSlot());
+                    break;
             }
+            if (thing != null)
+                player.Connection.SendTextMessage(TextMessageType.DescriptionGreen, thing.GetLookAtString());
         }
 
         public long CheckAccount(Connection connection, string accountName, string password)
