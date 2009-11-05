@@ -27,6 +27,9 @@ namespace SharpOT
             Skull = Skull.None;
             Party = Party.None;
             Speed = 200;
+
+            LastStepTime = 0;
+            LastStepCost = 1;
         }
 
         #endregion
@@ -61,6 +64,8 @@ namespace SharpOT
         public ushort Speed { get; set; }
         public Tile Tile { get; set; }
         public Game Game { get; set; }
+        public long LastStepTime { get; set; }
+        public byte LastStepCost { get; set; }
 
         public bool IsPlayer
         {
@@ -99,7 +104,7 @@ namespace SharpOT
                 }
             }
 
-            return duration; // TODO: * lastStepCost
+            return duration * LastStepCost;
         }
 
         public override string GetLookAtString()
