@@ -26,8 +26,6 @@ namespace SharpOT.OpenTibia
                     continue;
                     // TODO: Unknown item
                 }
-                info.Article = "an";
-                info.Name = "item of type " + id;
                 foreach (XmlAttribute attr in node.Attributes)
                 {
                     switch (attr.Name.ToLower())
@@ -43,6 +41,13 @@ namespace SharpOT.OpenTibia
                             break;
                     }
                 }
+
+                if (info.Name == null)
+                {
+                    info.Article = "an";
+                    info.Name = "item of type " + id;
+                }
+
                 if (node.HasChildNodes)
                 {
                     foreach (XmlNode attrNode in node.ChildNodes)
