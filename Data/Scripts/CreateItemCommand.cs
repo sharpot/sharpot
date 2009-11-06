@@ -38,7 +38,7 @@ public class CreateItemCommand : ICommand
                     throw new ArgumentException();
             }
 
-            Item item = new Item(itemId);
+            Item item = Item.Create(itemId);
 
             game.TileAddItem(player.Tile.Location, item);
         }

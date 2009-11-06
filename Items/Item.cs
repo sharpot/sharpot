@@ -16,9 +16,21 @@ namespace SharpOT
 
         }
 
-        public Item(ushort id)
+        protected Item(ushort id)
         {
             Id = id;
+        }
+
+        public static Item Create(ushort id)
+        {
+            ItemInfo info = ItemInfo.GetItemInfo(id);
+            switch (info.Group)
+            {
+                case ItemGroup.Container:
+                    return new Container(id);
+                default:
+                    return new Item(id);
+            }
         }
 
         #endregion

@@ -394,6 +394,23 @@ namespace SharpOT
 
         #region Send
 
+        public void SendContainerOpen(Container container, byte containerId)
+        {
+            NetworkMessage message = new NetworkMessage();
+
+            ContainerOpenPacket.Add(
+                message,
+                containerId,
+                container.Info.SpriteId,
+                "Container",
+                container.Volume,
+                false,
+                container.Items
+            );
+
+            Send(message);
+        }
+
         private void SendConnectionPacket()
         {
             NetworkMessage message = new NetworkMessage();

@@ -128,22 +128,49 @@ namespace SharpOT
 
         public void ItemUse(Player user, ushort spriteId, Location fromLocation, byte fromStackPosition, byte index)
         {
-            if (user != null && !user.Tile.Location.IsNextTo(fromLocation))
+            if (fromLocation.GetItemLocationType() == ItemLocationType.Ground)
             {
-                // TODO: move the player
-                return;
+                if (user != null && !user.Tile.Location.IsNextTo(fromLocation))
+                {
+                    // TODO: move the player
+                    return;
+                }
+
+                Tile fromTile = Map.GetTile(fromLocation);
+
+                // TODO: read teleport location from map for ladders
+
+                if (fromTile.FloorChange != FloorChangeDirection.None)
+                {
+                    Location moveToLocation = FloorChangeLocationOffset(fromTile.FloorChange, fromLocation);
+                    CreatureMove(user, moveToLocation, true);
+                    return;
+                }
             }
 
-            Tile toTile = Map.GetTile(fromLocation);
+            Item item = GetItemAtLocation(user, fromLocation, fromStackPosition);
 
-            // TODO: read teleport location from map for ladders
+            if (item == null) return;
 
-            if (toTile.FloorChange != FloorChangeDirection.None)
+            if (item is Container)
             {
-                Location moveToLocation = FloorChangeLocationOffset(toTile.FloorChange, fromLocation);
-                Tile moveToTile = Map.GetTile(moveToLocation);
-                CreatureMove(user, moveToLocation, true);
+                Container container = (Container)item;
+                byte containerId = user.Inventory.AddOpenContainer(container);
+                user.Connection.SendContainerOpen(container, containerId);
             }
+        }
+
+        private Item GetItemAtLocation(Player player, Location location, byte stackPosition)
+        {
+            switch (location.GetItemLocationType())
+            {
+                case ItemLocationType.Ground:
+                    Thing thing = Map.GetTile(location).GetThingAtStackPosition(stackPosition);
+                    return thing as Item;
+                case ItemLocationType.Slot:
+                    return player.Inventory.GetItemInSlot(location.GetSlot());
+            }
+            return null;
         }
 
         public void ItemMove(Player mover, ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
@@ -487,7 +514,8 @@ namespace SharpOT
             byte fromStackPosition = fromTile.GetStackPosition(creature);
             Tile toTile = Map.GetTile(toLocation);
 
-            if (!teleport && toTile.FloorChange != FloorChangeDirection.None)
+            if (!teleport && toTile.FloorChange != FloorChangeDirection.None &&
+                toTile.FloorChange != FloorChangeDirection.Up) // Ladders must be used
             {
                 if (toTile != null && toTile.IsWalkable)
                 {
