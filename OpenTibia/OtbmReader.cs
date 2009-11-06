@@ -122,12 +122,9 @@ namespace SharpOT.OpenTibia
                     tile.Location = new Location(tileX, tileY, tileZ);
 
                     // TODO: houses
-                    bool isHouseTile = false;
-
                     if (nodeTile.Type == (long)OtbmNodeType.HouseTile)
                     {
                         uint houseId = props.ReadUInt32();
-                        isHouseTile = true;
                     }
 
                     byte attribute;
@@ -167,7 +164,7 @@ namespace SharpOT.OpenTibia
                             case OtbmAttribute.Item:
                             {
                                 ushort itemId = props.ReadUInt16();
-                                Item item = new Item(itemId);
+                                Item item = Item.Create(itemId);
 
                                 // TODO: if isHouseTile && !item.Info.IsMoveable
 
@@ -198,7 +195,7 @@ namespace SharpOT.OpenTibia
 
                             // TODO: subclass item, different deserializations
                             // for different types
-                            Item item = new Item(itemId);
+                            Item item = Item.Create(itemId);
                             if (item.Info.Group == ItemGroup.Ground)
                             {
                                 tile.Ground = item;

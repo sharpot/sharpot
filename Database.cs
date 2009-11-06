@@ -698,7 +698,7 @@ namespace SharpOT
                 int x = reader.GetInt32(0) - 32000;
                 int y = reader.GetInt32(1) - 32000;
                 int z = reader.GetInt32(2);
-                tile.Ground = new Item((ushort)reader.GetInt16(3));
+                tile.Ground = Item.Create((ushort)reader.GetInt16(3));
                 Location location = new Location(x, y, z);
                 map.SetTile(location, tile);
             }
@@ -719,7 +719,7 @@ namespace SharpOT
                 Tile tile = map.GetTile(x, y, z);
                 if (tile != null)
                 {
-                    Item item = new Item(id);
+                    Item item = Item.Create(id);
                     item.Extra = extra;
                     tile.Items.Add(item);
                 }

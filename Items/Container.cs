@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SharpOT
 {
-    class Container : Item
+    public class Container : Item
     {
         public byte Volume { get; private set; }
         public List<Item> Items { get; private set; }
