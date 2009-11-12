@@ -316,6 +316,12 @@ namespace SharpOT
             }
         }
 
+        public void ContainerClose(Player player, byte containerIndex)
+        {
+            player.Inventory.CloseContainer(containerIndex);
+            player.Connection.SendContainerClose(containerIndex);
+        }
+
         public void WalkCancel(Player player)
         {
             if (BeforeWalkCancel != null)

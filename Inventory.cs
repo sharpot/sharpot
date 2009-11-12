@@ -7,7 +7,7 @@ namespace SharpOT
 {
     public class Inventory
     {
-        List<Container> openContainers = new List<Container>();
+        Container[] openContainers = new Container[Constants.MaxOpenContainers];
         Item[] slotItems = new Item[(int)SlotType.Last + 1];
 
         public Item GetItemInSlot(SlotType fromSlot)
@@ -27,8 +27,22 @@ namespace SharpOT
 
         public byte AddOpenContainer(Container container)
         {
-            openContainers.Add(container);
-            return (byte)(openContainers.Count - 1);
+            byte i;
+            for (i = 0; i < Constants.MaxOpenContainers; i++)
+            {
+                if (openContainers[i] == null)
+                {
+                    openContainers[i] = container;
+                    return i;
+                }
+            }
+            // TODO: handle more than 16, replace last one
+            return i;
+        }
+
+        public void CloseContainer(byte i)
+        {
+            openContainers[i] = null;
         }
 
         public Item FindItem(uint id)
