@@ -25,7 +25,7 @@ namespace SharpOT
             slotItems[(int)slot - 1] = null;
         }
 
-        public byte AddOpenContainer(Container container)
+        public byte OpenContainer(Container container)
         {
             byte i;
             for (i = 0; i < Constants.MaxOpenContainers; i++)
@@ -43,6 +43,11 @@ namespace SharpOT
         public void CloseContainer(byte i)
         {
             openContainers[i] = null;
+        }
+
+        public Container GetContainer(byte i)
+        {
+            return openContainers[i];
         }
 
         public Item FindItem(uint id)

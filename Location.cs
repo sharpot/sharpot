@@ -49,7 +49,7 @@ namespace SharpOT
 
         public byte GetContainer()
         {
-            return Convert.ToByte(Y);
+            return Convert.ToByte(Y - 0x40);
         }
 
         public byte GetContainerPosition()

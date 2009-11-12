@@ -5,6 +5,7 @@ namespace SharpOT
 {
     public abstract class Thing
     {
+        public Location Location { get; set; }
         protected abstract ushort GetThingId();
 
         public abstract string GetLookAtString();
