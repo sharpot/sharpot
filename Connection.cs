@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net.Sockets;
-using SharpOT.Util;
 using SharpOT.Packets;
+using SharpOT.Util;
 
 namespace SharpOT
 {
@@ -426,6 +424,46 @@ namespace SharpOT
             ContainerClosePacket.Add(
                 message,
                 containerId
+            );
+
+            Send(message);
+        }
+
+        public void SendContainerAddItem(byte containerIndex, Item item)
+        {
+            NetworkMessage message = new NetworkMessage();
+
+            ContainerAddItemPacket.Add(
+                message,
+                containerIndex,
+                item
+            );
+
+            Send(message);
+        }
+
+        public void SendContainerRemoveItem(byte containerIndex, byte containerPosition)
+        {
+            NetworkMessage message = new NetworkMessage();
+
+            ContainerRemoveItemPacket.Add(
+                message,
+                containerIndex,
+                containerPosition
+            );
+
+            Send(message);
+        }
+
+        public void SendContainerUpdateItem(byte containerIndex, byte containerPosition, Item item)
+        {
+            NetworkMessage message = new NetworkMessage();
+
+            ContainerUpdateItemPacket.Add(
+                message,
+                containerIndex,
+                containerPosition,
+                item
             );
 
             Send(message);

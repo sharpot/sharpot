@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using SharpOT.Packets;
-using System.Data.SQLite;
-using System.Net;
-using System.Data.Common;
 using SharpOT.Scripting;
 
 namespace SharpOT
@@ -155,7 +150,7 @@ namespace SharpOT
             if (item is Container)
             {
                 Container container = (Container)item;
-                byte containerId = user.Inventory.AddOpenContainer(container);
+                byte containerId = user.Inventory.OpenContainer(container);
                 user.Connection.SendContainerOpen(container, containerId);
             }
         }
@@ -211,8 +206,16 @@ namespace SharpOT
             }
             else if (fromLocation.GetItemLocationType() == ItemLocationType.Container)
             {
-                // TODO: handle containers
-                return;
+                byte containerIndex = fromLocation.GetContainer();
+                byte containerPos = fromLocation.GetContainerPosition();
+                Container container = mover.Inventory.GetContainer(containerIndex);
+                if (container == null || container.Items.Count < containerPos + 1)
+                    return;
+                thing = container.Items[containerPos];
+                if (CheckMoveTo(mover, thing, fromLocation, toLocation) <= 0)
+                    return;
+                container.Items.Remove((Item)thing);
+                mover.Connection.SendContainerRemoveItem(containerIndex, containerPos);
             }
 
             if (toLocation.GetItemLocationType() == ItemLocationType.Ground)
@@ -262,10 +265,23 @@ namespace SharpOT
                     }
                 }
             }
+            else if (toLocation.GetItemLocationType() == ItemLocationType.Container)
+            {
+                Item item = (Item)thing;
+                byte containerIndex = toLocation.GetContainer();
+                byte containerPos = toLocation.GetContainerPosition();
+                var container = mover.Inventory.GetContainer(containerIndex);
+                if (container != null)
+                {
+                    container.Items.Add(item);
+                    mover.Connection.SendContainerAddItem(containerIndex, item);
+                }
+            }
         }
 
         private int CheckMoveTo(Player mover, Thing thing, Location fromLocation, Location toLocation)
         {
+            Item item = thing as Item;
             if (thing is Item)
             {
                 if (((Item)thing).Info.IsMoveable == false)
@@ -274,10 +290,12 @@ namespace SharpOT
             switch (toLocation.GetItemLocationType())
             {
                 case ItemLocationType.Container:
-                    return 0;
+                    if (item == null) return 0;
+                    Container container = mover.Inventory.GetContainer(toLocation.GetContainer());
+                    if (container == item) return 0;
+                    return 1;
                 case ItemLocationType.Slot:
-                    if (!(thing is Item)) return 0;
-                    Item item = (Item)thing;
+                    if (item == null) return 0;
                     if (!CheckItemSlot(item, toLocation.GetSlot()))
                         return 0;
                     Item current = mover.Inventory.GetItemInSlot(toLocation.GetSlot());
