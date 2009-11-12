@@ -221,7 +221,9 @@ namespace SharpOT
                 //case ClientPacketType.Follow:
                 //case ClientPacketType.CancelMove:
                 //case ClientPacketType.ItemUseBattlelist:
-                //case ClientPacketType.ContainerClose:
+                case ClientPacketType.ContainerClose:
+                    ParseContainerClose(message);
+                    break;
                 //case ClientPacketType.ContainerOpenParent:
                 case ClientPacketType.TurnNorth:
                     ParseTurn(Direction.North);
@@ -299,6 +301,12 @@ namespace SharpOT
             AutoWalkPacket packet = AutoWalkPacket.Parse(message);
             walkDirections = packet.Directions;
             DoAutoWalk();
+        }
+
+        public void ParseContainerClose(NetworkMessage message)
+        {
+            ContainerClosePacket packet = ContainerClosePacket.Parse(message);
+            Game.ContainerClose(Player, packet.ContainerIndex);
         }
 
         public void ParseItemUse(NetworkMessage message)
@@ -406,6 +414,18 @@ namespace SharpOT
                 container.Volume,
                 false,
                 container.Items
+            );
+
+            Send(message);
+        }
+
+        public void SendContainerClose(byte containerId)
+        {
+            NetworkMessage message = new NetworkMessage();
+
+            ContainerClosePacket.Add(
+                message,
+                containerId
             );
 
             Send(message);
