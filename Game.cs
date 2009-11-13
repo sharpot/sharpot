@@ -186,7 +186,7 @@ namespace SharpOT
                 if (CheckMoveTo(mover, thing, fromLocation, toLocation) <= 0)
                     return;
 
-                fromTile.Items.Remove((Item)thing);
+                fromTile.RemoveItem((Item)thing);
 
                 foreach (var spec in GetSpectatorPlayers(fromLocation))
                 {
@@ -233,7 +233,7 @@ namespace SharpOT
                     // TODO: move only count
                     // TODO: check line of throwing
                     Item item = (Item)thing;
-                    toTile.Items.Add(item);
+                    toTile.AddItem(item);
 
                     foreach (var player in GetSpectatorPlayers(toLocation))
                     {
@@ -907,7 +907,7 @@ namespace SharpOT
         public void TileAddItem(Location location, Item item)
         {
             Tile tile = Map.GetTile(location);
-            tile.Items.Add(item);
+            tile.AddItem(item);
             byte stackPosition = tile.GetStackPosition(item);
 
             foreach (Player player in GetSpectatorPlayers(location))
