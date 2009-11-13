@@ -8,7 +8,8 @@ namespace SharpOT
     {
         public Location Location { get; set; }
         public Item Ground { get; set; }
-        public List<Item> Items { get; set; }
+        public IEnumerable<Item> Items { get { return items.AsEnumerable(); } }
+        public int ItemCount { get { return items.Count; } }
         public List<Creature> Creatures { get; set; }
 
         public bool IsProtectionZone = false;
@@ -17,14 +18,24 @@ namespace SharpOT
         public bool IsNoLogoutZone = false;
         public bool IsRefreshZone = false;
 
+        private LinkedList<Item> items = new LinkedList<Item>();
+
         public Tile()
         {
-            Items = new List<Item>();
             Creatures = new List<Creature>();
-            IsWalkable = true;
         }
 
-        public bool IsWalkable { get; set; }
+        public void AddItem(Item item)
+        {
+            items.AddFirst(item);
+        }
+
+        public void RemoveItem(Item item)
+        {
+            items.Remove(item);
+        }
+
+        public bool IsWalkable { get { return Ground != null && !Ground.Info.IsBlocking; } }
 
         public FloorChangeDirection FloorChange
         {
@@ -72,7 +83,7 @@ namespace SharpOT
                 }
             }
 
-            if (Items.Count > 0)
+            if (ItemCount > 0)
             {
                 foreach (Item item in GetTopItems())
                 {
@@ -96,7 +107,7 @@ namespace SharpOT
                 }
             }
 
-            if (Items.Count > 0)
+            if (ItemCount > 0)
             {
                 foreach (Item item in GetDownItems())
                 {
@@ -124,7 +135,7 @@ namespace SharpOT
                 ++n;
             }
 
-            if (Items.Count > 0)
+            if (ItemCount > 0)
             {
                 foreach (Item item in GetTopItems())
                 {
@@ -148,7 +159,7 @@ namespace SharpOT
                 }
             }
 
-            if (Items.Count > 0)
+            if (ItemCount > 0)
             {
                 foreach (Item item in GetDownItems())
                 {

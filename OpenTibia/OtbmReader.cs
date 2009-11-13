@@ -174,7 +174,7 @@ namespace SharpOT.OpenTibia
                                 }
                                 else
                                 {
-                                    tile.Items.Add(item);
+                                    tile.AddItem(item);
                                 }
                                 break;
                             }
@@ -202,7 +202,7 @@ namespace SharpOT.OpenTibia
                             }
                             else
                             {
-                                tile.Items.Add(item);
+                                tile.AddItem(item);
                             }
                         }
                         else

@@ -721,7 +721,7 @@ namespace SharpOT
                 {
                     Item item = Item.Create(id);
                     item.Extra = extra;
-                    tile.Items.Add(item);
+                    tile.AddItem(item);
                 }
             }
             reader.Close();
