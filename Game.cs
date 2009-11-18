@@ -209,12 +209,12 @@ namespace SharpOT
                 byte containerIndex = fromLocation.GetContainer();
                 byte containerPos = fromLocation.GetContainerPosition();
                 Container container = mover.Inventory.GetContainer(containerIndex);
-                if (container == null || container.Items.Count < containerPos + 1)
+                if (container == null || container.ItemCount < containerPos + 1)
                     return;
-                thing = container.Items[containerPos];
+                thing = container.GetItem(containerPos);
                 if (CheckMoveTo(mover, thing, fromLocation, toLocation) <= 0)
                     return;
-                container.Items.Remove((Item)thing);
+                container.RemoveItem(containerPos);
                 mover.Connection.SendContainerRemoveItem(containerIndex, containerPos);
             }
 
@@ -273,7 +273,7 @@ namespace SharpOT
                 var container = mover.Inventory.GetContainer(containerIndex);
                 if (container != null)
                 {
-                    container.Items.Add(item);
+                    container.AddItem(item);
                     mover.Connection.SendContainerAddItem(containerIndex, item);
                 }
             }
@@ -873,13 +873,33 @@ namespace SharpOT
                 player.Connection.SendTextMessage(TextMessageType.DescriptionGreen, thing.GetLookAtString());
         }
 
-        public long CheckAccount(Connection connection, string accountName, string password)
+        public long CheckLoginInfo(Connection connection, IAccountInfo info, bool isLoginProtocol)
         {
-            long accountId = Database.GetAccountId(accountName, password);
-            
-            if (accountId < 0)
+            long accountId = -1;
+            string disconnectReason = "";
+
+            if (info.Version != Properties.Settings.Default.ClientVersion)
             {
-                connection.SendDisconnectLogin("Account name or password incorrect.");
+                disconnectReason = String.Format(
+                    "You need client version {0} to connect to this server.",
+                    Properties.Settings.Default.ClientVersion);
+            }
+            else
+            {
+                accountId = Database.GetAccountId(info.AccountName, info.Password);
+
+                if (accountId < 0)
+                {
+                    disconnectReason = "Account name or password incorrect.";
+                }
+            }
+
+            if (disconnectReason.Length > 0)
+            {
+                if (isLoginProtocol)
+                    connection.SendDisconnectLogin(disconnectReason);
+                else
+                    connection.SendDisconnectGame(disconnectReason);
             }
 
             return accountId;

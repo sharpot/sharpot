@@ -61,6 +61,7 @@ namespace SharpOT
         public byte LightColor { get; set; }
         public Skull Skull { get; set; }
         public Party Party { get; set; }
+        public WarIcon War { get; set; }
         public ushort Speed { get; set; }
         public Tile Tile { get; set; }
         public Game Game { get; set; }

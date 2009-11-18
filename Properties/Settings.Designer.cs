@@ -142,5 +142,17 @@ namespace SharpOT.Properties {
                 this["SchemaFile"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("853")]
+        public uint ClientVersion {
+            get {
+                return ((uint)(this["ClientVersion"]));
+            }
+            set {
+                this["ClientVersion"] = value;
+            }
+        }
     }
 }

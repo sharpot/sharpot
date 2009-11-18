@@ -32,5 +32,8 @@
     <Setting Name="SchemaFile" Type="System.String" Scope="User">
       <Value Profile="(Default)">Data\sharpot.sql</Value>
     </Setting>
+    <Setting Name="ClientVersion" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">853</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
