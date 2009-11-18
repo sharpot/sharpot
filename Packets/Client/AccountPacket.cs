@@ -3,14 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+namespace SharpOT
+{
+    public interface IAccountInfo
+    {
+        ushort Os { get; set; }
+        ushort Version { get; set; }
+        string AccountName { get; set; }
+        string Password { get; set; }
+    }
+}
+
 namespace SharpOT.Packets
 {
-    public class AccountPacket : Packet
+    public class AccountPacket : Packet, IAccountInfo
     {
         public ushort Os { get; set; }
         public ushort Version { get; set; }
         public uint[] XteaKey { get; set; }
-        public string Name { get; set; }
+        public string AccountName { get; set; }
         public string Password { get; set; }
 
         public static AccountPacket Parse(NetworkMessage message)
@@ -34,7 +45,7 @@ namespace SharpOT.Packets
             packet.XteaKey[2] = message.GetUInt32();
             packet.XteaKey[3] = message.GetUInt32();
 
-            packet.Name = message.GetString(); // account name
+            packet.AccountName = message.GetString(); // account name
             packet.Password = message.GetString(); // password
 
             return packet;

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SharpOT.Packets
 {
-    public class LoginPacket : Packet
+    public class LoginPacket : Packet, IAccountInfo
     {
         public ushort Os { get; set; }
         public ushort Version { get; set; }

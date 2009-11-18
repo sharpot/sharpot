@@ -8,13 +8,33 @@ namespace SharpOT
     public class Container : Item
     {
         public byte Volume { get; private set; }
-        public List<Item> Items { get; private set; }
-
+        public IEnumerable<Item> Items { get { return items.AsEnumerable(); } }
+        public byte ItemCount = 0;
+        private List<Item> items = new List<Item>();
         public Container(ushort id)
             : base(id)
         {
             Volume = Info.Volume;
-            Items = new List<Item>(Volume);
+        }
+
+        public void AddItem(Item item)
+        {
+            items.Insert(0, item);
+            ++ItemCount;
+        }
+
+        public void RemoveItem(byte containerPos)
+        {
+            items.RemoveAt(containerPos);
+            --ItemCount;
+        }
+
+        public Item GetItem(byte containerPos)
+        {
+            if (containerPos <= ItemCount)
+                return null;
+                
+            return items[containerPos];
         }
 
         public override double GetWeight()

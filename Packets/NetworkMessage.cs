@@ -232,6 +232,11 @@ namespace SharpOT.Packets
             AddUInt16(creature.Speed);
             AddByte((byte)creature.Skull);
             AddByte((byte)creature.Party);
+
+            if (Properties.Settings.Default.ClientVersion >= 853)
+            {
+                AddByte((byte)creature.War);
+            }
         }
 
         public void AddItem(Item item)

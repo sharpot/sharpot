@@ -331,6 +331,14 @@ namespace SharpOT
         LeaderNoSharedExp = 10
     }
 
+    public enum WarIcon
+    {
+        None = 0,
+        Blue = 1,
+        Green = 2,
+        Red = 3
+    }
+
     public enum Gender : byte
     {
         Male,

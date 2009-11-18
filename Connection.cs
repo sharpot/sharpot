@@ -87,7 +87,7 @@ namespace SharpOT
                 AccountPacket accountPacket = AccountPacket.Parse(inMessage);
                 xteaKey = accountPacket.XteaKey;
 
-                long accountId = Game.CheckAccount(this, accountPacket.Name, accountPacket.Password);
+                long accountId = Game.CheckLoginInfo(this, accountPacket, true);
 
                 if (accountId >= 0)
                 {
@@ -105,8 +105,11 @@ namespace SharpOT
             {
                 ParseLoginPacket(inMessage);
 
-                stream.BeginRead(inMessage.Buffer, 0, 2,
-                    new AsyncCallback(ClientReadCallBack), null);
+                if (stream.CanRead)
+                {
+                    stream.BeginRead(inMessage.Buffer, 0, 2,
+                        new AsyncCallback(ClientReadCallBack), null);
+                }
             }
         }
 
@@ -169,7 +172,7 @@ namespace SharpOT
             LoginPacket loginPacket = LoginPacket.Parse(message);
             xteaKey = loginPacket.XteaKey;
 
-            long accountId = Game.CheckAccount(this, loginPacket.AccountName, loginPacket.Password);
+            long accountId = Game.CheckLoginInfo(this, loginPacket, false);
 
             if (accountId >= 0)
             {
