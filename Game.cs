@@ -150,8 +150,25 @@ namespace SharpOT
             if (item is Container)
             {
                 Container container = (Container)item;
-                byte containerId = user.Inventory.OpenContainer(container);
-                user.Connection.SendContainerOpen(container, containerId);
+                int existingId = user.Inventory.GetContainerId(container);
+                if (existingId >= 0)
+                {
+                    user.Inventory.CloseContainer((byte)existingId);
+                    user.Connection.SendContainerClose((byte)existingId);
+                }
+                else
+                {
+                    byte containerId;
+                    if (fromLocation.GetItemLocationType() == ItemLocationType.Ground)
+                    {
+                        containerId = user.Inventory.OpenContainer(container, fromLocation);
+                    }
+                    else
+                    {
+                        containerId = user.Inventory.OpenContainer(container);
+                    }
+                    user.Connection.SendContainerOpen(container, containerId);
+                }
             }
         }
 
@@ -208,7 +225,7 @@ namespace SharpOT
             {
                 byte containerIndex = fromLocation.GetContainer();
                 byte containerPos = fromLocation.GetContainerPosition();
-                Container container = mover.Inventory.GetContainer(containerIndex);
+                Container container = mover.Inventory.GetContainer(containerIndex).Container;
                 if (container == null || container.ItemCount < containerPos + 1)
                     return;
                 thing = container.GetItem(containerPos);
@@ -273,7 +290,7 @@ namespace SharpOT
                 var container = mover.Inventory.GetContainer(containerIndex);
                 if (container != null)
                 {
-                    container.AddItem(item);
+                    container.Container.AddItem(item);
                     mover.Connection.SendContainerAddItem(containerIndex, item);
                 }
             }
@@ -291,8 +308,8 @@ namespace SharpOT
             {
                 case ItemLocationType.Container:
                     if (item == null) return 0;
-                    Container container = mover.Inventory.GetContainer(toLocation.GetContainer());
-                    if (container == item) return 0;
+                    Container container = mover.Inventory.GetContainer(toLocation.GetContainer()).Container;
+                    if (item == container) return 0;
                     return 1;
                 case ItemLocationType.Slot:
                     if (item == null) return 0;
@@ -580,6 +597,17 @@ namespace SharpOT
             // TODO: actually check if it is walkable
             if (toTile != null && toTile.IsWalkable)
             {
+                Player mover = creature as Player;
+                if (mover != null)
+                {
+                    mover.Connection.BeginTransaction();
+                    foreach (byte i in mover.Inventory.GetContainersToClose(toLocation))
+                    {
+                        mover.Inventory.CloseContainer(i);
+                        mover.Connection.SendContainerClose(i);
+                    }
+                }
+
                 fromTile.Creatures.Remove(creature);
                 toTile.Creatures.Add(creature);
                 creature.Tile = toTile;
@@ -873,7 +901,7 @@ namespace SharpOT
                 player.Connection.SendTextMessage(TextMessageType.DescriptionGreen, thing.GetLookAtString());
         }
 
-        public long CheckLoginInfo(Connection connection, IAccountInfo info, bool isLoginProtocol)
+        public long CheckLoginInfo(Connection connection, ILoginInfo info, bool isLoginProtocol)
         {
             long accountId = -1;
             string disconnectReason = "";
