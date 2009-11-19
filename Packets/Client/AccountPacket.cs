@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SharpOT
 {
-    public interface IAccountInfo
+    public interface ILoginInfo
     {
         ushort Os { get; set; }
         ushort Version { get; set; }
@@ -16,7 +16,7 @@ namespace SharpOT
 
 namespace SharpOT.Packets
 {
-    public class AccountPacket : Packet, IAccountInfo
+    public class AccountPacket : Packet, ILoginInfo
     {
         public ushort Os { get; set; }
         public ushort Version { get; set; }

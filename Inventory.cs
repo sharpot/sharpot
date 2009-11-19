@@ -5,9 +5,24 @@ using System.Text;
 
 namespace SharpOT
 {
+    public class InventoryContainer
+    {
+        public byte Id { get; set; }
+        public Location Location { get; set; }
+        public Container Parent { get; set; }
+        public Container Container { get; set; }
+        public InventoryContainer(Container cont, byte id, Location loc, Container par)
+        {
+            Container = cont;
+            Id = id;
+            Location = loc;
+            Parent = par;
+        }
+    }
+
     public class Inventory
     {
-        Container[] openContainers = new Container[Constants.MaxOpenContainers];
+        InventoryContainer[] openContainers = new InventoryContainer[Constants.MaxOpenContainers];
         Item[] slotItems = new Item[(int)SlotType.Last + 1];
 
         public Item GetItemInSlot(SlotType fromSlot)
@@ -25,14 +40,45 @@ namespace SharpOT
             slotItems[(int)slot - 1] = null;
         }
 
+        public int GetContainerId(Container container)
+        {
+            for (int i = 0; i < Constants.MaxOpenContainers; ++i)
+            {
+                if (openContainers[i] != null && openContainers[i].Container == container)
+                    return i;
+            }
+            return -1;
+        }
+
+        public IEnumerable<byte> GetContainersToClose(Location location)
+        {
+            return openContainers.Where(ic => ic != null && ic.Location != null && !ic.Location.IsNextTo(location))
+                .Select(ic => ic.Id);
+        }
+
         public byte OpenContainer(Container container)
+        {
+            return OpenContainer(container, null, null);
+        }
+
+        public byte OpenContainer(Container container, Location location)
+        {
+            return OpenContainer(container, location, null);
+        }
+
+        public byte OpenContainer(Container container, Container parent)
+        {
+            return OpenContainer(container, null, parent);
+        }
+
+        private byte OpenContainer(Container container, Location location, Container parent)
         {
             byte i;
             for (i = 0; i < Constants.MaxOpenContainers; i++)
             {
                 if (openContainers[i] == null)
                 {
-                    openContainers[i] = container;
+                    openContainers[i] = new InventoryContainer(container, i, location, parent);
                     return i;
                 }
             }
@@ -45,7 +91,7 @@ namespace SharpOT
             openContainers[i] = null;
         }
 
-        public Container GetContainer(byte i)
+        public InventoryContainer GetContainer(byte i)
         {
             return openContainers[i];
         }
