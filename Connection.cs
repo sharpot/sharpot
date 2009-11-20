@@ -413,7 +413,7 @@ namespace SharpOT
                 container.Info.SpriteId,
                 "Container",
                 container.Volume,
-                false,
+                container.Parent != null,
                 container.Items
             );
 

@@ -143,7 +143,7 @@ namespace SharpOT
                 }
             }
 
-            Item item = GetItemAtLocation(user, fromLocation, fromStackPosition);
+            Item item = GetThingAtLocation(user, fromLocation, fromStackPosition) as Item;
 
             if (item == null) return;
 
@@ -159,26 +159,39 @@ namespace SharpOT
                 else
                 {
                     byte containerId;
-                    if (fromLocation.GetItemLocationType() == ItemLocationType.Ground)
+                    switch (fromLocation.GetItemLocationType())
                     {
-                        containerId = user.Inventory.OpenContainer(container, fromLocation);
-                    }
-                    else
-                    {
-                        containerId = user.Inventory.OpenContainer(container);
+                        case ItemLocationType.Ground:
+                            containerId = user.Inventory.OpenContainer(container, fromLocation);
+                            break;
+                        case ItemLocationType.Container:
+                            container.Parent = user.Inventory.GetContainer(fromLocation.GetContainer());
+                            containerId = user.Inventory.OpenContainer(container);
+                            break;
+                        case ItemLocationType.Slot:
+                        default:
+                            containerId = user.Inventory.OpenContainer(container);
+                            break;
                     }
                     user.Connection.SendContainerOpen(container, containerId);
                 }
             }
         }
 
-        private Item GetItemAtLocation(Player player, Location location, byte stackPosition)
+        private Thing GetThingAtLocation(Player player, Location location, byte stackPosition)
         {
             switch (location.GetItemLocationType())
             {
                 case ItemLocationType.Ground:
                     Thing thing = Map.GetTile(location).GetThingAtStackPosition(stackPosition);
-                    return thing as Item;
+                    return thing;
+                case ItemLocationType.Container:
+                    Container container = player.Inventory.GetContainer(location.GetContainer());
+                    if (container != null)
+                    {
+                        return container.GetItem(location.GetContainerPosition());
+                    }
+                    break;
                 case ItemLocationType.Slot:
                     return player.Inventory.GetItemInSlot(location.GetSlot());
             }
@@ -225,7 +238,7 @@ namespace SharpOT
             {
                 byte containerIndex = fromLocation.GetContainer();
                 byte containerPos = fromLocation.GetContainerPosition();
-                Container container = mover.Inventory.GetContainer(containerIndex).Container;
+                Container container = mover.Inventory.GetContainer(containerIndex);
                 if (container == null || container.ItemCount < containerPos + 1)
                     return;
                 thing = container.GetItem(containerPos);
@@ -273,31 +286,63 @@ namespace SharpOT
             {
                 if (thing is Item)
                 {
+                    Item item = thing as Item;
                     SlotType toSlot = toLocation.GetSlot();
                     Item currentItem = mover.Inventory.GetItemInSlot(toSlot);
                     if (currentItem == null)
                     {
-                        mover.Inventory.SetItemInSlot(toSlot, (Item)thing);
+                        mover.Inventory.SetItemInSlot(toSlot, item);
                         mover.Connection.SendSlotUpdate(toSlot);
+                    }
+                    else if (currentItem is Container)
+                    {
+                        Container container = currentItem as Container;
+                        container.AddItem(item);
+                        int id = mover.Inventory.GetContainerId(container);
+                        if (id >= 0)
+                        {
+                            mover.Connection.SendContainerAddItem((byte)id, item);
+                        }
                     }
                 }
             }
             else if (toLocation.GetItemLocationType() == ItemLocationType.Container)
             {
+                // TODO: breaks if moving from container pos into container in same parent
                 Item item = (Item)thing;
                 byte containerIndex = toLocation.GetContainer();
                 byte containerPos = toLocation.GetContainerPosition();
-                var container = mover.Inventory.GetContainer(containerIndex);
+                Container container = mover.Inventory.GetContainer(containerIndex);
                 if (container != null)
                 {
-                    container.Container.AddItem(item);
-                    mover.Connection.SendContainerAddItem(containerIndex, item);
+                    Item itemAtPos = container.GetItem(containerPos);
+                    if (itemAtPos is Container)
+                    {
+                        container = itemAtPos as Container;
+                        container.AddItem(item);
+                        int id = mover.Inventory.GetContainerId(container);
+                        if (id >= 0)
+                        {
+                            mover.Connection.SendContainerAddItem((byte)id, item);
+                        }
+                    }
+                    else if (itemAtPos != null && itemAtPos.Info.IsStackable && itemAtPos.Id == item.Id && itemAtPos.Extra != 100)
+                    {
+                        // TODO: Stack item
+                    }
+                    else if (!container.IsFull())
+                    {
+                        container.AddItem(item);
+                        mover.Connection.SendContainerAddItem(containerIndex, item);
+                    }
                 }
             }
         }
 
         private int CheckMoveTo(Player mover, Thing thing, Location fromLocation, Location toLocation)
         {
+            // TODO: error messages
+            Container container;
             Item item = thing as Item;
             if (thing is Item)
             {
@@ -308,20 +353,35 @@ namespace SharpOT
             {
                 case ItemLocationType.Container:
                     if (item == null) return 0;
-                    Container container = mover.Inventory.GetContainer(toLocation.GetContainer()).Container;
-                    if (item == container) return 0;
+                    container = mover.Inventory.GetContainer(toLocation.GetContainer());
+                    if (container == null) return 0;
+                    if (item as Container != null)
+                    {
+                        Container parent = container;
+                        while (parent != null)
+                        {
+                            if (item == container) return 0;
+                            parent = container.Parent;
+                        }
+                    }
                     return 1;
                 case ItemLocationType.Slot:
                     if (item == null) return 0;
-                    if (!CheckItemSlot(item, toLocation.GetSlot()))
-                        return 0;
+                    
                     Item current = mover.Inventory.GetItemInSlot(toLocation.GetSlot());
                     if (current == null)
                     {
-                        if (item.Info.IsStackable)
-                            return item.Extra;
-                        else
-                            return 1;
+                        if (!CheckItemSlot(item, toLocation.GetSlot()))
+                            return 0;
+                        return item.Count;
+                    }
+                    else if (current is Container)
+                    {
+                        container = current as Container;
+                        if (!container.IsFull())
+                        {
+                            return item.Count;
+                        }
                     }
                     else if (current.Info.IsStackable && current.Id == item.Id && current.Extra != 100)
                     {
@@ -883,22 +943,12 @@ namespace SharpOT
 
         public void PlayerLookAt(Player player, ushort id, Location location, byte stackPosition)
         {
-            Thing thing = null;
-            switch (location.GetItemLocationType())
+            if (location.GetItemLocationType() != ItemLocationType.Ground || player.Tile.Location.CanSee(location))
             {
-                case ItemLocationType.Ground:
-                    if (player.Tile.Location.CanSee(location))
-                    {
-                        Tile tile = Map.GetTile(location);
-                        thing = tile.GetThingAtStackPosition(stackPosition);
-                    }
-                    break;
-                case ItemLocationType.Slot:
-                    thing = player.Inventory.GetItemInSlot(location.GetSlot());
-                    break;
+                Thing thing = GetThingAtLocation(player, location, stackPosition);
+                if (thing != null)
+                    player.Connection.SendTextMessage(TextMessageType.DescriptionGreen, thing.GetLookAtString());
             }
-            if (thing != null)
-                player.Connection.SendTextMessage(TextMessageType.DescriptionGreen, thing.GetLookAtString());
         }
 
         public long CheckLoginInfo(Connection connection, ILoginInfo info, bool isLoginProtocol)

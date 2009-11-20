@@ -35,6 +35,17 @@ namespace SharpOT
 
         #endregion
 
+        public byte Count
+        {
+            get
+            {
+                if (Info.IsStackable)
+                    return Extra;
+                else
+                    return 1;
+            }
+        }
+
         protected override ushort GetThingId()
         {
             return Id;
