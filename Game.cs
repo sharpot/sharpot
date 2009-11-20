@@ -166,14 +166,14 @@ namespace SharpOT
                             break;
                         case ItemLocationType.Container:
                             container.Parent = user.Inventory.GetContainer(fromLocation.GetContainer());
-                            containerId = user.Inventory.OpenContainer(container);
+                            user.Inventory.OpenContainerAt(container, index);
                             break;
                         case ItemLocationType.Slot:
                         default:
-                            containerId = user.Inventory.OpenContainer(container);
+                            user.Inventory.OpenContainerAt(container, index);
                             break;
                     }
-                    user.Connection.SendContainerOpen(container, containerId);
+                    user.Connection.SendContainerOpen(container, index);
                 }
             }
         }
@@ -411,10 +411,19 @@ namespace SharpOT
             }
         }
 
+        public void ContainerOpenParent(Player player, byte containerIndex)
+        {
+            Container container = player.Inventory.GetContainer(containerIndex);
+            if (container != null && container.Parent != null)
+            {
+                player.Connection.SendContainerOpen(container.Parent, containerIndex);
+            }
+        }
+
         public void ContainerClose(Player player, byte containerIndex)
         {
-            player.Inventory.CloseContainer(containerIndex);
-            player.Connection.SendContainerClose(containerIndex);
+            if (player.Inventory.CloseContainer(containerIndex))
+                player.Connection.SendContainerClose(containerIndex);
         }
 
         public void WalkCancel(Player player)
