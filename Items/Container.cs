@@ -7,6 +7,7 @@ namespace SharpOT
 {
     public class Container : Item
     {
+        public Container Parent { get; set; }
         public byte Volume { get; private set; }
         public IEnumerable<Item> Items { get { return items.AsEnumerable(); } }
         public byte ItemCount = 0;
@@ -14,7 +15,13 @@ namespace SharpOT
         public Container(ushort id)
             : base(id)
         {
+            Parent = null;
             Volume = Info.Volume;
+        }
+
+        public bool IsFull()
+        {
+            return ItemCount >= Volume;
         }
 
         public void AddItem(Item item)
@@ -31,7 +38,7 @@ namespace SharpOT
 
         public Item GetItem(byte containerPos)
         {
-            if (containerPos <= ItemCount)
+            if (containerPos >= ItemCount)
                 return null;
                 
             return items[containerPos];
