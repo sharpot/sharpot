@@ -225,7 +225,9 @@ namespace SharpOT
                 case ClientPacketType.ContainerClose:
                     ParseContainerClose(message);
                     break;
-                //case ClientPacketType.ContainerOpenParent:
+                case ClientPacketType.ContainerOpenParent:
+                    ParseContainerOpenParent(message);
+                    break;
                 case ClientPacketType.TurnNorth:
                     ParseTurn(Direction.North);
                     break;
@@ -308,6 +310,12 @@ namespace SharpOT
         {
             ContainerClosePacket packet = ContainerClosePacket.Parse(message);
             Game.ContainerClose(Player, packet.ContainerIndex);
+        }
+
+        public void ParseContainerOpenParent(NetworkMessage message)
+        {
+            ContainerOpenParentPacket packet = ContainerOpenParentPacket.Parse(message);
+            Game.ContainerOpenParent(Player, packet.ContainerIndex);
         }
 
         public void ParseItemUse(NetworkMessage message)

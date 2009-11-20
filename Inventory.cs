@@ -43,6 +43,12 @@ namespace SharpOT
             return OpenContainer(container, null);
         }
 
+        public void OpenContainerAt(Container container, byte index)
+        {
+            if (index < Constants.MaxOpenContainers)
+                openContainers[index] = new InventoryContainer(container, index, null);
+        }
+
         public byte OpenContainer(Container container, Location location)
         {
             byte i;
@@ -58,9 +64,17 @@ namespace SharpOT
             return i;
         }
 
-        public void CloseContainer(byte i)
+        public bool CloseContainer(byte i)
         {
-            openContainers[i] = null;
+            if (openContainers[i] == null)
+            {
+                return false;
+            }
+            else
+            {
+                openContainers[i] = null;
+                return true;
+            }
         }
 
         public Container GetContainer(byte i)

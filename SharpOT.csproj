@@ -191,6 +191,7 @@
     <Compile Include="OpenTibia\PropertyReader.cs" />
     <Compile Include="Packets\Client\AutoWalkPacket.cs" />
     <Compile Include="Packets\Client\ContainerClosePacket.cs" />
+    <Compile Include="Packets\Client\ContainerOpenParentPacket.cs" />
     <Compile Include="Packets\Client\ItemUsePacket.cs" />
     <Compile Include="Packets\Client\ItemMovePacket.cs" />
     <Compile Include="Packets\Server\ContainerOpenPacket.cs" />
