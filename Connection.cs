@@ -342,7 +342,10 @@ namespace SharpOT
 
         public void ParseWalk(Direction direction)
         {
-            Game.CreatureWalk(Player, direction);
+            if (Player.LastStepTime + Player.GetStepDuration() < DateTime.Now.Ticks)
+            {
+                Game.CreatureWalk(Player, direction);
+            }
         }
 
         public void ParseLogout()
