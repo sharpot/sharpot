@@ -77,16 +77,35 @@ namespace SharpOT
 
         #endregion
 
-        #region Map Commands
-        private static SQLiteCommand selectMapTilesCommand = new SQLiteCommand(
-            @"select * from MapTile",
+        #region Item Commands
+
+        private static SQLiteCommand insertInventoryCommand = new SQLiteCommand(
+            @"insert into PlayerInventory
+              values (@playerId, @slot, @itemId)",
             connection
         );
 
-        private static SQLiteCommand selectMapItemsCommand = new SQLiteCommand(
-            @"select * from MapItem order by StackPosition",
+        private static SQLiteCommand insertItemCommand = new SQLiteCommand(
+            @"insert into Item
+              (SpriteId, Extra, ParentItemId)
+              values (@spriteId, @extra, @parentItemId)",
             connection
         );
+
+        private static SQLiteCommand selectInventoryCommand = new SQLiteCommand(
+            @"select Slot, ItemId, SpriteId, Extra
+              from PlayerInventory, Item
+              where PlayerId = @playerId
+              and ItemId = Item.Id",
+            connection
+        );
+
+        private static SQLiteCommand deleteInventoryCommand = new SQLiteCommand(
+            @"delete from PlayerInventory
+                where PlayerId=@playerId",
+            connection
+        );
+
         #endregion
 
         #region Player Commands
@@ -228,6 +247,12 @@ namespace SharpOT
         private static SQLiteParameter directionParam = new SQLiteParameter("direction");
         private static SQLiteParameter lastLoginParam = new SQLiteParameter("lastLogin");
 
+        private static SQLiteParameter slotParam = new SQLiteParameter("slot");
+        private static SQLiteParameter itemIdParam = new SQLiteParameter("itemId");
+        private static SQLiteParameter spriteIdParam = new SQLiteParameter("spriteId");
+        private static SQLiteParameter extraParam = new SQLiteParameter("extra");
+        private static SQLiteParameter parentItemId = new SQLiteParameter("parentItemId");
+
         #endregion
 
         #region Setup
@@ -322,6 +347,18 @@ namespace SharpOT
             updatePlayerByIdCommand.Parameters.Add(playerNameParam);
             AddUpdateParams(updatePlayerByIdCommand);
             updatePlayerByIdCommand.Parameters.Add(playerIdParam);
+
+            insertInventoryCommand.Parameters.Add(playerIdParam);
+            insertInventoryCommand.Parameters.Add(slotParam);
+            insertInventoryCommand.Parameters.Add(itemIdParam);
+
+            insertItemCommand.Parameters.Add(spriteIdParam);
+            insertItemCommand.Parameters.Add(extraParam);
+            insertItemCommand.Parameters.Add(parentItemId);
+
+            selectInventoryCommand.Parameters.Add(playerIdParam);
+
+            deleteInventoryCommand.Parameters.Add(playerIdParam);
         }
 
         public static void AddUpdateParams(SQLiteCommand command)
@@ -516,6 +553,7 @@ namespace SharpOT
         #endregion
 
         #region Players
+
         public static Player GetPlayerByName(long accountId, string name)
         {
             Player player = null;
@@ -687,44 +725,30 @@ namespace SharpOT
 
         #endregion
 
-        #region Map
+        #region Items
 
-        public static void GetMapTiles(Map map)
+        public static IEnumerable<KeyValuePair<SlotType, Item>> GetPlayerInventory(uint playerId)
         {
-            SQLiteDataReader reader = selectMapTilesCommand.ExecuteReader();
-            while (reader.Read())
-            {
-                Tile tile = new Tile();
-                int x = reader.GetInt32(0) - 32000;
-                int y = reader.GetInt32(1) - 32000;
-                int z = reader.GetInt32(2);
-                tile.Ground = Item.Create((ushort)reader.GetInt16(3));
-                Location location = new Location(x, y, z);
-                map.SetTile(location, tile);
-            }
-            reader.Close();
-        }
+            playerIdParam.Value = playerId;
 
-        public static void GetMapItems(Map map)
-        {
-            SQLiteDataReader reader = selectMapItemsCommand.ExecuteReader();
-            while (reader.Read())
+            SQLiteDataReader reader = selectInventoryCommand.ExecuteReader();
+            try
             {
-                int x = reader.GetInt32(0) - 32000;
-                int y = reader.GetInt32(1) - 32000;
-                int z = reader.GetInt32(2);
-                ushort id = (ushort)reader.GetInt16(4);
-                byte extra = reader.GetByte(5);
-
-                Tile tile = map.GetTile(x, y, z);
-                if (tile != null)
+                while (reader.Read())
                 {
-                    Item item = Item.Create(id);
+                    SlotType slot = (SlotType)reader.GetInt32(0);
+                    long itemId = reader.GetInt64(1);
+                    ushort spriteId = (ushort)reader.GetInt32(2);
+                    byte extra = reader.GetByte(3);
+                    Item item = Item.Create(spriteId);
                     item.Extra = extra;
-                    tile.AddItem(item);
+                    yield return new KeyValuePair<SlotType, Item>(slot, item);
                 }
             }
-            reader.Close();
+            finally
+            {
+                reader.Close();
+            }
         }
 
         #endregion
