@@ -42,10 +42,8 @@ CREATE TABLE [PlayerInventory] (
 DROP TABLE IF EXISTS "Item";
 CREATE TABLE [Item] (
     [Id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-    [PlayerId] integer NOT NULL,
     [SpriteId] integer NOT NULL,
     [Extra] integer NOT NULL,
     [ParentItemId] integer,
-    CONSTRAINT [FK_Item_0] FOREIGN KEY ([PlayerId]) REFERENCES [Player] ([Id]),
     CONSTRAINT [FK_Item_1] FOREIGN KEY ([ParentItemId]) REFERENCES [Item] ([Id])
 );
