@@ -246,6 +246,13 @@ namespace SharpOT
                     return;
                 container.RemoveItem(containerPos);
                 mover.Connection.SendContainerRemoveItem(containerIndex, containerPos);
+
+                if (toLocation.GetItemLocationType() == ItemLocationType.Container &&
+                    fromLocation.GetContainer() == toLocation.GetContainer() &&
+                    toLocation.GetContainerPosition() > containerPos)
+                {
+                    --toLocation.Z;
+                }
             }
 
             if (toLocation.GetItemLocationType() == ItemLocationType.Ground)
@@ -360,8 +367,8 @@ namespace SharpOT
                         Container parent = container;
                         while (parent != null)
                         {
-                            if (item == container) return 0;
-                            parent = container.Parent;
+                            if (item == parent) return 0;
+                            parent = parent.Parent;
                         }
                     }
                     return 1;
@@ -416,6 +423,7 @@ namespace SharpOT
             Container container = player.Inventory.GetContainer(containerIndex);
             if (container != null && container.Parent != null)
             {
+                player.Inventory.OpenContainerAt(container.Parent, containerIndex);
                 player.Connection.SendContainerOpen(container.Parent, containerIndex);
             }
         }
