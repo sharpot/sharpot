@@ -23,29 +23,25 @@ namespace SharpOT
         #region Events
 
         public BeforeCreatureSpeechHandler BeforeCreatureSpeech;
-
         public AfterCreatureDefaultSpeechHandler AfterCreatureWhisperSpeech;
         public AfterCreatureDefaultSpeechHandler AfterCreatureSaySpeech;
         public AfterCreatureDefaultSpeechHandler AfterCreatureYellSpeech;
-
         public AfterCreaturePrivateSpeechHandler AfterCreaturePrivateSpeech;
-
         public AfterCreatureChannelSpeechHandler AfterCreatureChannelSpeech;
 
         public BeforeCreatureTurnHandler BeforeCreatureTurn;
-
         public AfterCreatureTurnHandler AfterCreatureTurn;
 
         public BeforePlayerChangeOutfitHandler BeforePlayerChangeOutfit;
-
         public AfterPlayerChangeOutfitHandler AfterPlayerChangeOutfit;
 
         public BeforePrivateChannelOpenHandler BeforePrivateChannelOpen;
-
         public AfterPrivateChannelOpenHandler AfterPrivateChannelOpen;
 
-        public BeforeCreatureMoveHandler BeforeCreatureMove;
+        public BeforeCreatureWalkHandler BeforeCreatureWalk;
+        public AfterCreatureWalkHandler AfterCreatureWalk;
 
+        public BeforeCreatureMoveHandler BeforeCreatureMove;
         public AfterCreatureMoveHandler AfterCreatureMove;
 
         public BeforeChannelHandler BeforeChannelOpen;
@@ -54,26 +50,22 @@ namespace SharpOT
         public AfterChannelOpenHandler AfterChannelOpen;
 
         public BeforeCreatureUpdateHealthHandler BeforeCreatureUpdateHealth;
-
         public AfterCreatureUpdateHealthHandler AfterCreatureUpdateHealth;
 
         public BeforeVipAddHandler BeforeVipAdd;
-
         public AfterVipAddHandler AfterVipAdd;
-
         public VipRemoveHandler BeforeVipRemove;
 
         public BeforeLoginHandler BeforeLogin;
-
         public AfterLoginHandler AfterLogin;
-
         public BeforeLogoutHandler BeforeLogout;
-
         public AfterLogoutHandler AfterLogout;
 
         public BeforeCreatureTurnHandler BeforeWalkCancel;
-
         public AfterWalkCancelHandler AfterWalkCancel;
+
+        public BeforeItemUseHandler BeforeItemUse;
+        public AfterItemUseHandler AfterItemUse;
 
         #endregion
 
@@ -147,6 +139,17 @@ namespace SharpOT
 
             if (item == null) return;
 
+            if (BeforeItemUse != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeItemUse.GetInvocationList())
+                {
+                    BeforeItemUseHandler subscriber = (BeforeItemUseHandler)del;
+                    forward &= (bool)subscriber(user, item, fromLocation, fromStackPosition, index);
+                }
+                if (!forward) return;
+            }
+
             if (item is Container)
             {
                 Container container = (Container)item;
@@ -176,6 +179,9 @@ namespace SharpOT
                     user.Connection.SendContainerOpen(container, index);
                 }
             }
+
+            if (AfterItemUse != null)
+                AfterItemUse(user, item, fromLocation, fromStackPosition, index);
         }
 
         private Thing GetThingAtLocation(Player player, Location location, byte stackPosition)
@@ -610,8 +616,20 @@ namespace SharpOT
                 player.OpenedChannelList.Remove(selected);
             }
         }
+
         public void CreatureWalk(Creature creature, Direction direction)
         {
+            if (BeforeCreatureWalk != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeCreatureMove.GetInvocationList())
+                {
+                    BeforeCreatureWalkHandler subscriber = (BeforeCreatureWalkHandler)del;
+                    forward &= (bool)subscriber(creature, direction);
+                }
+                if (!forward) return;
+            }
+
             creature.LastStepTime = DateTime.Now.Ticks;
             if (direction > Direction.West) // moving diagonally
             {
@@ -623,6 +641,9 @@ namespace SharpOT
             }
 
             CreatureMove(creature, creature.Tile.Location.Offset(direction), false);
+
+            if (AfterCreatureWalk != null)
+                AfterCreatureWalk(creature, direction);
         }
             
         public void CreatureMove(Creature creature, Location toLocation, bool teleport)
@@ -632,15 +653,24 @@ namespace SharpOT
             byte fromStackPosition = fromTile.GetStackPosition(creature);
             Tile toTile = Map.GetTile(toLocation);
 
+            if (BeforeCreatureMove != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeCreatureMove.GetInvocationList())
+                {
+                    BeforeCreatureMoveHandler subscriber = (BeforeCreatureMoveHandler)del;
+                    forward &= (bool)subscriber(creature, fromLocation, toLocation, fromStackPosition, toTile);
+                }
+                if (!forward) return;
+            }
+
             if (!teleport && toTile.FloorChange != FloorChangeDirection.None &&
                 toTile.FloorChange != FloorChangeDirection.Up) // Ladders must be used
             {
                 if (toTile != null && toTile.IsWalkable)
                 {
-                    // TODO: Clean up
-                    //We have to move the creature to the tile of the floor change item
-                    //THEN we offset that location and move him from there up a floor.
-                    //Sorta messy but I'm feeling lazy ATM, at least its working
+                    // We have to move the creature to the tile of the floor change item
+                    // THEN we offset that location and move him from there up a floor.
                     if (creature.IsPlayer)
                     {
                         ((Player)creature).Connection.BeginTransaction();
@@ -658,17 +688,6 @@ namespace SharpOT
                     toLocation = FloorChangeLocationOffset(toTile.FloorChange, toLocation); ;
                     toTile = Map.GetTile(toLocation);
                 }
-            }
-
-            if (BeforeCreatureMove != null)
-            {
-                bool forward = true;
-                foreach (Delegate del in BeforeCreatureMove.GetInvocationList())
-                {
-                    BeforeCreatureMoveHandler subscriber = (BeforeCreatureMoveHandler)del;
-                    forward &= (bool)subscriber(creature, fromLocation, toLocation, fromStackPosition, toTile);
-                }
-                if (!forward) return;
             }
 
             // TODO: actually check if it is walkable

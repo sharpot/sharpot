@@ -21,12 +21,21 @@ namespace SharpOT.Scripting
 
     public delegate bool BeforeCreatureTurnHandler(Creature creature, Direction direction);
     public delegate void AfterCreatureTurnHandler(Creature creature, Direction direction);
-    
+
+    public delegate bool BeforeCreatureWalkHandler(Creature creature, Direction direction);
+    public delegate void AfterCreatureWalkHandler(Creature creature, Direction direction);
     public delegate bool BeforeCreatureMoveHandler(Creature creature, Location fromLocation, Location toLocation, byte fromStackPosition, Tile toTile);
     public delegate void AfterCreatureMoveHandler(Creature creature, Location fromLocation, Location toLocation, byte fromStackPosition, Tile toTile);
 
     public delegate bool BeforeWalkCancelHandler();
     public delegate void AfterWalkCancelHandler();
+
+    #endregion
+
+    #region Items
+
+    public delegate bool BeforeItemUseHandler(Player user, Item item, Location fromLocation, byte fromStackPosition, byte index);
+    public delegate void AfterItemUseHandler(Player user, Item item, Location fromLocation, byte fromStackPosition, byte index);
 
     #endregion
 
