@@ -4,24 +4,6 @@ CREATE TABLE [Account] (
     [Name] text NOT NULL COLLATE NOCASE UNIQUE,
     [Password] text NOT NULL
 );
-DROP TABLE IF EXISTS "MapItem";
-CREATE TABLE [MapItem] (
-    [X] integer NOT NULL,
-    [Y] integer NOT NULL,
-    [Z] integer NOT NULL,
-    [StackPosition] integer NOT NULL,
-    [Id] integer NOT NULL,
-    [Extra] integer NOT NULL,
-    CONSTRAINT [PK_MapItem] PRIMARY KEY ([X], [Y], [Z], [StackPosition])
-);
-DROP TABLE IF EXISTS "MapTile";
-CREATE TABLE [MapTile] (
-    [X] integer NOT NULL,
-    [Y] integer NOT NULL,
-    [Z] integer NOT NULL,
-    [GroundId] integer NOT NULL,
-    CONSTRAINT [PK_MapTile] PRIMARY KEY ([X], [Y], [Z])
-);
 DROP TABLE IF EXISTS "Player";
 CREATE TABLE [Player] (
     [Id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -47,4 +29,23 @@ CREATE TABLE [Player] (
     [Direction] integer,
     [LastLogin] integer NOT NULL DEFAULT 0,
     CONSTRAINT [FK_Player_0] FOREIGN KEY ([AccountId]) REFERENCES [Account] ([Id])
+);
+DROP TABLE IF EXISTS "PlayerInventory";
+CREATE TABLE [PlayerInventory] (
+    [PlayerId] integer NOT NULL,
+    [Slot] integer NOT NULL,
+    [ItemId] integer NOT NULL,
+    CONSTRAINT [PK_PlayerInventory] PRIMARY KEY ([PlayerId], [Slot]),
+    CONSTRAINT [FK_PlayerInventory_0] FOREIGN KEY ([PlayerId]) REFERENCES [Player] ([Id]),
+    CONSTRAINT [FK_PlayerInventory_1] FOREIGN KEY ([ItemId]) REFERENCES [Item] ([Id])
+);
+DROP TABLE IF EXISTS "Item";
+CREATE TABLE [Item] (
+    [Id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+    [PlayerId] integer NOT NULL,
+    [SpriteId] integer NOT NULL,
+    [Extra] integer NOT NULL,
+    [ParentItemId] integer,
+    CONSTRAINT [FK_Item_0] FOREIGN KEY ([PlayerId]) REFERENCES [Player] ([Id]),
+    CONSTRAINT [FK_Item_1] FOREIGN KEY ([ParentItemId]) REFERENCES [Item] ([Id])
 );
