@@ -39,6 +39,9 @@ CREATE TABLE [PlayerInventory] (
     CONSTRAINT [FK_PlayerInventory_0] FOREIGN KEY ([PlayerId]) REFERENCES [Player] ([Id]),
     CONSTRAINT [FK_PlayerInventory_1] FOREIGN KEY ([ItemUniqueId]) REFERENCES [Item] ([UniqueId])
 );
+CREATE TRIGGER Cascade_PlayerInventory_Delete DELETE ON PlayerInventory BEGIN
+    DELETE FROM Item WHERE UniqueId = old.ItemUniqueId;
+END;
 DROP TABLE IF EXISTS "Item";
 CREATE TABLE [Item] (
     [UniqueId] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -47,3 +50,7 @@ CREATE TABLE [Item] (
     [ParentItemId] integer,
     CONSTRAINT [FK_Item_1] FOREIGN KEY ([ParentItemId]) REFERENCES [Item] ([UniqueId])
 );
+CREATE TRIGGER Cascade_Item_Delete DELETE ON Item BEGIN
+    DELETE FROM Item WHERE ParentItemId = old.UniqueId;
+END;
+PRAGMA recursive_triggers = true;

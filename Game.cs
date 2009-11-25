@@ -496,13 +496,16 @@ namespace SharpOT
             }
 
             player.Outfit = outfit;
+
             foreach (var spectator in GetSpectatorPlayers(player.Tile.Location))
             {
                 spectator.Connection.SendCreatureChangeOutfit(player);
             }
-            if(AfterPlayerChangeOutfit!=null)
-                AfterPlayerChangeOutfit(player, outfit);
+
             Database.SavePlayerById(player);
+
+            if(AfterPlayerChangeOutfit != null)
+                AfterPlayerChangeOutfit(player, outfit);
         }
 
         public void PrivateChannelOpen(Player player, string receiver)
@@ -972,7 +975,6 @@ namespace SharpOT
                 p.VipList[player.Id].LoggedIn = false;
                 p.Connection.SendVipLogout(player.Id);
             }
-
 
             Database.SavePlayerById(player);
         }
