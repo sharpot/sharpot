@@ -95,7 +95,7 @@ namespace SharpOT
         private static SQLiteCommand selectInventoryCommand = new SQLiteCommand(
             @"select Slot, ItemId, SpriteId, Extra
               from PlayerInventory, Item
-              where PlayerId = @playerId
+              where PlayerInventory.PlayerId = @playerId
               and ItemId = Item.Id",
             connection
         );
@@ -567,6 +567,9 @@ namespace SharpOT
                 ReadPlayerInfo(reader, player);
             }
             reader.Close();
+
+            GetPlayerInventory(player);
+
             return player;
         }
         
@@ -582,11 +585,15 @@ namespace SharpOT
                 ReadPlayerInfo(reader, player);
             }
             reader.Close();
+
+            GetPlayerInventory(player);
+
             return player;
         }
 
         public static bool SavePlayerById(Player player)
         {
+            SavePlayerInventory(player);
             PlayerInfoToParams(player);
 
             return (1 == updatePlayerByIdCommand.ExecuteNonQuery());
@@ -726,6 +733,38 @@ namespace SharpOT
         #endregion
 
         #region Items
+
+        public static void SavePlayerInventory(Player player)
+        {
+            playerIdParam.Value = player.Id;
+
+            deleteInventoryCommand.ExecuteNonQuery();
+
+            for (SlotType slot = SlotType.First; slot <= SlotType.Last; ++slot)
+            {
+                int id;
+                Item item = player.Inventory.GetItemInSlot(slot);
+                if (item != null)
+                {
+                    spriteIdParam.Value = item.Info.SpriteId;
+                    extraParam.Value = item.Extra;
+                    parentItemId.Value = null;
+
+                    if (1 == insertItemCommand.ExecuteNonQuery())
+                    {
+                        id = GetLastInsertId();
+                    }
+                }
+            }
+        }
+
+        public static void GetPlayerInventory(Player player)
+        {
+            foreach (var i in GetPlayerInventory(player.Id))
+            {
+                player.Inventory.SetItemInSlot(i.Key, i.Value);
+            }
+        }
 
         public static IEnumerable<KeyValuePair<SlotType, Item>> GetPlayerInventory(uint playerId)
         {
