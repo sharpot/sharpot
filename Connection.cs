@@ -534,17 +534,13 @@ namespace SharpOT
                 Player.Tile.Location
             );
 
-            for (SlotType i = SlotType.First; i < SlotType.Last; i++)
+            foreach (var kvp in Player.Inventory.GetSlotItems())
             {
-                Item item = Player.Inventory.GetItemInSlot(i);
-                if (item != null)
-                {
-                    InventorySetSlotPacket.Add(
-                        message,
-                        i,
-                        item
-                    );
-                }
+                InventorySetSlotPacket.Add(
+                    message,
+                    kvp.Key,
+                    kvp.Value
+                );
             }
 
             WorldLightPacket.Add(

@@ -87,16 +87,16 @@ namespace SharpOT
 
         private static SQLiteCommand insertItemCommand = new SQLiteCommand(
             @"insert into Item
-              (SpriteId, Extra, ParentItemId)
-              values (@spriteId, @extra, @parentItemId)",
+              (ItemId, Extra, ParentItemId)
+              values (@itemId, @extra, @parentItemId)",
             connection
         );
 
         private static SQLiteCommand selectInventoryCommand = new SQLiteCommand(
-            @"select Slot, ItemId, SpriteId, Extra
+            @"select Slot, UniqueId, ItemId, Extra
               from PlayerInventory, Item
               where PlayerInventory.PlayerId = @playerId
-              and ItemId = Item.Id",
+              and ItemUniqueId = Item.UniqueId",
             connection
         );
 
@@ -249,7 +249,6 @@ namespace SharpOT
 
         private static SQLiteParameter slotParam = new SQLiteParameter("slot");
         private static SQLiteParameter itemIdParam = new SQLiteParameter("itemId");
-        private static SQLiteParameter spriteIdParam = new SQLiteParameter("spriteId");
         private static SQLiteParameter extraParam = new SQLiteParameter("extra");
         private static SQLiteParameter parentItemId = new SQLiteParameter("parentItemId");
 
@@ -352,7 +351,7 @@ namespace SharpOT
             insertInventoryCommand.Parameters.Add(slotParam);
             insertInventoryCommand.Parameters.Add(itemIdParam);
 
-            insertItemCommand.Parameters.Add(spriteIdParam);
+            insertItemCommand.Parameters.Add(itemIdParam);
             insertItemCommand.Parameters.Add(extraParam);
             insertItemCommand.Parameters.Add(parentItemId);
 
@@ -736,24 +735,31 @@ namespace SharpOT
 
         public static void SavePlayerInventory(Player player)
         {
-            playerIdParam.Value = player.Id;
-
             deleteInventoryCommand.ExecuteNonQuery();
 
-            for (SlotType slot = SlotType.First; slot <= SlotType.Last; ++slot)
+            foreach (var kvp in player.Inventory.GetSlotItems())
             {
                 int id;
-                Item item = player.Inventory.GetItemInSlot(slot);
-                if (item != null)
-                {
-                    spriteIdParam.Value = item.Info.SpriteId;
-                    extraParam.Value = item.Extra;
-                    parentItemId.Value = null;
+                Item item = kvp.Value;
+                itemIdParam.Value = item.Id;
+                extraParam.Value = item.Extra;
+                parentItemId.Value = null;
 
-                    if (1 == insertItemCommand.ExecuteNonQuery())
+                if (1 == insertItemCommand.ExecuteNonQuery())
+                {
+                    id = GetLastInsertId();
+
+                    playerIdParam.Value = player.Id;
+                    slotParam.Value = kvp.Key;
+                    itemIdParam.Value = id;
+                    if (1 != insertInventoryCommand.ExecuteNonQuery())
                     {
-                        id = GetLastInsertId();
+                        throw new Exception("Database insert into PlayerInventory table failed.");
                     }
+                }
+                else
+                {
+                    throw new Exception("Database insert into Item table failed.");
                 }
             }
         }
@@ -776,10 +782,10 @@ namespace SharpOT
                 while (reader.Read())
                 {
                     SlotType slot = (SlotType)reader.GetInt32(0);
-                    long itemId = reader.GetInt64(1);
-                    ushort spriteId = (ushort)reader.GetInt32(2);
+                    int uniqueId = reader.GetInt32(1);
+                    ushort itemId = (ushort)reader.GetInt32(2);
                     byte extra = reader.GetByte(3);
-                    Item item = Item.Create(spriteId);
+                    Item item = Item.Create(itemId);
                     item.Extra = extra;
                     yield return new KeyValuePair<SlotType, Item>(slot, item);
                 }
