@@ -34,16 +34,16 @@ DROP TABLE IF EXISTS "PlayerInventory";
 CREATE TABLE [PlayerInventory] (
     [PlayerId] integer NOT NULL,
     [Slot] integer NOT NULL,
-    [ItemId] integer NOT NULL,
+    [ItemUniqueId] integer NOT NULL,
     CONSTRAINT [PK_PlayerInventory] PRIMARY KEY ([PlayerId], [Slot]),
     CONSTRAINT [FK_PlayerInventory_0] FOREIGN KEY ([PlayerId]) REFERENCES [Player] ([Id]),
-    CONSTRAINT [FK_PlayerInventory_1] FOREIGN KEY ([ItemId]) REFERENCES [Item] ([Id])
+    CONSTRAINT [FK_PlayerInventory_1] FOREIGN KEY ([ItemUniqueId]) REFERENCES [Item] ([UniqueId])
 );
 DROP TABLE IF EXISTS "Item";
 CREATE TABLE [Item] (
-    [Id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-    [SpriteId] integer NOT NULL,
+    [UniqueId] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+    [ItemId] integer NOT NULL,
     [Extra] integer NOT NULL,
     [ParentItemId] integer,
-    CONSTRAINT [FK_Item_1] FOREIGN KEY ([ParentItemId]) REFERENCES [Item] ([Id])
+    CONSTRAINT [FK_Item_1] FOREIGN KEY ([ParentItemId]) REFERENCES [Item] ([UniqueId])
 );

@@ -33,6 +33,18 @@ namespace SharpOT
             slotItems[(int)slot - 1] = item;
         }
 
+        public IEnumerable<KeyValuePair<SlotType, Item>> GetSlotItems()
+        {
+            for (SlotType slot = SlotType.First; slot <= SlotType.Last; ++slot)
+            {
+                Item item = GetItemInSlot(slot);
+                if (item != null)
+                {
+                    yield return new KeyValuePair<SlotType, Item>(slot, item);
+                }
+            }
+        }
+
         public void ClearSlot(SlotType slot)
         {
             slotItems[(int)slot - 1] = null;
