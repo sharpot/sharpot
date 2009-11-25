@@ -44,6 +44,17 @@ namespace SharpOT
             return items[containerPos];
         }
 
+        public IEnumerable<Item> GetItems()
+        {
+            for (int i = 0; i < ItemCount; ++i)
+            {
+                if (items[i] != null)
+                {
+                    yield return items[i];
+                }
+            }
+        }
+
         public override double GetWeight()
         {
             return Info.Weight + Items.Sum(i => i.Info.Weight);

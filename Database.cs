@@ -100,6 +100,13 @@ namespace SharpOT
             connection
         );
 
+        private static SQLiteCommand selectChildItemsCommand = new SQLiteCommand(
+            @"select UniqueId, ItemId, Extra
+              from Item
+              where ParentItemId = @parentItemId",
+            connection
+        );
+
         private static SQLiteCommand deleteInventoryCommand = new SQLiteCommand(
             @"delete from PlayerInventory
                 where PlayerId=@playerId",
@@ -752,9 +759,21 @@ namespace SharpOT
                     playerIdParam.Value = player.Id;
                     slotParam.Value = kvp.Key;
                     itemIdParam.Value = id;
+
                     if (1 != insertInventoryCommand.ExecuteNonQuery())
                     {
                         throw new Exception("Database insert into PlayerInventory table failed.");
+                    }
+
+                    if (item is Container)
+                    {
+                        foreach (var i in ((Container)item).GetItems())
+                        {
+                            itemIdParam.Value = i.Id;
+                            extraParam.Value = i.Extra;
+                            parentItemId.Value = id;
+                            insertItemCommand.ExecuteNonQuery();
+                        }
                     }
                 }
                 else
@@ -787,7 +806,47 @@ namespace SharpOT
                     byte extra = reader.GetByte(3);
                     Item item = Item.Create(itemId);
                     item.Extra = extra;
+
+                    if (item is Container)
+                    {
+                        foreach (var i in GetChildItems(uniqueId))
+                        {
+                            ((Container)item).AddItem(i);
+                        }
+                    }
+
                     yield return new KeyValuePair<SlotType, Item>(slot, item);
+                }
+            }
+            finally
+            {
+                reader.Close();
+            }
+        }
+
+        public static IEnumerable<Item> GetChildItems(int uniqueItemId)
+        {
+            parentItemId.Value = uniqueItemId;
+            SQLiteDataReader reader = selectChildItemsCommand.ExecuteReader();
+            try
+            {
+                while (reader.Read())
+                {
+                    int uniqueId = reader.GetInt32(0);
+                    ushort itemId = (ushort)reader.GetInt32(1);
+                    byte extra = reader.GetByte(2);
+                    Item item = Item.Create(itemId);
+                    item.Extra = extra;
+
+                    if (item is Container)
+                    {
+                        foreach (var i in GetChildItems(uniqueItemId))
+                        {
+                            ((Container)item).AddItem(i);
+                        }
+                    }
+
+                    yield return item;
                 }
             }
             finally
