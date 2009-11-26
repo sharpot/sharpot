@@ -239,16 +239,16 @@ namespace SharpOT.OpenTibia
                                     switch (value)
                                     {
                                         case "redspark":
-                                            info.Effect = Effect.DrawBlood;
+                                            info.Effect = Effect.RedSpark;
                                             break;
                                         case "bluebubble":
-                                            info.Effect = Effect.LoseEnergy;
+                                            info.Effect = Effect.BlueRings;
                                             break;
                                         case "poff":
                                             info.Effect = Effect.Puff;
                                             break;
                                         case "yellowspark":
-                                            info.Effect = Effect.BlockHit;
+                                            info.Effect = Effect.YellowSpark;
                                             break;
                                         case "explosionarea":
                                             info.Effect = Effect.ExplosionArea;
@@ -263,10 +263,10 @@ namespace SharpOT.OpenTibia
                                             info.Effect = Effect.YellowEnergy;
                                             break;
                                         case "greenbubble":
-                                            info.Effect = Effect.PoisonRings;
+                                            info.Effect = Effect.GreenRings;
                                             break;
                                         case "blackspark":
-                                            info.Effect = Effect.HitArea;
+                                            info.Effect = Effect.BlackSpark;
                                             break;
                                         case "teleport":
                                             info.Effect = Effect.Teleport;
@@ -275,49 +275,49 @@ namespace SharpOT.OpenTibia
                                             info.Effect = Effect.EnergyDamage;
                                             break;
                                         case "blueshimmer":
-                                            info.Effect = Effect.MagicEnergy;
+                                            info.Effect = Effect.BlueShimmer;
                                             break;
                                         case "redshimmer":
-                                            info.Effect = Effect.MagicBlood;
+                                            info.Effect = Effect.RedShimmer;
                                             break;
                                         case "greenshimmer":
-                                            info.Effect = Effect.MagicPoison;
+                                            info.Effect = Effect.GreenShimmer;
                                             break;
                                         case "fire":
-                                            info.Effect = Effect.HitByFire;
+                                            info.Effect = Effect.FirePlume;
                                             break;
                                         case "greenspark":
-                                            info.Effect = Effect.Poison;
+                                            info.Effect = Effect.GreenSpark;
                                             break;
                                         case "mortarea":
                                             info.Effect = Effect.MortArea;
                                             break;
                                         case "greennote":
-                                            info.Effect = Effect.SoundGreen;
+                                            info.Effect = Effect.GreenNotes;
                                             break;
                                         case "rednote":
-                                            info.Effect = Effect.SoundRed;
+                                            info.Effect = Effect.RedNotes;
                                             break;
                                         case "poison":
-                                            info.Effect = Effect.Poison;
+                                            info.Effect = Effect.GreenSpark;
                                             break;
                                         case "yellownote":
-                                            info.Effect = Effect.SoundYellow;
+                                            info.Effect = Effect.YellowNotes;
                                             break;
                                         case "purplenote":
-                                            info.Effect = Effect.SoundPurple;
+                                            info.Effect = Effect.PurpleNotes;
                                             break;
                                         case "bluenote":
-                                            info.Effect = Effect.SoundBlue;
+                                            info.Effect = Effect.BlueNotes;
                                             break;
                                         case "whitenote":
-                                            info.Effect = Effect.SoundWhite;
+                                            info.Effect = Effect.WhiteNotes;
                                             break;
                                         case "bubbles":
                                             info.Effect = Effect.Bubbles;
                                             break;
                                         case "dice":
-                                            info.Effect = Effect.Craps;
+                                            info.Effect = Effect.Dice;
                                             break;
                                         case "giftwraps":
                                             info.Effect = Effect.GiftWraps;

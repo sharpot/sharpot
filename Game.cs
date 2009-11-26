@@ -130,7 +130,7 @@ namespace SharpOT
                 if (fromTile.FloorChange != FloorChangeDirection.None)
                 {
                     Location moveToLocation = FloorChangeLocationOffset(fromTile.FloorChange, fromLocation);
-                    CreatureMove(user, moveToLocation, true);
+                    CreatureMove(user, moveToLocation);
                     return;
                 }
             }
@@ -292,7 +292,7 @@ namespace SharpOT
                     }
 
                     // TODO: walk delays
-                    CreatureMove((Creature)thing, toLocation, false);
+                    CreatureMove((Creature)thing, toLocation);
                 }
             }
             else if (toLocation.GetItemLocationType() == ItemLocationType.Slot)
@@ -643,19 +643,19 @@ namespace SharpOT
                 creature.LastStepCost = 1;
             }
 
-            CreatureMove(creature, creature.Tile.Location.Offset(direction), false);
+            CreatureMove(creature, creature.Tile.Location.Offset(direction));
 
             if (AfterCreatureWalk != null)
                 AfterCreatureWalk(creature, direction);
         }
-            
-        public void CreatureMove(Creature creature, Location toLocation, bool teleport)
+
+        public void CreatureMove(Creature creature, Location toLocation)
         {
             Tile fromTile = creature.Tile;
             Location fromLocation = fromTile.Location;
             byte fromStackPosition = fromTile.GetStackPosition(creature);
             Tile toTile = Map.GetTile(toLocation);
-
+            bool teleport = !fromLocation.IsNextTo(toLocation);
             if (BeforeCreatureMove != null)
             {
                 bool forward = true;

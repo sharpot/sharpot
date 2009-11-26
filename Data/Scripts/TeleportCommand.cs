@@ -19,7 +19,32 @@ public class TeleportCommand : ICommand
         if (!int.TryParse(args, out amount))
             amount = 1;
         Location toLocation = player.Tile.Location.Offset(player.Direction, amount);
-        game.CreatureMove(player, toLocation, true);
+        player.Connection.BeginTransaction();
+        player.Connection.SendEffect(player.Tile.Location, Effect.Teleport);
+        game.CreatureMove(player, toLocation);
+        player.Connection.SendEffect(toLocation, Effect.Teleport);
+        return false;
+    }
+}
+
+public class TestEffectCommand : ICommand
+{
+    public string GetWords()
+    {
+        return "/e";
+    }
+
+    public bool CanBeUsedBy(Player player)
+    {
+        return true;
+    }
+
+    public bool Action(Game game, Player player, string args)
+    {
+        int effect;
+        if (!int.TryParse(args, out effect))
+            effect = 1;
+        player.Connection.SendEffect(player.Tile.Location.Offset(player.Direction), (Effect)effect);
         return false;
     }
 }
