@@ -229,11 +229,11 @@ namespace SharpOT.OpenTibia
                                     }
                                     break;
                                 case "ammotype":
-                                    var shootType = (ShootType)Enum.Parse(typeof(ShootType), value, true);
+                                    var shootType = (ProjectileType)Enum.Parse(typeof(ProjectileType), value, true);
                                     info.AmmoType = shootType.GetAmmoType();
                                     break;
                                 case "shoottype":
-                                    info.ShootType = (ShootType)Enum.Parse(typeof(ShootType), value, true);
+                                    info.ProjectileType = (ProjectileType)Enum.Parse(typeof(ProjectileType), value, true);
                                     break;
                                 case "effect":
                                     switch (value)

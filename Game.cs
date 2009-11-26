@@ -694,7 +694,7 @@ namespace SharpOT
             }
 
             // TODO: actually check if it is walkable
-            if (toTile != null && toTile.IsWalkable)
+            if (toTile != null && (teleport || toTile.IsWalkable))
             {
                 Player mover = creature as Player;
                 if (mover != null)
@@ -729,7 +729,9 @@ namespace SharpOT
                     {
                         if (teleport)
                         {
+                            player.Connection.BeginTransaction();
                             player.Connection.SendPlayerTeleport(fromLocation, fromStackPosition, toLocation);
+                            player.Connection.CommitTransaction();
                         }
                         else
                         {

@@ -416,7 +416,7 @@ namespace SharpOT
         Snowball
     }
 
-    public enum ShootType
+    public enum ProjectileType
     {
         Spear = 0x00,
         Bolt = 0x01,

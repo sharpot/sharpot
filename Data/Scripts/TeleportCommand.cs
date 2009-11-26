@@ -15,7 +15,10 @@ public class TeleportCommand : ICommand
 
     public bool Action(Game game, Player player, string args)
     {
-        Location toLocation = player.Tile.Location.Offset(player.Direction);
+        int amount;
+        if (!int.TryParse(args, out amount))
+            amount = 1;
+        Location toLocation = player.Tile.Location.Offset(player.Direction, amount);
         game.CreatureMove(player, toLocation, true);
         return false;
     }
