@@ -80,36 +80,44 @@ namespace SharpOT
         {
             if (!EndRead(ar)) return;
 
-            byte protocol = inMessage.GetByte(); // protocol id (1 = login, 2 = game)
-
-            if (protocol == 0x01)
+            try
             {
-                AccountPacket accountPacket = AccountPacket.Parse(inMessage);
-                xteaKey = accountPacket.XteaKey;
+                byte protocol = inMessage.GetByte(); // protocol id (1 = login, 2 = game)
 
-                long accountId = Game.CheckLoginInfo(this, accountPacket, true);
-
-                if (accountId >= 0)
+                if (protocol == 0x01)
                 {
-                    this.AccountId = accountId;
-                    SendCharacterList(
-                        SharpOT.Properties.Settings.Default.MessageOfTheDay,
-                        999,
-                        Database.GetCharacterList(accountId)
-                    );
-                }
+                    AccountPacket accountPacket = AccountPacket.Parse(inMessage);
+                    xteaKey = accountPacket.XteaKey;
 
-                Close();
+                    long accountId = Game.CheckLoginInfo(this, accountPacket, true);
+
+                    if (accountId >= 0)
+                    {
+                        this.AccountId = accountId;
+                        SendCharacterList(
+                            SharpOT.Properties.Settings.Default.MessageOfTheDay,
+                            999,
+                            Database.GetCharacterList(accountId)
+                        );
+                    }
+
+                    Close();
+                }
+                else if (protocol == 0x0A)
+                {
+                    ParseLoginPacket(inMessage);
+
+                    if (stream.CanRead)
+                    {
+                        stream.BeginRead(inMessage.Buffer, 0, 2,
+                            new AsyncCallback(ClientReadCallBack), null);
+                    }
+                }
             }
-            else if (protocol == 0x0A)
+            catch
             {
-                ParseLoginPacket(inMessage);
-
-                if (stream.CanRead)
-                {
-                    stream.BeginRead(inMessage.Buffer, 0, 2,
-                        new AsyncCallback(ClientReadCallBack), null);
-                }
+                // Invalid data from the client
+                Close();
             }
         }
 

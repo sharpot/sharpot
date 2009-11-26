@@ -47,10 +47,10 @@ CREATE TABLE [Item] (
     [UniqueId] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
     [ItemId] integer NOT NULL,
     [Extra] integer NOT NULL,
-    [ParentItemId] integer,
-    CONSTRAINT [FK_Item_1] FOREIGN KEY ([ParentItemId]) REFERENCES [Item] ([UniqueId])
+    [ParentUniqueId] integer,
+    CONSTRAINT [FK_Item_1] FOREIGN KEY ([ParentUniqueId]) REFERENCES [Item] ([UniqueId])
 );
 CREATE TRIGGER Cascade_Item_Delete DELETE ON Item BEGIN
-    DELETE FROM Item WHERE ParentItemId = old.UniqueId;
+    DELETE FROM Item WHERE ParentUniqueId = old.UniqueId;
 END;
 PRAGMA recursive_triggers = true;

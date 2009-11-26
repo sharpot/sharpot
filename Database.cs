@@ -87,8 +87,8 @@ namespace SharpOT
 
         private static SQLiteCommand insertItemCommand = new SQLiteCommand(
             @"insert into Item
-              (ItemId, Extra, ParentItemId)
-              values (@itemId, @extra, @parentItemId)",
+              (ItemId, Extra, ParentUniqueId)
+              values (@itemId, @extra, @parentUniqueId)",
             connection
         );
 
@@ -109,7 +109,8 @@ namespace SharpOT
         private static SQLiteCommand selectChildItemsCommand = new SQLiteCommand(
             @"select UniqueId, ItemId, Extra
               from Item
-              where ParentItemId = @parentItemId",
+              where ParentUniqueId = @parentUniqueId
+              order by UniqueId desc",
             connection
         );
 
@@ -263,7 +264,7 @@ namespace SharpOT
         private static SQLiteParameter slotParam = new SQLiteParameter("slot");
         private static SQLiteParameter itemIdParam = new SQLiteParameter("itemId");
         private static SQLiteParameter extraParam = new SQLiteParameter("extra");
-        private static SQLiteParameter parentItemId = new SQLiteParameter("parentItemId");
+        private static SQLiteParameter parentUniqueIdParam = new SQLiteParameter("parentUniqueId");
 
         #endregion
 
@@ -395,9 +396,9 @@ namespace SharpOT
 
             insertItemCommand.Parameters.Add(itemIdParam);
             insertItemCommand.Parameters.Add(extraParam);
-            insertItemCommand.Parameters.Add(parentItemId);
+            insertItemCommand.Parameters.Add(parentUniqueIdParam);
 
-            selectChildItemsCommand.Parameters.Add(parentItemId);
+            selectChildItemsCommand.Parameters.Add(parentUniqueIdParam);
 
             selectInventoryCommand.Parameters.Add(playerIdParam);
 
@@ -781,6 +782,8 @@ namespace SharpOT
 
         public static void SavePlayerInventory(Player player)
         {
+            var trans = connection.BeginTransaction();
+
             deleteInventoryCommand.ExecuteNonQuery();
 
             foreach (var kvp in player.Inventory.GetSlotItems())
@@ -788,7 +791,7 @@ namespace SharpOT
                 Item item = kvp.Value;
                 itemIdParam.Value = item.Id;
                 extraParam.Value = item.Extra;
-                parentItemId.Value = null;
+                parentUniqueIdParam.Value = null;
 
                 if (1 == insertItemCommand.ExecuteNonQuery())
                 {
@@ -805,7 +808,7 @@ namespace SharpOT
 
                     if (item is Container)
                     {
-                        AddChildItems(id, ((Container)item).GetItems());
+                        InsertChildItems(id, ((Container)item).GetItems());
                     }
                 }
                 else
@@ -813,6 +816,8 @@ namespace SharpOT
                     throw new Exception("Database insert into Item table failed.");
                 }
             }
+
+            trans.Commit();
         }
 
         public static void DeleteItem(int uniqueId)
@@ -821,20 +826,20 @@ namespace SharpOT
             deleteItemCommand.ExecuteNonQuery();
         }
 
-        public static void AddChildItems(int parentId, IEnumerable<Item> items)
+        public static void InsertChildItems(int parentId, IEnumerable<Item> items)
         {
             foreach (var i in items)
             {
                 itemIdParam.Value = i.Id;
                 extraParam.Value = i.Extra;
-                parentItemId.Value = parentId;
+                parentUniqueIdParam.Value = parentId;
                 if (1 == insertItemCommand.ExecuteNonQuery())
                 {
                     int id = GetLastInsertId();
 
                     if (i is Container)
                     {
-                        AddChildItems(id, ((Container)i).GetItems());
+                        InsertChildItems(id, ((Container)i).GetItems());
                     }
                 }
             }
@@ -883,7 +888,7 @@ namespace SharpOT
 
         public static IEnumerable<Item> GetChildItems(int uniqueItemId)
         {
-            parentItemId.Value = uniqueItemId;
+            parentUniqueIdParam.Value = uniqueItemId;
             SQLiteDataReader reader = ((SQLiteCommand)selectChildItemsCommand.Clone()).ExecuteReader();
             try
             {
