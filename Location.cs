@@ -82,37 +82,42 @@ namespace SharpOT
 
         public Location Offset(Direction direction)
         {
+            return Offset(direction, 1);
+        }
+
+        public Location Offset(Direction direction, int amount)
+        {
             int x = X, y = Y, z = Z;
 
             switch (direction)
             {
                 case Direction.North:
-                    y--;
+                    y -= amount;
                     break;
                 case Direction.South:
-                    y++;
+                    y += amount;
                     break;
                 case Direction.West:
-                    x--;
+                    x -= amount;
                     break;
                 case Direction.East:
-                    x++;
+                    x += amount;
                     break;
                 case Direction.NorthWest:
-                    x--;
-                    y--;
+                    x -= amount;
+                    y -= amount;
                     break;
                 case Direction.SouthWest:
-                    x--;
-                    y++;
+                    x -= amount;
+                    y += amount;
                     break;
                 case Direction.NorthEast:
-                    x++;
-                    y--;
+                    x += amount;
+                    y -= amount;
                     break;
                 case Direction.SouthEast:
-                    x++;
-                    y++;
+                    x += amount;
+                    y += amount;
                     break;
             }
 

@@ -24,39 +24,39 @@ namespace SharpOT.Util
             return result.Insert(0, instr, n).ToString();
         }
 
-        public static AmmoType GetAmmoType(this ShootType shootType)
+        public static AmmoType GetAmmoType(this ProjectileType shootType)
         {
             switch (shootType)
             {
-                case ShootType.Spear:
-                case ShootType.RoyalSpear:
-                case ShootType.EtherealSpear:
-                case ShootType.EnchantedSpear:
-                case ShootType.HuntingSpear:
+                case ProjectileType.Spear:
+                case ProjectileType.RoyalSpear:
+                case ProjectileType.EtherealSpear:
+                case ProjectileType.EnchantedSpear:
+                case ProjectileType.HuntingSpear:
                     return AmmoType.Spear;
-                case ShootType.Bolt:
-                case ShootType.PowerBolt:
-                case ShootType.InfernalBolt:
-                case ShootType.PiercingBolt:
+                case ProjectileType.Bolt:
+                case ProjectileType.PowerBolt:
+                case ProjectileType.InfernalBolt:
+                case ProjectileType.PiercingBolt:
                     return AmmoType.Bolt;
-                case ShootType.Arrow:
-                case ShootType.OnyxArrow:
-                case ShootType.PoisonArrow:
-                case ShootType.FlamingArrow:
-                case ShootType.FlashArrow:
-                case ShootType.BurstArrow:
-                case ShootType.SniperArrow:
-                case ShootType.ShiverArrow:
-                case ShootType.EarthArrow:
+                case ProjectileType.Arrow:
+                case ProjectileType.OnyxArrow:
+                case ProjectileType.PoisonArrow:
+                case ProjectileType.FlamingArrow:
+                case ProjectileType.FlashArrow:
+                case ProjectileType.BurstArrow:
+                case ProjectileType.SniperArrow:
+                case ProjectileType.ShiverArrow:
+                case ProjectileType.EarthArrow:
                     return AmmoType.Arrow;
-                case ShootType.ThrowingStar:
+                case ProjectileType.ThrowingStar:
                     return AmmoType.ThrowingStar;
-                case ShootType.ThrowingKnife:
+                case ProjectileType.ThrowingKnife:
                     return AmmoType.ThrowingKnife;
-                case ShootType.SmallStone:
-                case ShootType.LargeRock:
+                case ProjectileType.SmallStone:
+                case ProjectileType.LargeRock:
                     return AmmoType.Stone;
-                case ShootType.Snowball:
+                case ProjectileType.Snowball:
                     return AmmoType.Snowball;
                 default:
                     return AmmoType.None;
