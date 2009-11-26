@@ -536,11 +536,7 @@ namespace SharpOT
                 Player.Tile.Location
             );
 
-            EffectPacket.Add(
-                message,
-                Effect.EnergyDamage,
-                Player.Tile.Location
-            );
+            EffectPacket.Add(message, Player.Tile.Location, Effect.EnergyDamage);
 
             foreach (var kvp in Player.Inventory.GetSlotItems())
             {
@@ -683,7 +679,7 @@ namespace SharpOT
         {
             NetworkMessage outMessage = new NetworkMessage();
             PlayerStatusPacket.Add(
-               outMessage,
+                outMessage,
                 Player.Health,
                 Player.MaxHealth,
                 Player.Capacity,
@@ -698,6 +694,25 @@ namespace SharpOT
                 0
             );
 
+            Send(outMessage);
+        }
+
+        public void SendEffect(Location location, Effect effect)
+        {
+            NetworkMessage outMessage = new NetworkMessage();
+            EffectPacket.Add(outMessage, location, effect);
+            Send(outMessage);
+        }
+
+        public void SendProjectile(Location from, Location to, ProjectileType projectile)
+        {
+            NetworkMessage outMessage = new NetworkMessage();
+            ProjectilePacket.Add(
+                outMessage,
+                from,
+                to,
+                projectile
+            );
             Send(outMessage);
         }
 
@@ -769,11 +784,8 @@ namespace SharpOT
         public void SendCreatureLogout(Creature creature)
         {
             NetworkMessage message = new NetworkMessage();
-            EffectPacket.Add(
-                message,
-                Effect.Puff, // TODO: find the new value for poof
-                creature.Tile.Location
-            );
+            EffectPacket.Add(message, // TODO: find the new value for poof
+                creature.Tile.Location, Effect.Puff);
             TileRemoveThingPacket.Add(
                 message,
                 creature.Tile.Location,
@@ -797,11 +809,7 @@ namespace SharpOT
         {
             NetworkMessage message = new NetworkMessage();
 
-            EffectPacket.Add(
-                message,
-                Effect.Teleport,
-                creature.Tile.Location
-            );
+            EffectPacket.Add(message, creature.Tile.Location, Effect.Teleport);
 
             uint remove;
             bool known = IsCreatureKnown(creature.Id, out remove);
