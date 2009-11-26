@@ -536,7 +536,7 @@ namespace SharpOT
                 Player.Tile.Location
             );
 
-            EffectPacket.Add(message, Player.Tile.Location, Effect.EnergyDamage);
+            EffectPacket.Add(message, Player.Tile.Location, Effect.Teleport);
 
             foreach (var kvp in Player.Inventory.GetSlotItems())
             {
