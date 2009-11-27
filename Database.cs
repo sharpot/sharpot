@@ -204,6 +204,7 @@ namespace SharpOT
             connection
         );
 
+        // TODO: save speed
         private static SQLiteCommand updatePlayerByIdCommand = new SQLiteCommand(
             @"update Player
               set

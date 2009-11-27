@@ -115,7 +115,7 @@ namespace SharpOT
 
         public void ItemUse(Player user, ushort spriteId, Location fromLocation, byte fromStackPosition, byte index)
         {
-            if (fromLocation.GetItemLocationType() == ItemLocationType.Ground)
+            if (fromLocation.Type == LocationType.Ground)
             {
                 if (user != null && !user.Tile.Location.IsNextTo(fromLocation))
                 {
@@ -162,16 +162,16 @@ namespace SharpOT
                 else
                 {
                     byte containerId;
-                    switch (fromLocation.GetItemLocationType())
+                    switch (fromLocation.Type)
                     {
-                        case ItemLocationType.Ground:
+                        case LocationType.Ground:
                             containerId = user.Inventory.OpenContainer(container, fromLocation);
                             break;
-                        case ItemLocationType.Container:
-                            container.Parent = user.Inventory.GetContainer(fromLocation.GetContainer());
+                        case LocationType.Container:
+                            container.Parent = user.Inventory.GetContainer(fromLocation.Container);
                             user.Inventory.OpenContainerAt(container, index);
                             break;
-                        case ItemLocationType.Slot:
+                        case LocationType.Slot:
                         default:
                             user.Inventory.OpenContainerAt(container, index);
                             break;
@@ -184,31 +184,11 @@ namespace SharpOT
                 AfterItemUse(user, item, fromLocation, fromStackPosition, index);
         }
 
-        private Thing GetThingAtLocation(Player player, Location location, byte stackPosition)
-        {
-            switch (location.GetItemLocationType())
-            {
-                case ItemLocationType.Ground:
-                    Thing thing = Map.GetTile(location).GetThingAtStackPosition(stackPosition);
-                    return thing;
-                case ItemLocationType.Container:
-                    Container container = player.Inventory.GetContainer(location.GetContainer());
-                    if (container != null)
-                    {
-                        return container.GetItem(location.GetContainerPosition());
-                    }
-                    break;
-                case ItemLocationType.Slot:
-                    return player.Inventory.GetItemInSlot(location.GetSlot());
-            }
-            return null;
-        }
-
         public void ItemMove(Player mover, ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
         {
             Thing thing = null;
 
-            if (fromLocation.GetItemLocationType() == ItemLocationType.Ground)
+            if (fromLocation.Type == LocationType.Ground)
             {
                 if (mover != null && !mover.Tile.Location.IsNextTo(fromLocation))
                 {
@@ -229,9 +209,9 @@ namespace SharpOT
                     spec.Connection.SendTileRemoveThing(fromLocation, fromStackPosition);
                 }
             }
-            else if (fromLocation.GetItemLocationType() == ItemLocationType.Slot)
+            else if (fromLocation.Type == LocationType.Slot)
             {
-                SlotType fromSlot = fromLocation.GetSlot();
+                SlotType fromSlot = fromLocation.Slot;
                 thing = mover.Inventory.GetItemInSlot(fromSlot);
 
                 if (CheckMoveTo(mover, thing, fromLocation, toLocation) <= 0)
@@ -240,10 +220,10 @@ namespace SharpOT
                 mover.Inventory.ClearSlot(fromSlot);
                 mover.Connection.SendSlotUpdate(fromSlot);
             }
-            else if (fromLocation.GetItemLocationType() == ItemLocationType.Container)
+            else if (fromLocation.Type == LocationType.Container)
             {
-                byte containerIndex = fromLocation.GetContainer();
-                byte containerPos = fromLocation.GetContainerPosition();
+                byte containerIndex = fromLocation.Container;
+                byte containerPos = fromLocation.ContainerPosition;
                 Container container = mover.Inventory.GetContainer(containerIndex);
                 if (container == null || container.ItemCount < containerPos + 1)
                     return;
@@ -253,15 +233,15 @@ namespace SharpOT
                 container.RemoveItem(containerPos);
                 mover.Connection.SendContainerRemoveItem(containerIndex, containerPos);
 
-                if (toLocation.GetItemLocationType() == ItemLocationType.Container &&
-                    fromLocation.GetContainer() == toLocation.GetContainer() &&
-                    toLocation.GetContainerPosition() > containerPos)
+                if (toLocation.Type == LocationType.Container &&
+                    fromLocation.Container == toLocation.Container &&
+                    toLocation.ContainerPosition > containerPos)
                 {
                     --toLocation.Z;
                 }
             }
 
-            if (toLocation.GetItemLocationType() == ItemLocationType.Ground)
+            if (toLocation.Type == LocationType.Ground)
             {
                 Tile toTile = Map.GetTile(toLocation);
 
@@ -295,12 +275,12 @@ namespace SharpOT
                     CreatureMove((Creature)thing, toLocation);
                 }
             }
-            else if (toLocation.GetItemLocationType() == ItemLocationType.Slot)
+            else if (toLocation.Type == LocationType.Slot)
             {
                 if (thing is Item)
                 {
                     Item item = thing as Item;
-                    SlotType toSlot = toLocation.GetSlot();
+                    SlotType toSlot = toLocation.Slot;
                     Item currentItem = mover.Inventory.GetItemInSlot(toSlot);
                     if (currentItem == null)
                     {
@@ -319,12 +299,12 @@ namespace SharpOT
                     }
                 }
             }
-            else if (toLocation.GetItemLocationType() == ItemLocationType.Container)
+            else if (toLocation.Type == LocationType.Container)
             {
                 // TODO: breaks if moving from container pos into container in same parent
                 Item item = (Item)thing;
-                byte containerIndex = toLocation.GetContainer();
-                byte containerPos = toLocation.GetContainerPosition();
+                byte containerIndex = toLocation.Container;
+                byte containerPos = toLocation.ContainerPosition;
                 Container container = mover.Inventory.GetContainer(containerIndex);
                 if (container != null)
                 {
@@ -362,11 +342,11 @@ namespace SharpOT
                 if (((Item)thing).Info.IsMoveable == false)
                     return 0;
             }
-            switch (toLocation.GetItemLocationType())
+            switch (toLocation.Type)
             {
-                case ItemLocationType.Container:
+                case LocationType.Container:
                     if (item == null) return 0;
-                    container = mover.Inventory.GetContainer(toLocation.GetContainer());
+                    container = mover.Inventory.GetContainer(toLocation.Container);
                     if (container == null) return 0;
                     if (item as Container != null)
                     {
@@ -378,13 +358,13 @@ namespace SharpOT
                         }
                     }
                     return 1;
-                case ItemLocationType.Slot:
+                case LocationType.Slot:
                     if (item == null) return 0;
                     
-                    Item current = mover.Inventory.GetItemInSlot(toLocation.GetSlot());
+                    Item current = mover.Inventory.GetItemInSlot(toLocation.Slot);
                     if (current == null)
                     {
-                        if (!CheckItemSlot(item, toLocation.GetSlot()))
+                        if (!CheckItemSlot(item, toLocation.Slot))
                             return 0;
                         return item.Count;
                     }
@@ -401,7 +381,7 @@ namespace SharpOT
                         return Math.Min(100 - current.Extra, item.Extra);
                     }
                     return 0;
-                case ItemLocationType.Ground:
+                case LocationType.Ground:
                     // TODO: check line of throwing
                     if (thing is Creature && !fromLocation.IsNextTo(toLocation))
                         return 0;
@@ -983,7 +963,7 @@ namespace SharpOT
 
         public void PlayerLookAt(Player player, ushort id, Location location, byte stackPosition)
         {
-            if (location.GetItemLocationType() != ItemLocationType.Ground || player.Tile.Location.CanSee(location))
+            if (location.Type != LocationType.Ground || player.Tile.Location.CanSee(location))
             {
                 Thing thing = GetThingAtLocation(player, location, stackPosition);
                 if (thing != null)
@@ -1056,6 +1036,121 @@ namespace SharpOT
                     item
                 );
             }
+        }
+
+        private Thing GetThingAtLocation(Player player, Location location, byte stackPosition)
+        {
+            switch (location.Type)
+            {
+                case LocationType.Ground:
+                    Thing thing = Map.GetTile(location).GetThingAtStackPosition(stackPosition);
+                    return thing;
+                case LocationType.Container:
+                    Container container = player.Inventory.GetContainer(location.Container);
+                    if (container != null)
+                    {
+                        return container.GetItem(location.ContainerPosition);
+                    }
+                    break;
+                case LocationType.Slot:
+                    return player.Inventory.GetItemInSlot(location.Slot);
+            }
+            return null;
+        }
+
+        public Item TransformItem(Player player, Location location, byte stackPosition, Item newItem)
+        {
+            Item item = null;
+
+            switch (location.Type)
+            {
+                case LocationType.Ground:
+                    Tile tile = Map.GetTile(location);
+                    if (tile != null)
+                    {
+                        item = tile.GetThingAtStackPosition(stackPosition) as Item;
+                        if (item != null)
+                        {
+                            tile.RemoveItem(item);
+                            tile.AddItem(newItem);
+                            byte newStackPosition = tile.GetStackPosition(newItem);
+                            foreach (var p in GetSpectatorPlayers(location))
+                            {
+                                p.Connection.BeginTransaction();
+                                p.Connection.SendTileRemoveThing(location, stackPosition);
+                                p.Connection.SendTileAddItem(location, newStackPosition, newItem);
+                                p.Connection.CommitTransaction();
+                            }
+                        }
+                    }
+                    break;
+                case LocationType.Slot:
+                    if (player != null)
+                    {
+                        item = player.Inventory.GetItemInSlot(location.Slot);
+                        player.Inventory.SetItemInSlot(location.Slot, newItem);
+                        player.Connection.SendSlotUpdate(location.Slot);
+                    }
+                    break;
+                case LocationType.Container:
+                    if (player != null)
+                    {
+                        Container container = player.Inventory.GetContainer(location.Container);
+                        if (container != null)
+                        {
+                            item = container.GetItem(location.ContainerPosition);
+                            container.UpdateItem(location.ContainerPosition, newItem);
+                            player.Connection.SendContainerUpdateItem(location.Container, location.ContainerPosition, newItem);
+                        }
+                    }
+                    break;
+            }
+
+            return item;
+        }
+
+        public Item RemoveItem(Player player, Location location, byte stackPosition)
+        {
+            Item item = null;
+            switch (location.Type)
+            {
+                case LocationType.Ground:
+                    Tile tile = Map.GetTile(location);
+                    if (tile != null)
+                    {
+                        item = tile.GetThingAtStackPosition(stackPosition) as Item;
+                        if (item != null)
+                        {
+                            tile.RemoveItem(item);
+                            foreach(var p in GetSpectatorPlayers(location))
+                            {
+                                p.Connection.SendTileRemoveThing(location, stackPosition);
+                            }
+                        }
+                    }
+                    break;
+                case LocationType.Slot:
+                    if (player != null)
+                    {
+                        item = player.Inventory.GetItemInSlot(location.Slot);
+                        player.Inventory.SetItemInSlot(location.Slot, null);
+                        player.Connection.SendSlotUpdate(location.Slot);
+                    }
+                    break;
+                case LocationType.Container:
+                    if (player != null)
+                    {
+                        Container container = player.Inventory.GetContainer(location.Container);
+                        if (container != null)
+                        {
+                            item = container.GetItem(location.ContainerPosition);
+                            container.RemoveItem(location.ContainerPosition);
+                            player.Connection.SendContainerRemoveItem(location.Container, location.ContainerPosition);
+                        }
+                    }
+                    break;
+            }
+            return item;
         }
 
         #endregion

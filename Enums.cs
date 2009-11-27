@@ -489,7 +489,7 @@ namespace SharpOT
 
     #region Items
 
-    public enum ItemLocationType
+    public enum LocationType
     {
         Container,
         Slot,

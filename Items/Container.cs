@@ -36,6 +36,11 @@ namespace SharpOT
             --ItemCount;
         }
 
+        public void UpdateItem(byte containerPos, Item newItem)
+        {
+            items[containerPos] = newItem;
+        }
+
         public Item GetItem(byte containerPos)
         {
             if (containerPos >= ItemCount)
