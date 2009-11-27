@@ -23,38 +23,50 @@ namespace SharpOT
             Z = loc.Z;
         }
 
-        public ItemLocationType GetItemLocationType()
+        public LocationType Type
         {
-            if (X == 0xFFFF)
+            get
             {
-                if ((Y & 0x40) != 0)
+                if (X == 0xFFFF)
                 {
-                    return ItemLocationType.Container;
+                    if ((Y & 0x40) != 0)
+                    {
+                        return LocationType.Container;
+                    }
+                    else
+                    {
+                        return LocationType.Slot;
+                    }
                 }
                 else
                 {
-                    return ItemLocationType.Slot;
+                    return LocationType.Ground;
                 }
             }
-            else
+        }
+
+        public SlotType Slot
+        {
+            get
             {
-                return ItemLocationType.Ground;
+                return (SlotType)Convert.ToByte(Y);
             }
         }
 
-        public SlotType GetSlot()
+        public byte Container
         {
-            return (SlotType)Convert.ToByte(Y);
+            get
+            {
+                return Convert.ToByte(Y - 0x40);
+            }
         }
 
-        public byte GetContainer()
+        public byte ContainerPosition
         {
-            return Convert.ToByte(Y - 0x40);
-        }
-
-        public byte GetContainerPosition()
-        {
-            return Convert.ToByte(Z);
+            get
+            {
+                return Convert.ToByte(Z);
+            }
         }
 
         public override bool Equals(object other)

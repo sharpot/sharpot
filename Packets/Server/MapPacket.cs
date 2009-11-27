@@ -74,6 +74,7 @@ namespace SharpOT.Packets
             return skip;
         }
 
+        // TODO: map debug
         public static void AddTileDescription(Connection connection, NetworkMessage message, Tile tile)
         {
             if (tile != null)

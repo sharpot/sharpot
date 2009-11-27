@@ -198,6 +198,7 @@
     <Compile Include="Packets\Server\ContainerAddItemPacket.cs" />
     <Compile Include="Packets\Server\ContainerRemoveItemPacket.cs" />
     <Compile Include="Packets\Server\ContainerUpdateItemPacket.cs" />
+    <Compile Include="Packets\Server\TileUpdatePacket.cs" />
     <Compile Include="Packets\Server\ProjectilePacket.cs" />
     <Compile Include="Packets\Server\InventoryClearSlotPacket.cs" />
     <Compile Include="Packets\Server\InventorySetSlotPacket.cs" />
