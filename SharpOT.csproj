@@ -163,8 +163,9 @@
     <None Include="Data\sharpot.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Compile Include="Commands.cs" />
+    <Compile Include="Scripting\Commands.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Scripting\ActionItems.cs" />
     <Compile Include="Data\Scripts\AccountManager.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
