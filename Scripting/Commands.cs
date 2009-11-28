@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SharpOT.Scripting;
 
-namespace SharpOT
+namespace SharpOT.Scripting
 {
     public interface ICommand
     {
@@ -16,7 +17,10 @@ namespace SharpOT
     {
 
     }
+}
 
+namespace SharpOT
+{
     public static class Commands
     {
         private static LinkedList<ICommand> commandList = new LinkedList<ICommand>();

@@ -76,6 +76,10 @@ namespace SharpOT.Scripting
                 {
                     Commands.RegisterCommand(cmd);
                 }
+                foreach (IActionItem actionItem in FindInterfaces<IActionItem>(assembly))
+                {
+                    ActionItems.RegisterAction(actionItem);
+                }
             }
         }
 
