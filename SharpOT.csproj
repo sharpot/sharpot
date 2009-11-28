@@ -163,6 +163,9 @@
     <None Include="Data\sharpot.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="Data\Scripts\Music.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Scripting\Commands.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Scripting\ActionItems.cs" />
