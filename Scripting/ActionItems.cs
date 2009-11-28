@@ -9,10 +9,10 @@ namespace SharpOT.Scripting
     public interface IActionItem
     {
         ushort GetItemId();
-        bool Use(Location fromLocation, byte fromStackPosition, byte index, Item item);
-        bool UseOnItem(Location fromLocation, byte fromStackPosition, byte index, Item item, Location toLocation, Item onItem);
-        bool UseOnTile(Location fromLocation, byte fromStackPosition, byte index, Item item, Tile tile);
-        bool UseOnCreature(Location fromLocation, byte fromStackPosition, byte index, Item item, Creature creature);
+        bool Use(Game game, Player user, Location fromLocation, byte fromStackPosition, byte index, Item item);
+        bool UseOnItem(Game game, Player user, Location fromLocation, byte fromStackPosition, byte index, Item item, Location toLocation, Item onItem);
+        bool UseOnTile(Game game, Player user, Location fromLocation, byte fromStackPosition, byte index, Item item, Tile tile);
+        bool UseOnCreature(Game game, Player user, Location fromLocation, byte fromStackPosition, byte index, Item item, Creature creature);
     }
 }
 
@@ -38,28 +38,28 @@ namespace SharpOT
         public static bool ExecuteUse(Game game, Player player, Location fromLocation, byte fromStackPosition, byte index, Item item)
         {
             if (actions.ContainsKey(item.Id))
-                return actions[item.Id].Use(fromLocation, fromStackPosition, index, item);
+                return actions[item.Id].Use(game, player, fromLocation, fromStackPosition, index, item);
             return true;
         }
 
         public static bool ExecuteUseOnItem(Game game, Player player, Location fromLocation, byte fromStackPosition, byte index, Item item, Location toLocation, Item onItem)
         {
             if (actions.ContainsKey(item.Id))
-                return actions[item.Id].UseOnItem(fromLocation, fromStackPosition, index, item, toLocation, onItem);
+                return actions[item.Id].UseOnItem(game, player, fromLocation, fromStackPosition, index, item, toLocation, onItem);
             return true;
         }
 
         public static bool ExecuteUseOnTile(Game game, Player player, Location fromLocation, byte fromStackPosition, byte index, Item item, Tile tile)
         {
             if (actions.ContainsKey(item.Id))
-                return actions[item.Id].UseOnTile(fromLocation, fromStackPosition, index, item, tile);
+                return actions[item.Id].UseOnTile(game, player, fromLocation, fromStackPosition, index, item, tile);
             return true;
         }
 
         public static bool ExecuteUseOnCreature(Game game, Player player, Location fromLocation, byte fromStackPosition, byte index, Item item, Creature creature)
         {
             if (actions.ContainsKey(item.Id))
-                return actions[item.Id].UseOnCreature(fromLocation, fromStackPosition, index, item, creature);
+                return actions[item.Id].UseOnCreature(game, player, fromLocation, fromStackPosition, index, item, creature);
             return true;
         }
     }
