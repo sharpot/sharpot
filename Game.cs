@@ -150,6 +150,17 @@ namespace SharpOT
                 if (!forward) return;
             }
 
+            if (ActionItems.ExecuteUse(this, user, fromLocation, fromStackPosition, index, item))
+            {
+                DefaultItemUse(user, fromLocation, fromStackPosition, index, item);
+            }
+
+            if (AfterItemUse != null)
+                AfterItemUse(user, item, fromLocation, fromStackPosition, index);
+        }
+
+        private static void DefaultItemUse(Player user, Location fromLocation, byte fromStackPosition, byte index, Item item)
+        {
             if (item is Container)
             {
                 Container container = (Container)item;
@@ -179,9 +190,6 @@ namespace SharpOT
                     user.Connection.SendContainerOpen(container, index);
                 }
             }
-
-            if (AfterItemUse != null)
-                AfterItemUse(user, item, fromLocation, fromStackPosition, index);
         }
 
         public void ItemMove(Player mover, ushort spriteId, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
@@ -967,7 +975,8 @@ namespace SharpOT
             {
                 Thing thing = GetThingAtLocation(player, location, stackPosition);
                 if (thing != null)
-                    player.Connection.SendTextMessage(TextMessageType.DescriptionGreen, thing.GetLookAtString());
+                    player.Connection.SendTextMessage(TextMessageType.DescriptionGreen, String.Format(
+                        "{0} [Id:{1}]", thing.GetLookAtString(), thing.GetThingId()));
             }
         }
 

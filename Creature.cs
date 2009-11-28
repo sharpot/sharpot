@@ -81,7 +81,7 @@ namespace SharpOT
             }
         }
 
-        protected override ushort GetThingId()
+        public override ushort GetThingId()
         {
             return 0x63;
         }
