@@ -20,16 +20,20 @@ namespace SharpOT
 
         public override string GetLookAtString()
         {
-            return "You see " + Info.Article + " " + Info.Name +
-                    ". " + GetCombatAttributes() + Info.Description + Info.SpecialDescription +
-                    "\n It weighs " + Info.Weight + " oz.";
+            return String.Format(
+                "You see {0}{1}. {2}{3}{4}\nIt weighs {5} oz.",
+                Info.Article,
+                Info.Name,
+                GetCombatAttributes(),
+                Info.Description,
+                Info.SpecialDescription,
+                GetWeight()
+            );
         }
 
         private string GetCombatAttributes()
         {
-            string temp = "";
-            //Add the items attack
-            temp = "(Atk:" + Attack;
+            string temp = "(Atk:" + Attack;
             if (ExtraAttack > 0)
             {
                 temp += " +" + ExtraAttack;
@@ -38,7 +42,6 @@ namespace SharpOT
             {
                 temp += " -" + Math.Abs(ExtraAttack);
             }
-            //Add the Defense
             temp += ", Def:" + Defense;
             if (ExtraDefense > 0)
             {

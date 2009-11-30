@@ -11,7 +11,7 @@ public class AccountManager : IScript
     public bool Start(Game game)
     {
         this.game = game;
-        vocationsText = "What would you like it to be? The available vocations are:";
+        vocationsText = "What would you like it to be? The available vocations are: ";
         string[] vocations = Enum.GetNames(typeof(Vocation));
         for (int i = 0; i < vocations.Length; i++)
         {

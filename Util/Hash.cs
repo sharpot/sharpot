@@ -8,6 +8,8 @@ namespace SharpOT.Util
 {
     public static class Hash
     {
+        private static SHA256 sha = new SHA256Managed();
+
         /// <summary>
         /// Encrypts a string using the SHA256 (Secure Hash Algorithm) algorithm.
         /// Details: http://www.itl.nist.gov/fipspubs/fip180-1.htm
@@ -17,7 +19,6 @@ namespace SharpOT.Util
         /// <returns>A string containing the string, encrypted with the SHA256 algorithm.</returns>
         public static string SHA256Hash(string data)
         {
-            SHA256 sha = new SHA256Managed();
             byte[] hash = sha.ComputeHash(Encoding.Unicode.GetBytes(data));
 
             StringBuilder stringBuilder = new StringBuilder();

@@ -97,10 +97,10 @@ namespace SharpOT.OpenTibia
                                     info.Article = value;
                                     break;
                                 case "plural":
-                                    info.PluralName = value;
+                                    info.PluralName = value + ' ';
                                     break;
                                 case "description":
-                                    info.Description = value;
+                                    info.Description = '\n' + value;
                                     break;
                                 case "runespellname":
                                     info.RuneSpellName = value;
