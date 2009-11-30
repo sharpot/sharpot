@@ -304,7 +304,7 @@ namespace SharpOT
                     ParseWalk(Direction.NorthWest);
                     break;
                 default:
-                    Server.Log("Unhandled packet from " + Player.ToString() + ": " + type);
+                    Server.Log("Unhandled packet from {0}: {1}", Player.ToString(), type);
                     break;
             }
         }
@@ -571,7 +571,7 @@ namespace SharpOT
             string welcomeMessage = "Welcome to Utopia!";
             if (Player.LastLogin > DateTime.MinValue)
             {
-                welcomeMessage += " Last login: " + Player.LastLogin + ".";
+                welcomeMessage += String.Format(" Last login: {0}.", Player.LastLogin);
             }
             TextMessagePacket.Add(
                 message,

@@ -53,15 +53,14 @@ namespace SharpOT
 
         public override string GetLookAtString()
         {
-            string lookat = "You see ";
-            if (Info.Article != null && Info.Article.Length > 0)
-                lookat += Info.Article + " ";
-            lookat += Info.Name + ".";
-            if (Info.Description != null && Info.Description.Length > 0)
-                lookat += "\n" + Info.Description + Info.SpecialDescription;
-            if (Info.Weight > 0)
-                lookat += "\nIt weighs " + Info.Weight + " oz.";
-            return lookat;
+            return String.Format(
+                "You see {0}{1}.{2}{3}\nIt weighs {4} oz.",
+                Info.Article,
+                Info.Name,
+                Info.Description,
+                Info.SpecialDescription,
+                GetWeight()
+            );
         }
 
         public virtual double GetWeight()

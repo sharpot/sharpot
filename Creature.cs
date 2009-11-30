@@ -110,7 +110,7 @@ namespace SharpOT
 
         public override string GetLookAtString()
         {
-            return "You see " + Name + ".";
+            return String.Format("You see {0}.", Name);
         }
 
         public void Say(string text)

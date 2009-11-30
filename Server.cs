@@ -88,7 +88,7 @@ namespace SharpOT
 
         public static void LogStart(string text)
         {
-            string s = DateTime.Now + ": " + text + "...";
+            string s = String.Format("{0}: {1}...", DateTime.Now, text);
             Console.Write(s);
             startTextLength = s.Length;
             startTimeInMillis = System.Environment.TickCount;
@@ -128,9 +128,9 @@ namespace SharpOT
             Console.WriteLine(errorText);
         }
 
-        public static void Log(string text)
+        public static void Log(string text, params object[] args)
         {
-            Console.WriteLine(DateTime.Now + ": " + text);
+            Console.WriteLine("{0}: {1}", DateTime.Now, String.Format(text, args));
         }
 
         private void LoginListenerCallback(IAsyncResult ar)
