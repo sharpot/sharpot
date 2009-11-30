@@ -209,7 +209,9 @@ namespace SharpOT
                 case ClientPacketType.ItemUse:
                     ParseItemUse(message);
                     break;
-                //case ClientPacketType.ItemUseOn:
+                case ClientPacketType.ItemUseOn:
+                    ParseItemUseOn(message);
+                    break;
                 //case ClientPacketType.ItemRotate:
                 case ClientPacketType.LookAt:
                     ParseLookAt(message);
@@ -324,6 +326,12 @@ namespace SharpOT
         {
             ContainerOpenParentPacket packet = ContainerOpenParentPacket.Parse(message);
             Game.ContainerOpenParent(Player, packet.ContainerIndex);
+        }
+
+        public void ParseItemUseOn(NetworkMessage message)
+        {
+            ItemUseOnPacket packet = ItemUseOnPacket.Parse(message);
+            Game.ItemUseOn(Player, packet.FromSpriteId, packet.FromLocation, packet.FromStackPosition, packet.ToSpriteId, packet.ToLocation, packet.ToStackPosition);
         }
 
         public void ParseItemUse(NetworkMessage message)
