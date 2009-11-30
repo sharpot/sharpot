@@ -37,6 +37,9 @@ namespace SharpOT.Scripting
     public delegate bool BeforeItemUseHandler(Player user, Item item, Location fromLocation, byte fromStackPosition, byte index);
     public delegate void AfterItemUseHandler(Player user, Item item, Location fromLocation, byte fromStackPosition, byte index);
 
+    public delegate bool BeforeItemUseOnHandler(Player user, Item item, Location fromLocation, byte fromStackPosition, Location toLocation, byte toStackPosition);
+    public delegate void AfterItemUseOnHandler(Player user, Item item, Location fromLocation, byte fromStackPosition, Location toLocation, byte toStackPosition);
+
     #endregion
 
     #region Login/Logout

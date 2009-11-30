@@ -16,8 +16,7 @@ namespace SharpOT.Scripting
             }
             return true;
         }
-        public bool UseOnItem(Game game, Player user, Location fromLocation, byte fromStackPosition, byte index, Item item, Location toLocation, Item onItem) { return false; }
-        public bool UseOnTile(Game game, Player user, Location fromLocation, byte fromStackPosition, byte index, Item item, Tile tile) { return false; }
-        public bool UseOnCreature(Game game, Player user, Location fromLocation, byte fromStackPosition, byte index, Item item, Creature creature) { return false; }
+        public void UseOnItem(Game game, Player user, Location fromLocation, byte fromStackPosition, Item item, Location toLocation, Item onItem) { }
+        public void UseOnCreature(Game game, Player user, Location fromLocation, byte fromStackPosition, Item item, Creature creature) { }
     }
 }

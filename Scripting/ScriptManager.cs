@@ -20,13 +20,16 @@ namespace SharpOT.Scripting
 
         public static string LoadAllScripts(Game game)
         {
-            // TODO: load scripts from the current assembly, don't copy them to the output folder
+            // load scripts from the current assembly
+            LoadScript(game, System.Reflection.Assembly.GetExecutingAssembly().Location);
+
             errorLog = new StringBuilder();
             foreach (string directory in SharpOT.Properties.Settings.Default.ScriptsDirectory.Split(';'))
             {
                 if (!Directory.Exists(directory)) continue;
                 foreach (string path in Directory.GetFiles(directory))
                 {
+                    // TODO: concatenate files, then load
                     if (!File.Exists(path)) continue;
                     LoadScript(game, path);
                 }
@@ -54,8 +57,9 @@ namespace SharpOT.Scripting
             Assembly assembly = null;
             switch (Path.GetExtension(path))
             {
+                case ".exe":
                 case ".dll":
-                    assembly = LoadDll(path);
+                    assembly = LoadAssembly(path);
                     break;
                 case ".cs":
                     assembly = CompileScript(path, cSharpCodeProvider);
@@ -90,6 +94,8 @@ namespace SharpOT.Scripting
             compilerParameters.GenerateInMemory = true;
             compilerParameters.IncludeDebugInformation = false;
             compilerParameters.ReferencedAssemblies.Add("System.dll");
+            compilerParameters.ReferencedAssemblies.Add("System.Core.dll");
+            compilerParameters.ReferencedAssemblies.Add("System.Data.Linq.dll");
             compilerParameters.ReferencedAssemblies.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);
             CompilerResults results = provider.CompileAssemblyFromFile(compilerParameters, path);
             if (!results.Errors.HasErrors)
@@ -108,14 +114,14 @@ namespace SharpOT.Scripting
         {   
             foreach (Type t in assembly.GetTypes())
             {
-                if (t.GetInterface(typeof(IType).Name, true) != null)
+                if (t.GetInterface(typeof(IType).Name, true) != null && !t.IsInterface && !t.IsAbstract)
                 {
                     yield return (IType)assembly.CreateInstance(t.FullName);
                 }
             }
         }
 
-        public static Assembly LoadDll(string path)
+        public static Assembly LoadAssembly(string path)
         {
             return Assembly.LoadFile(path);
         }

@@ -67,6 +67,9 @@ namespace SharpOT
         public BeforeItemUseHandler BeforeItemUse;
         public AfterItemUseHandler AfterItemUse;
 
+        public BeforeItemUseOnHandler BeforeItemUseOn;
+        public AfterItemUseOnHandler AfterItemUseOn;
+
         #endregion
 
         #region Constructor
@@ -113,6 +116,43 @@ namespace SharpOT
 
         #region Public Actions
 
+        public void ItemUseOn(Player user, ushort fromSpriteId, Location fromLocation, byte fromStackPosition, ushort toSpriteId, Location toLocation, byte toStackPosition)
+        {
+            if (fromLocation.Type == LocationType.Ground)
+            {
+                if (user != null && !user.Tile.Location.IsNextTo(fromLocation))
+                {
+                    // TODO: move the player
+                    return;
+                }
+            }
+
+            Item item = GetThingAtLocation(user, fromLocation, fromStackPosition) as Item;
+
+            if (item == null) return;
+
+            if (BeforeItemUseOn != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeItemUse.GetInvocationList())
+                {
+                    BeforeItemUseOnHandler subscriber = (BeforeItemUseOnHandler)del;
+                    forward &= (bool)subscriber(user, item, fromLocation, fromStackPosition, toLocation, toStackPosition);
+                }
+                if (!forward) return;
+            }
+
+            Thing thing = GetThingAtLocation(user, toLocation, toStackPosition);
+
+            if (thing is Item)
+            {
+                ActionItems.ExecuteUseOnItem(this, user, fromLocation, fromStackPosition, item, toLocation, (Item)thing);
+            }
+
+            if (AfterItemUseOn != null)
+                AfterItemUseOn(user, item, fromLocation, fromStackPosition, toLocation, toStackPosition);
+        }
+
         public void ItemUse(Player user, ushort spriteId, Location fromLocation, byte fromStackPosition, byte index)
         {
             if (fromLocation.Type == LocationType.Ground)
@@ -124,8 +164,6 @@ namespace SharpOT
                 }
 
                 Tile fromTile = Map.GetTile(fromLocation);
-
-                // TODO: read teleport location from map for ladders
 
                 if (fromTile.FloorChange != FloorChangeDirection.None)
                 {
