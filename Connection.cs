@@ -343,7 +343,7 @@ namespace SharpOT
         public void ParseItemMove(NetworkMessage message)
         {
             ItemMovePacket packet = ItemMovePacket.Parse(message);
-            Game.ItemMove(Player, packet.SpriteId, packet.FromLocation, packet.FromStackPosition, packet.ToLocation, packet.Count);
+            Game.ThingMove(Player, packet.SpriteId, packet.FromLocation, packet.FromStackPosition, packet.ToLocation, packet.Count);
         }
 
         public void ParseAutoWalkCancel()
@@ -568,7 +568,10 @@ namespace SharpOT
                 LightColor.None
             );
 
-            string welcomeMessage = "Welcome to Utopia!";
+            string welcomeMessage = String.Format(
+                Properties.Settings.Default.WelcomeMessage,
+                Properties.Settings.Default.WorldName,
+                Player.Name);
             if (Player.LastLogin > DateTime.MinValue)
             {
                 welcomeMessage += String.Format(" Last login: {0}.", Player.LastLogin);

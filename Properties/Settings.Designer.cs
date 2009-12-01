@@ -154,5 +154,17 @@ namespace SharpOT.Properties {
                 this["ClientVersion"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Welcome to {0}, {1}!")]
+        public string WelcomeMessage {
+            get {
+                return ((string)(this["WelcomeMessage"]));
+            }
+            set {
+                this["WelcomeMessage"] = value;
+            }
+        }
     }
 }

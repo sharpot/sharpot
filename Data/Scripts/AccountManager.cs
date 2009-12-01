@@ -21,9 +21,15 @@ public class AccountManager : IScript
         }
         game.BeforeCreatureSpeech += BeforeCreatureSpeech;
         game.BeforeCreatureMove += BeforeCreatureMove;
+        game.BeforeThingMove += ThingMove;
         game.AfterLogin += AfterLogin;
         game.AfterLogout += AfterLogout;
         return true;
+    }
+
+    public bool ThingMove(Player user, Thing thing, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
+    {
+        return false;
     }
 
     public void AfterLogin(Player player)
@@ -204,7 +210,7 @@ public class AccountManager : IScript
                     else
                         p.Outfit = new Outfit(136, 0);
                     Database.CreatePlayer(connection.AccountId, p.Name, p.Id);
-                    Database.SavePlayerById(p);
+                    Database.SavePlayerInfo(p);
                     connection.SendTextMessage(TextMessageType.ConsoleBlue, "Your character has been created sucessfully.You can now relog to access it.");
 
                     connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like to 'create'/'delete' a character or change your password('pw')?");
@@ -272,6 +278,7 @@ public class AccountManager : IScript
     {
         game.BeforeCreatureSpeech -= BeforeCreatureSpeech;
         game.BeforeCreatureMove -= BeforeCreatureMove;
+        game.BeforeThingMove -= ThingMove;
         game.AfterLogin -= AfterLogin;
         game.AfterLogout -= AfterLogout;
         return true;

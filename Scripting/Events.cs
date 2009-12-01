@@ -34,6 +34,9 @@ namespace SharpOT.Scripting
 
     #region Items
 
+    public delegate bool BeforeThingMoveHandler(Player user, Thing thing, Location fromLocation, byte fromStackPosition, Location toLocation, byte count);
+    public delegate void AfterThingMoveHandler(Player user, Thing thing, Location fromLocation, byte fromStackPosition, Location toLocation, byte count);
+
     public delegate bool BeforeItemUseHandler(Player user, Item item, Location fromLocation, byte fromStackPosition, byte index);
     public delegate void AfterItemUseHandler(Player user, Item item, Location fromLocation, byte fromStackPosition, byte index);
 

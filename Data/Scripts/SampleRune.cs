@@ -14,7 +14,7 @@ namespace SharpOT.Scripting
             Location projectileStart = fromLocation.Type == LocationType.Ground ? fromLocation : user.Tile.Location;
             foreach (var player in game.GetSpectatorPlayers(fromLocation).Union(game.GetSpectatorPlayers(toLocation)))
             {
-                player.Connection.SendProjectile(projectileStart, toLocation, ProjectileType.Death);
+                player.Connection.SendProjectile(projectileStart, toLocation, ProjectileType.SuddenDeath);
             }
         }
 

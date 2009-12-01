@@ -67,6 +67,11 @@ namespace SharpOT
             {
                 return Convert.ToByte(Z);
             }
+
+            set
+            {
+                Z = value;
+            }
         }
 
         public override bool Equals(object other)
