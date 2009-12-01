@@ -73,6 +73,9 @@ namespace SharpOT
         public BeforeItemUseOnHandler BeforeItemUseOn;
         public AfterItemUseOnHandler AfterItemUseOn;
 
+        public BeforeItemUseOnCreatureHandler BeforeItemUseOnCreature;
+        public AfterItemUseOnCreatureHandler AfterItemUseOnCreature;
+
         #endregion
 
         #region Constructor
@@ -137,7 +140,7 @@ namespace SharpOT
             if (BeforeItemUseOn != null)
             {
                 bool forward = true;
-                foreach (Delegate del in BeforeItemUse.GetInvocationList())
+                foreach (Delegate del in BeforeItemUseOn.GetInvocationList())
                 {
                     BeforeItemUseOnHandler subscriber = (BeforeItemUseOnHandler)del;
                     forward &= (bool)subscriber(user, item, fromLocation, fromStackPosition, toLocation, toStackPosition);
@@ -154,6 +157,44 @@ namespace SharpOT
 
             if (AfterItemUseOn != null)
                 AfterItemUseOn(user, item, fromLocation, fromStackPosition, toLocation, toStackPosition);
+        }
+
+        public void ItemUseOnCreature(Player user, ushort spriteId, Location fromLocation, byte fromStackPosition, uint creatureId)
+        {
+            if (!creatures.ContainsKey(creatureId))
+                return;
+
+            if (fromLocation.Type == LocationType.Ground)
+            {
+                if (user != null && !user.Tile.Location.IsNextTo(fromLocation))
+                {
+                    // TODO: move the player
+                    return;
+                }
+            }
+
+            Item item = GetThingAtLocation(user, fromLocation, fromStackPosition) as Item;
+
+            if (item == null)
+                return;
+
+            Creature creature = creatures[creatureId];
+
+            if (BeforeItemUseOnCreature != null)
+            {
+                bool forward = true;
+                foreach (Delegate del in BeforeItemUseOnCreature.GetInvocationList())
+                {
+                    BeforeItemUseOnCreatureHandler subscriber = (BeforeItemUseOnCreatureHandler)del;
+                    forward &= (bool)subscriber(user, item, fromLocation, fromStackPosition, creature);
+                }
+                if (!forward) return;
+            }
+
+            ActionItems.ExecuteUseOnCreature(this, user, fromLocation, fromStackPosition, item, creature);
+
+            if (AfterItemUseOnCreature != null)
+                AfterItemUseOnCreature(user, item, fromLocation, fromStackPosition, creature);
         }
 
         public void ItemUse(Player user, ushort spriteId, Location fromLocation, byte fromStackPosition, byte index)

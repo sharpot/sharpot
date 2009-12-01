@@ -138,6 +138,21 @@ namespace SharpOT
             this.Game.CreatureTurn(this, dir);
         }
 
+        public int ApplyDamage(int damage)
+        {
+            int oldHealth = Health;
+            if (Health <= damage)
+            {
+                Health = 0;
+                return oldHealth;
+            }
+            else
+            {
+                Health = (ushort)(Health - damage);
+                return damage;
+            }
+        }
+
         #endregion
     }
 }
