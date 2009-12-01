@@ -21,9 +21,15 @@ public class AccountCreator:IScript
 
         game.BeforeCreatureSpeech += BeforeCreatureSpeech;
         game.BeforeCreatureMove += BeforeCreatureMove;
+        game.BeforeThingMove += ThingMove;
         game.AfterLogin += AfterLogin;
         game.AfterLogout += AfterLogout;
         return true;
+    }
+
+    public bool ThingMove(Player user, Thing thing, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
+    {
+        return false;
     }
 
     public void AfterLogin(Player player)
@@ -146,6 +152,7 @@ public class AccountCreator:IScript
     {
         game.BeforeCreatureSpeech -= BeforeCreatureSpeech;
         game.BeforeCreatureMove -= BeforeCreatureMove;
+        game.BeforeThingMove -= ThingMove;
         game.AfterLogin -= AfterLogin;
         game.AfterLogout -= AfterLogout;
         return true;

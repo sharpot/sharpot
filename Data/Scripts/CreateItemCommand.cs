@@ -40,7 +40,7 @@ public class CreateItemCommand : ICommand
 
             Item item = Item.Create(itemId);
 
-            game.TileAddItem(player.Tile.Location, item);
+            game.AddItemToTile(item, game.Map.GetTile(player.Tile.Location));
         }
         catch (Exception)
         {

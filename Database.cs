@@ -638,12 +638,19 @@ namespace SharpOT
             return player;
         }
 
-        public static bool SavePlayerById(Player player)
+        public static void SavePlayerInfo(Player player)
+        {
+            PlayerInfoToParams(player);
+            if (1 != updatePlayerByIdCommand.ExecuteNonQuery())
+            {
+                throw new Exception("Database insert into Player table failed.");
+            }
+        }
+
+        public static void SavePlayer(Player player)
         {
             SavePlayerInventory(player);
-            PlayerInfoToParams(player);
-
-            return (1 == updatePlayerByIdCommand.ExecuteNonQuery());
+            SavePlayerInfo(player);
         }
 
         private static void PlayerInfoToParams(Player player)
@@ -784,6 +791,8 @@ namespace SharpOT
         public static void SavePlayerInventory(Player player)
         {
             var trans = connection.BeginTransaction();
+
+            playerIdParam.Value = player.Id;
 
             deleteInventoryCommand.ExecuteNonQuery();
 

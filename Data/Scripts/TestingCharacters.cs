@@ -17,7 +17,7 @@ public class TestingCharacters : IScript
                 id = Database.CreatePlayer(id, "God", game.GenerateAvailableId());
                 Player player = Database.GetPlayerById((uint)id);
                 player.Speed = 1500;
-                Database.SavePlayerById(player);
+                Database.SavePlayer(player);
             }
         }
         if (!Database.AccountNameExists("2"))

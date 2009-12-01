@@ -35,5 +35,8 @@
     <Setting Name="ClientVersion" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">853</Value>
     </Setting>
+    <Setting Name="WelcomeMessage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Welcome to {0}, {1}!</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
