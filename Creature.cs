@@ -26,6 +26,7 @@ namespace SharpOT
             LightColor = 0;
             Skull = Skull.None;
             Party = Party.None;
+            War = WarIcon.None;
             Speed = 200;
 
             LastStepTime = 0;
@@ -77,7 +78,7 @@ namespace SharpOT
         {
             get
             {
-                return Convert.ToByte(Math.Floor((double)(Health / MaxHealth) * 100));
+                return Convert.ToByte(Math.Floor((double)Health / MaxHealth * 100));
             }
         }
 
