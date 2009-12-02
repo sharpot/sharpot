@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using SharpOT.Packets;
 using SharpOT.Util;
+using System.IO;
 
 namespace SharpOT
 {
@@ -145,30 +146,38 @@ namespace SharpOT
 
         private bool EndRead(IAsyncResult ar)
         {
-            int read = stream.EndRead(ar);
-
-            if (read == 0)
+            try
             {
-                // client disconnected
+                int read = stream.EndRead(ar);
+
+                if (read == 0)
+                {
+                    // client disconnected
+                    Close();
+                    return false;
+                }
+
+                int size = (int)BitConverter.ToUInt16(inMessage.Buffer, 0) + 2;
+
+                while (read < size)
+                {
+                    if (stream.CanRead)
+                        read += stream.Read(inMessage.Buffer, read, size - read);
+                }
+                inMessage.Length = size;
+
+                inMessage.Position = 0;
+
+                inMessage.GetUInt16(); // total length
+                inMessage.GetUInt32(); // adler
+
+                return true;
+            }
+            catch
+            {
                 Close();
                 return false;
             }
-
-            int size = (int)BitConverter.ToUInt16(inMessage.Buffer, 0) + 2;
-
-            while (read < size)
-            {
-                if (stream.CanRead)
-                    read += stream.Read(inMessage.Buffer, read, size - read);
-            }
-            inMessage.Length = size;
-
-            inMessage.Position = 0;
-
-            inMessage.GetUInt16(); // total length
-            inMessage.GetUInt32(); // adler
-
-            return true;
         }
 
         #endregion
@@ -231,7 +240,9 @@ namespace SharpOT
                 //case ClientPacketType.Attack:
                 //case ClientPacketType.Follow:
                 //case ClientPacketType.CancelMove:
-                //case ClientPacketType.ItemUseBattlelist:
+                case ClientPacketType.ItemUseBattlelist:
+                    ParseItemUseBattlelist(message);
+                    break;
                 case ClientPacketType.ContainerClose:
                     ParseContainerClose(message);
                     break;
@@ -332,6 +343,12 @@ namespace SharpOT
         {
             ItemUseOnPacket packet = ItemUseOnPacket.Parse(message);
             Game.ItemUseOn(Player, packet.FromSpriteId, packet.FromLocation, packet.FromStackPosition, packet.ToSpriteId, packet.ToLocation, packet.ToStackPosition);
+        }
+
+        public void ParseItemUseBattlelist(NetworkMessage message)
+        {
+            ItemUseBattlelistPacket packet = ItemUseBattlelistPacket.Parse(message);
+            Game.ItemUseOnCreature(Player, packet.SpriteId, packet.FromLocation, packet.FromStackPosition, packet.CreatureId);
         }
 
         public void ParseItemUse(NetworkMessage message)
@@ -703,6 +720,32 @@ namespace SharpOT
                 0,
                 0,
                 0
+            );
+
+            Send(outMessage);
+        }
+
+        public void SendCreatureHealth(uint creatureId, byte healthPercent)
+        {
+            NetworkMessage outMessage = new NetworkMessage();
+
+            CreatureHealthPacket.Add(
+                outMessage,
+                creatureId,
+                healthPercent
+            );
+
+            Send(outMessage);
+        }
+
+        public void SendAnimatedText(string text, TextColor color)
+        {
+            NetworkMessage outMessage = new NetworkMessage();
+
+            AnimatedTextPacket.Add(
+                outMessage,
+                color,
+                text
             );
 
             Send(outMessage);

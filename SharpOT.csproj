@@ -168,6 +168,7 @@
     </Compile>
     <Compile Include="Packets\Client\ItemUseBattlelistPacket.cs" />
     <Compile Include="Packets\Client\ItemUseOnPacket.cs" />
+    <Compile Include="Packets\Server\AnimatedTextPacket.cs" />
     <Compile Include="Scripting\Commands.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Scripting\ActionItems.cs" />

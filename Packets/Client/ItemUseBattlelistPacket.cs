@@ -5,16 +5,16 @@ using System.Text;
 
 namespace SharpOT.Packets
 {
-    public class ItemUseBattlelist: Packet
+    public class ItemUseBattlelistPacket: Packet
     {
         public Location FromLocation { get; set; }
         public ushort SpriteId { get; set; }
         public byte FromStackPosition { get; set; }
         public uint CreatureId { get; set; }
 
-        public static ItemUseBattlelist Parse(NetworkMessage message)
+        public static ItemUseBattlelistPacket Parse(NetworkMessage message)
         {
-            ItemUseBattlelist packet = new ItemUseBattlelist();
+            ItemUseBattlelistPacket packet = new ItemUseBattlelistPacket();
 
             packet.FromLocation = message.GetLocation();
             packet.SpriteId = message.GetUInt16();
