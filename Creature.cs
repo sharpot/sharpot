@@ -78,7 +78,8 @@ namespace SharpOT
         {
             get
             {
-                return Convert.ToByte(Math.Floor((double)Health / MaxHealth * 100));
+                int i = (int)Math.Floor((double)Health / MaxHealth * 100);
+                return Convert.ToByte(Math.Min(i, 255));
             }
         }
 

@@ -25,7 +25,8 @@ namespace SharpOT.Scripting
         {
             Location projectileStart = fromLocation.Type == LocationType.Ground ? fromLocation : user.Tile.Location;
             Location toLocation = creature.Tile.Location;
-            ushort damage = (ushort)random.Next(creature.MaxHealth);
+            int damage = random.Next(creature.MaxHealth);
+            if (damage % 2 == 0) damage *= -1;
             creature.ApplyDamage(damage);
 
             Location loc;
@@ -38,12 +39,18 @@ namespace SharpOT.Scripting
                 if (canSeeFrom || canSeeTo)
                 {
                     player.Connection.BeginTransaction();
-                    player.Connection.SendProjectile(projectileStart, toLocation, ProjectileType.Fire);
+                    if (damage > 0)
+                        player.Connection.SendProjectile(projectileStart, toLocation, ProjectileType.Fire);
+                    else
+                        player.Connection.SendEffect(toLocation, Effect.BlueShimmer);
                 }
                 if (canSeeTo)
                 {
                     player.Connection.BeginTransaction();
-                    player.Connection.SendAnimatedText("" + damage, TextColor.DarkRed);
+                    if (damage > 0)
+                        player.Connection.SendAnimatedText(toLocation, "-" + damage, TextColor.DarkRed);
+                    else
+                        player.Connection.SendAnimatedText(toLocation, "+" + -1 * damage, TextColor.Blue);
                     player.Connection.SendCreatureHealth(creature.Id, creature.HealthPercent);
                 }
 
