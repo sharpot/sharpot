@@ -27,9 +27,9 @@ public class AccountCreator:IScript
         return true;
     }
 
-    public bool ThingMove(Player user, Thing thing, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
+    public bool ThingMove(Player mover, Thing thing, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
     {
-        return false;
+        return !mover.Name.Contains("Account Manager");
     }
 
     public void AfterLogin(Player player)

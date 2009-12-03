@@ -738,12 +738,13 @@ namespace SharpOT
             Send(outMessage);
         }
 
-        public void SendAnimatedText(string text, TextColor color)
+        public void SendAnimatedText(Location location, string text, TextColor color)
         {
             NetworkMessage outMessage = new NetworkMessage();
 
             AnimatedTextPacket.Add(
                 outMessage,
+                location,
                 color,
                 text
             );
