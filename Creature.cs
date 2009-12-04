@@ -155,6 +155,16 @@ namespace SharpOT
             }
         }
 
+        public bool IsDead
+        {
+            get { return Health <= 0; }
+        }
+
+        public virtual Item GetCorpse()
+        {
+            return null;
+        }
+
         #endregion
     }
 }

@@ -625,6 +625,17 @@ namespace SharpOT
             Send(message);
         }
 
+        public void SendDeath()
+        {
+            NetworkMessage message = new NetworkMessage();
+
+            DeathPacket.Add(
+                message
+            );
+
+            Send(message);
+        }
+
         public void SendOutfitWindow()
         {
             NetworkMessage message = new NetworkMessage();
@@ -836,11 +847,9 @@ namespace SharpOT
             Send(outMessage);
         }
 
-        public void SendCreatureLogout(Creature creature)
+        public void SendCreatureRemove(Creature creature)
         {
             NetworkMessage message = new NetworkMessage();
-            EffectPacket.Add(message, // TODO: find the new value for poof
-                creature.Tile.Location, Effect.Puff);
             TileRemoveThingPacket.Add(
                 message,
                 creature.Tile.Location,

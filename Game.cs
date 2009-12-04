@@ -1012,7 +1012,9 @@ namespace SharpOT
 
         public void PlayerLogout(Player player)
         {
-            if (player == null) return;
+            if (player == null || player.IsDead) return;
+
+            // TODO: Make sure the player can logout
 
             if (BeforeLogout != null)
             {
@@ -1024,23 +1026,19 @@ namespace SharpOT
                 }
                 if (!forward) return;
             }
-            // TODO: Make sure the player can logout
-            player.Connection.Close();
-            if (AfterLogout != null)
-            {
-                AfterLogout(player);
-            }
-            //should be composite packet for players that are spectators AND vips?
+
             var spectators = GetSpectatorPlayers(player.Tile.Location).Where(s => s != player);
             foreach (var spectator in spectators)
             {
-                spectator.Connection.SendCreatureLogout(player);
+                spectator.Connection.BeginTransaction();
+                spectator.Connection.SendEffect(player.Tile.Location, Effect.Puff);
+                spectator.Connection.SendCreatureRemove(player);
+                spectator.Connection.CommitTransaction();
             }
 
             player.Tile.Creatures.Remove(player);
             RemoveCreature(player);
 
-            //maybe player object should have a list of other players that have added it to their vips
             foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
             {
                 p.VipList[player.Id].LoggedIn = false;
@@ -1048,6 +1046,45 @@ namespace SharpOT
             }
 
             Database.SavePlayer(player);
+
+            if (AfterLogout != null)
+            {
+                AfterLogout(player);
+            }
+        }
+
+        public void CreatureDie(Creature creature)
+        {
+            if (creature == null) return;
+
+            Item corpse = creature.GetCorpse();
+            //creature.Tile.AddItem(corpse);
+
+            var spectators = GetSpectatorPlayers(creature.Tile.Location);
+            foreach (var spectator in spectators)
+            {
+                spectator.Connection.BeginTransaction();
+                spectator.Connection.SendCreatureRemove(creature);
+                //spectator.Connection.SendTileAddItem(creature.Tile.Location, creature.Tile.GetStackPosition(corpse), corpse);
+                spectator.Connection.CommitTransaction();
+            }
+
+            creature.Tile.Creatures.Remove(creature);
+            RemoveCreature(creature);
+
+            Player player = creature as Player;
+            if (player != null)
+            {
+                player.Connection.SendDeath();
+
+                foreach (Player p in GetPlayers().Where(b => b.VipList.ContainsKey(player.Id)))
+                {
+                    p.VipList[player.Id].LoggedIn = false;
+                    p.Connection.SendVipLogout(player.Id);
+                }
+
+                Database.SavePlayer(player);
+            }
         }
 
         public void PlayerLookAt(Player player, ushort id, Location location, byte stackPosition)

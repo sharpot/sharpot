@@ -36,5 +36,13 @@ namespace SharpOT
             ChannelList.Add(new Channel((ushort)ChatChannel.Help, "Help", 0));
             VipList = new Dictionary<uint, Vip>(100);
         }
+
+        public override Item GetCorpse()
+        {
+            if (Gender == Gender.Female)
+                return Item.Create(Constants.Items.CorpseFemale);
+            else
+                return Item.Create(Constants.Items.CorpseMale);
+        }
     }
 }

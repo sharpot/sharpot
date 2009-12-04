@@ -5,8 +5,14 @@ using System.Text;
 
 namespace SharpOT
 {
-    public class Constants
+    public static class Constants
     {
-        public const int MaxOpenContainers = 16;
+        public static int MaxOpenContainers = 16;
+
+        public static class Items
+        {
+            public static ushort CorpseFemale = 6081;
+            public static ushort CorpseMale = 6080;
+        }
     }
 }
