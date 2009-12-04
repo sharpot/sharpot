@@ -26,7 +26,7 @@ namespace SharpOT.Scripting
             Location projectileStart = fromLocation.Type == LocationType.Ground ? fromLocation : user.Tile.Location;
             Location toLocation = creature.Tile.Location;
             int damage = random.Next(creature.MaxHealth);
-            if (damage % 2 == 0) damage *= -1;
+            if (damage % 10 == 0) damage *= -1;
             creature.ApplyDamage(damage);
 
             Location loc;
@@ -56,6 +56,11 @@ namespace SharpOT.Scripting
 
                 if (canSeeFrom || canSeeTo)
                     player.Connection.CommitTransaction();
+            }
+
+            if (creature.IsDead)
+            {
+                game.CreatureDie(creature);
             }
         }
     }
