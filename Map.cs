@@ -26,9 +26,12 @@ namespace SharpOT
             reader.GetMapTiles(this);
         }
 
-        public Location GetDefaultLocation()
+        public Location DefaultLocation
         {
-            return Towns[0].TempleLocation;
+            get
+            {
+                return Towns[0].TempleLocation;
+            }
         }
 
         public Tile GetTile(Location location)

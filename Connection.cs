@@ -383,7 +383,10 @@ namespace SharpOT
 
         public void ParseLogout()
         {
-            Game.PlayerLogout(Player);
+            if (Player.IsDead)
+                Close();
+            else
+                Game.PlayerLogout(Player);
         }
 
         public void ParsePlayerSpeech(NetworkMessage message)
@@ -1161,7 +1164,14 @@ namespace SharpOT
             else
                 message.PrepareToSendWithoutEncryption();
 
-            stream.BeginWrite(message.Buffer, 0, message.Length, null, null);
+            try
+            {
+                stream.BeginWrite(message.Buffer, 0, message.Length, null, null);
+            }
+            catch (ObjectDisposedException)
+            {
+                Close();
+            }
         }
 
         public void Send(NetworkMessage message)
