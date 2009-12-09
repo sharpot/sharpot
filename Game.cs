@@ -999,7 +999,7 @@ namespace SharpOT
             
             if (player.SavedLocation == null || Map.GetTile(player.SavedLocation) == null)
             {
-                player.SavedLocation = Map.GetDefaultLocation();
+                player.SavedLocation = Map.DefaultLocation;
             }
             Tile tile = Map.GetTile(player.SavedLocation);
             player.Tile = tile;
@@ -1057,15 +1057,13 @@ namespace SharpOT
         {
             if (creature == null) return;
 
-            Item corpse = creature.GetCorpse();
-            //creature.Tile.AddItem(corpse);
+            AddItemToTile(creature.GetCorpse(), creature.Tile);
 
             var spectators = GetSpectatorPlayers(creature.Tile.Location);
             foreach (var spectator in spectators)
             {
                 spectator.Connection.BeginTransaction();
                 spectator.Connection.SendCreatureRemove(creature);
-                //spectator.Connection.SendTileAddItem(creature.Tile.Location, creature.Tile.GetStackPosition(corpse), corpse);
                 spectator.Connection.CommitTransaction();
             }
 
@@ -1082,7 +1080,7 @@ namespace SharpOT
                     p.VipList[player.Id].LoggedIn = false;
                     p.Connection.SendVipLogout(player.Id);
                 }
-
+                player.Tile = Map.GetTile(Map.DefaultLocation);
                 Database.SavePlayer(player);
             }
         }
