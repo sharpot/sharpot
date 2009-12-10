@@ -1036,6 +1036,8 @@ namespace SharpOT
                 spectator.Connection.CommitTransaction();
             }
 
+            player.Connection.Close();
+
             player.Tile.Creatures.Remove(player);
             RemoveCreature(player);
 
