@@ -7,6 +7,7 @@ public class AccountCreator:IScript
 {
     Game game;
     Dictionary<Connection, CreationInfo> creators = new Dictionary<Connection, CreationInfo>();
+    static string ManagerNamePrefix = "Account Manager";
     public bool Start(Game game)
     {
         this.game = game;
@@ -29,7 +30,7 @@ public class AccountCreator:IScript
 
     public bool ThingMove(Player mover, Thing thing, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
     {
-        return !mover.Name.Contains("Account Manager");
+        return !mover.Name.Contains(ManagerNamePrefix);
     }
 
     public void AfterLogin(Player player)

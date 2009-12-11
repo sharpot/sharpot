@@ -8,6 +8,9 @@ public class AccountManager : IScript
     Game game;
     Dictionary<Connection, ManagementInfo> managers = new Dictionary<Connection, ManagementInfo>();
     string vocationsText;
+    static string ManagerNamePrefix = "Account Manager";
+    static string HelpPrompt = "Would you like to {create}/{delete} a character or change your {password}?";
+    static string CantUnderstand = "I can't understand what you mean.";
     public bool Start(Game game)
     {
         this.game = game;
@@ -15,7 +18,7 @@ public class AccountManager : IScript
         string[] vocations = Enum.GetNames(typeof(Vocation));
         for (int i = 0; i < vocations.Length; i++)
         {
-            vocationsText += "'" + vocations[i] + "'";
+            vocationsText += "{" + vocations[i] + "}";
             if (i == vocations.Length - 1) vocationsText += ".";
             else vocationsText += ", ";
         }
@@ -29,14 +32,14 @@ public class AccountManager : IScript
 
     public bool ThingMove(Player mover, Thing thing, Location fromLocation, byte fromStackPosition, Location toLocation, byte count)
     {
-        return !mover.Name.Contains("Account Manager");
+        return !mover.Name.Contains(ManagerNamePrefix);
     }
 
     public void AfterLogin(Player player)
     {
-        if (player.Name.Contains("Account Manager"))
+        if (player.Name.Contains(ManagerNamePrefix))
         {
-            player.Connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like to 'create'/'delete' a character or change your password('pw')?");
+            player.Connection.SendTextMessage(TextMessageType.ConsoleBlue, HelpPrompt);
             managers.Add(player.Connection, new ManagementInfo { State = DialogueState.AskTask });
         }
     }
@@ -48,7 +51,7 @@ public class AccountManager : IScript
 
     public bool BeforeCreatureSpeech(Creature creature, Speech speech)
     {
-        if (creature.IsPlayer && creature.Name.Contains("Account Manager"))
+        if (creature.IsPlayer && creature.Name.Contains(ManagerNamePrefix))
         {
             Player p = (Player)creature;
 
@@ -66,7 +69,7 @@ public class AccountManager : IScript
 
     public bool BeforeCreatureMove(Creature creature, Location fromLocation, Location toLocation, byte fromStackPosition, Tile toTile)
     {
-        if (creature.IsPlayer && creature.Name.Contains("Account Manager"))
+        if (creature.IsPlayer && creature.Name.Contains(ManagerNamePrefix))
         {
             ((Player)creature).Connection.SendCancelWalk();
             return false;
@@ -83,7 +86,7 @@ public class AccountManager : IScript
                 switch (speech.Message.ToLower())
                 {
                     case "create":
-                        connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like it to be 'male' or 'female'?");
+                        connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like it to be {male} or {femal}'?");
                         managers[connection].State = DialogueState.AskGender;
                         break;
                     case "delete":
@@ -95,23 +98,23 @@ public class AccountManager : IScript
                             {
                                 connection.SendTextMessage(TextMessageType.ConsoleBlue, i + ". " + managers[connection].CharactersList[i].Name);
                             }
-                            connection.SendTextMessage(TextMessageType.ConsoleBlue, "What character would you like to delete(by index)?");
+                            connection.SendTextMessage(TextMessageType.ConsoleBlue, "What character would you like to delete (by index)?");
                             managers[connection].State = DialogueState.AskIndex;
                         }
                         else
                         {
                             connection.SendTextMessage(TextMessageType.ConsoleRed, "Your account doesn't contain any characters yet.");
-                            connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like to 'create'/'delete' a character or change your password('pw')?");
+                            connection.SendTextMessage(TextMessageType.ConsoleBlue, HelpPrompt);
                             managers[connection].State = DialogueState.AskTask;
                         }
                         break;
-                    case "pw":
+                    case "password":
                         connection.SendTextMessage(TextMessageType.ConsoleBlue, "What would you like your new password to be?");
                         managers[connection].State = DialogueState.AskPassword;
                         break;
                     default:
-                        connection.SendTextMessage(TextMessageType.ConsoleRed, "I can't understand what you mean.");
-                        connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like to 'create'/'delete' a character or change your password('pw')?");
+                        connection.SendTextMessage(TextMessageType.ConsoleRed, CantUnderstand);
+                        connection.SendTextMessage(TextMessageType.ConsoleBlue, HelpPrompt);
                         break;
                 }
                 break;
@@ -131,13 +134,13 @@ public class AccountManager : IScript
                 else if (Database.UpdateAccountPassword(connection.AccountId, speech.Message))
                 {
                     connection.SendTextMessage(TextMessageType.ConsoleBlue, "Your account password has been changed with success.");
-                    connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like to 'create'/'delete' a character or change your password('pw')?");
+                    connection.SendTextMessage(TextMessageType.ConsoleBlue, HelpPrompt);
                     managers[connection].State = DialogueState.AskTask;
                 }
                 else
                 {
                     connection.SendTextMessage(TextMessageType.ConsoleRed, "An error has occurred and your password could not be changed. Sorry for the inconvenience.");
-                    connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like to 'create'/'delete' a character or change your password('pw')?");
+                    connection.SendTextMessage(TextMessageType.ConsoleBlue, HelpPrompt);
                     managers[connection].State = DialogueState.AskTask;
                 }
                 break;
@@ -153,8 +156,8 @@ public class AccountManager : IScript
                         managers[connection].CharacterGender = Gender.Female;
                         break;
                     default:
-                        connection.SendTextMessage(TextMessageType.ConsoleRed, "I can't understand what you mean.");
-                        connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like it to be 'male' or 'female'?");
+                        connection.SendTextMessage(TextMessageType.ConsoleRed, CantUnderstand);
+                        connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like it to be {male} or {female}?");
                         return;
                 }
                 connection.SendTextMessage(TextMessageType.ConsoleBlue, vocationsText);
@@ -166,12 +169,12 @@ public class AccountManager : IScript
                 try
                 {
                     managers[connection].CharacterVocation = (Vocation)Enum.Parse(typeof(Vocation), speech.Message, true);
-                    connection.SendTextMessage(TextMessageType.ConsoleBlue, "What would you like its name to be?");
+                    connection.SendTextMessage(TextMessageType.ConsoleBlue, "What would you like your character's name to be?");
                     managers[connection].State = DialogueState.AskName;
                 }
                 catch
                 {
-                    connection.SendTextMessage(TextMessageType.ConsoleRed, "I can't understand what you mean.");
+                    connection.SendTextMessage(TextMessageType.ConsoleRed, CantUnderstand);
                     connection.SendTextMessage(TextMessageType.ConsoleBlue, vocationsText);
                 }
                 break;
@@ -191,7 +194,7 @@ public class AccountManager : IScript
                 else if (Database.PlayerNameExists(speech.Message))
                 {
                     connection.SendTextMessage(TextMessageType.ConsoleRed, "A character with that name already exists.");
-                    connection.SendTextMessage(TextMessageType.ConsoleBlue, "What would you like your character name to be?");
+                    connection.SendTextMessage(TextMessageType.ConsoleBlue, "What would you like your character's name to be?");
                 }
                 else
                 {
@@ -213,7 +216,7 @@ public class AccountManager : IScript
                     Database.SavePlayerInfo(p);
                     connection.SendTextMessage(TextMessageType.ConsoleBlue, "Your character has been created sucessfully.You can now relog to access it.");
 
-                    connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like to 'create'/'delete' a character or change your password('pw')?");
+                    connection.SendTextMessage(TextMessageType.ConsoleBlue, HelpPrompt);
                     managers[connection].State = DialogueState.AskTask;
                 }
                 break;
@@ -232,13 +235,13 @@ public class AccountManager : IScript
                     else
                     {
                         connection.SendTextMessage(TextMessageType.ConsoleRed, "Index out of range(1-" + (managers[connection].CharactersList.Count - 1) + ").");
-                        connection.SendTextMessage(TextMessageType.ConsoleBlue, "What character would you like to delete(by index)?");
+                        connection.SendTextMessage(TextMessageType.ConsoleBlue, "Which character would you like to delete (by index)?");
                     }
                 }
                 else
                 {
-                    connection.SendTextMessage(TextMessageType.ConsoleRed, "I can't understand what you mean.");
-                    connection.SendTextMessage(TextMessageType.ConsoleBlue, "What character would you like to delete(by index)?");
+                    connection.SendTextMessage(TextMessageType.ConsoleRed, CantUnderstand);
+                    connection.SendTextMessage(TextMessageType.ConsoleBlue, "Which character would you like to delete (by index)?");
                 }
 
                 break;
@@ -256,17 +259,17 @@ public class AccountManager : IScript
                         {
                             connection.SendTextMessage(TextMessageType.ConsoleRed, "An error has occurred and your character could not be deleted.Sorry for the inconvenience.");
                         }
-                        connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like to 'create'/'delete' a character or change your password('pw')?");
+                        connection.SendTextMessage(TextMessageType.ConsoleBlue, HelpPrompt);
                         managers[connection].State = DialogueState.AskTask;
                         break;
                     case "no":
                         connection.SendTextMessage(TextMessageType.ConsoleBlue, "Character deletion canceled.");
-                        connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like to 'create'/'delete' a character or change your password('pw')?");
+                        connection.SendTextMessage(TextMessageType.ConsoleBlue, HelpPrompt);
                         managers[connection].State = DialogueState.AskTask;
                         break;
                     default:
-                        connection.SendTextMessage(TextMessageType.ConsoleRed, "I can't understand what you mean.");
-                        connection.SendTextMessage(TextMessageType.ConsoleOrange, "Are you sure you want to delete the character " + managers[connection].DeleteSelected + " from your account('yes' or 'no')?This decision is irreversible.");
+                        connection.SendTextMessage(TextMessageType.ConsoleRed, CantUnderstand);
+                        connection.SendTextMessage(TextMessageType.ConsoleOrange, "Are you sure you want to delete the character " + managers[connection].DeleteSelected + " from your account ({yes} or {no})? This decision is irreversible.");
                         break;
                 }
                 break;
