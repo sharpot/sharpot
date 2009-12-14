@@ -145,7 +145,7 @@ namespace SharpOT.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("853")]
+        [global::System.Configuration.DefaultSettingValueAttribute("854")]
         public uint ClientVersion {
             get {
                 return ((uint)(this["ClientVersion"]));

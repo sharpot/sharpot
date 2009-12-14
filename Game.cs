@@ -1140,7 +1140,7 @@ namespace SharpOT
         {
             var dictionary = Database.GetPlayerIdNameDictionary();
             uint baseId = 0x40000001;
-            if (dictionary.Count() == 0)
+            if (!dictionary.Any())
             {
                 return baseId;
             }

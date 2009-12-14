@@ -237,6 +237,11 @@ namespace SharpOT.Packets
             {
                 AddByte((byte)creature.War);
             }
+
+            if (Properties.Settings.Default.ClientVersion >= 854)
+            {
+                AddByte(Convert.ToByte(creature.IsBlocking));
+            }
         }
 
         public void AddItem(Item item)
