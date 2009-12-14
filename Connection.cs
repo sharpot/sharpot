@@ -618,7 +618,6 @@ namespace SharpOT
                 0
             );
 
-
             // Player skills
             //message.AddBytes("A1 0A 02 0A 00 0E 44 0B 62 0A 0D 0F 3E 13 26".ToBytesAsHex());
 
@@ -637,6 +636,18 @@ namespace SharpOT
             );
 
             Send(message);
+        }
+
+        public void SendPlayerFlags()
+        {
+            //NetworkMessage message = new NetworkMessage();
+
+            //PlayerFlagsPacket.Add(
+            //    message,
+            //    (ushort)Player.Flags
+            //);
+
+            //Send(message);
         }
 
         public void SendOutfitWindow()

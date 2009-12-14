@@ -53,7 +53,6 @@ namespace SharpOT
                 {
                     Log("There were errors when compiling scripts:\n\n" + errors);
                 }
-
                 LogStart("Listening for clients");
                 clientLoginListener.Start();
                 clientLoginListener.BeginAcceptSocket(new AsyncCallback(LoginListenerCallback), clientLoginListener);

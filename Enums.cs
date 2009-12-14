@@ -222,6 +222,31 @@ namespace SharpOT
 
     #region Other
 
+    [Flags]
+    public enum PlayerFlags : ushort
+    {
+        None = 0,
+        Poisoned = 1 << 0,
+        Burning = 1 << 1,
+        Electrified = 1 << 2,
+        Drunk = 1 << 3,
+        ManaShield = 1 << 4,
+        Paralyze = 1 << 5,
+        Hasted = 1 << 6,
+        InBattle = 1 << 7,
+        Drowning = 1 << 8,
+        Freezing = 1 << 9,
+        Dazzled = 1 << 10,
+        Cursed = 1 << 11,
+        Strengthened = 1 << 12,
+        CannotLogoutOrEnterProtectionZone = 1 << 13,
+        WithinProtectionZone = 1 << 14
+    }
+    public enum StateType
+    {
+        Regeneration
+    }
+
     public enum Effect : byte
     {
         RedSpark = 1,
