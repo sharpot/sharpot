@@ -27,6 +27,7 @@ namespace SharpOT
             Skull = Skull.None;
             Party = Party.None;
             War = WarIcon.None;
+            IsBlocking = false;
             Speed = 200;
 
             LastStepTime = 0;
@@ -63,6 +64,7 @@ namespace SharpOT
         public Skull Skull { get; set; }
         public Party Party { get; set; }
         public WarIcon War { get; set; }
+        public bool IsBlocking { get; set; }
         public ushort Speed { get; set; }
         public Tile Tile { get; set; }
         public Game Game { get; set; }
