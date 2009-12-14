@@ -712,6 +712,8 @@ namespace SharpOT
 
             CreatureMove(creature, creature.Tile.Location.Offset(direction));
 
+
+
             if (AfterCreatureWalk != null)
                 AfterCreatureWalk(creature, direction);
         }
@@ -831,9 +833,13 @@ namespace SharpOT
                     }
                 }
 
+                if (creature.IsPlayer)
+                {
+                    SetPlayerFlags((Player)creature, toTile);
+                }
+
                 if(AfterCreatureMove != null)
                     AfterCreatureMove(creature, fromLocation, toLocation, fromStackPosition, toTile);
-                
             }
         }
 
@@ -1268,22 +1274,30 @@ namespace SharpOT
 
         #region Private Helpers
 
+        private void SetPlayerFlags(Player player, Tile tile) {
+            
+            if (tile.IsProtectionZone)
+            {
+                player.Flags |= PlayerFlags.WithinProtectionZone;
+            }
+            else
+            {
+                player.Flags &= ~PlayerFlags.WithinProtectionZone;
+            }
+            player.Connection.SendPlayerFlags();
+        }
+
         private void PlayerLogin(Player player)
         {
             player.Tile.Creatures.Add(player);
             AddCreature(player);
 
+            player.Connection.BeginTransaction();
             player.Connection.SendInitialPacket();
 
-            player.LastLogin = DateTime.Now;
-
-            Database.SavePlayerInfo(player);
-
-            if (AfterLogin != null)
-            {
-                AfterLogin(player);
-            }
-
+            SetPlayerFlags(player, Map.GetTile(player.SavedLocation));
+            
+            player.Connection.CommitTransaction();
             foreach (Player p in GetPlayers())
             {
                 if (p != player)
@@ -1303,6 +1317,15 @@ namespace SharpOT
 
                     p.Connection.CommitTransaction();
                 }
+            }
+         
+            player.LastLogin = DateTime.Now;
+
+            Database.SavePlayerInfo(player);
+
+            if (AfterLogin != null)
+            {
+                AfterLogin(player);
             }
         }
 
