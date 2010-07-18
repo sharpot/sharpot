@@ -640,14 +640,14 @@ namespace SharpOT
 
         public void SendPlayerFlags()
         {
-            //NetworkMessage message = new NetworkMessage();
+            NetworkMessage message = new NetworkMessage();
 
-            //PlayerFlagsPacket.Add(
-            //    message,
-            //    (ushort)Player.Flags
-            //);
+            PlayerFlagsPacket.Add(
+                message,
+                (ushort)Player.Flags
+            );
 
-            //Send(message);
+            Send(message);
         }
 
         public void SendOutfitWindow()
@@ -828,6 +828,18 @@ namespace SharpOT
             NetworkMessage message = new NetworkMessage();
 
             CreatureChangeOutfitPacket.Add(
+                message,
+                creature
+            );
+
+            Send(message);
+        }
+
+        public void SendCreatureChangeSpeed(Creature creature)
+        {
+            NetworkMessage message = new NetworkMessage();
+
+            CreatureChangeSpeedPacket.Add(
                 message,
                 creature
             );
