@@ -7,17 +7,29 @@ public class AccountCreator:IScript
 {
     Game game;
     Dictionary<Connection, CreationInfo> creators = new Dictionary<Connection, CreationInfo>();
-    static string ManagerNamePrefix = "Account Manager";
+    static long AccountCreatorId = -1;
+    const string ManagerNamePrefix = "Account Manager";
+    const string AccountCreatorPlayerName = "Account Creator";
+    const string AccountCreatorAccountName = "creator";
+    const string AccountCreatorAccountPassword = "creator";
+
     public bool Start(Game game)
     {
         this.game = game;
 
         int id = -1;
-        if (!Database.AccountNameExists("creator"))
+        if (!Database.AccountNameExists(AccountCreatorAccountName))
         {
-            id = Database.CreateAccount("creator", "creator");
-            if (id > 0 && !Database.PlayerNameExists("Account Creator"))
-                Database.CreatePlayer(id, "Account Creator", game.GenerateAvailableId());
+            id = Database.CreateAccount(AccountCreatorAccountName, AccountCreatorAccountPassword);
+            if (id > 0 && !Database.PlayerNameExists(AccountCreatorPlayerName))
+            {
+                Database.CreatePlayer(id, AccountCreatorPlayerName, game.GenerateAvailableId());
+            }
+            AccountCreatorId = id;
+        }
+        else
+        {
+            AccountCreatorId = Database.GetAccountId(AccountCreatorAccountName, AccountCreatorAccountPassword);
         }
 
         game.BeforeCreatureSpeech += BeforeCreatureSpeech;
@@ -35,7 +47,7 @@ public class AccountCreator:IScript
 
     public void AfterLogin(Player player)
     {
-        if (player.Name == "Account Creator")
+        if (player.Id == AccountCreatorId)
         {
             player.Connection.SendTextMessage(TextMessageType.ConsoleBlue, "What would you like your account name to be?");
             creators.Add(player.Connection, new CreationInfo { State = DialogueState.AskName });
@@ -44,12 +56,15 @@ public class AccountCreator:IScript
 
     public void AfterLogout(Player player)
     {
-        if (creators.ContainsKey(player.Connection)) creators.Remove(player.Connection);
+        if (creators.ContainsKey(player.Connection))
+        {
+            creators.Remove(player.Connection);
+        }
     }
 
     public bool BeforeCreatureSpeech(Creature creature, Speech speech)
     {
-        if (creature.IsPlayer && creature.Name == "Account Creator")
+        if (creature.IsPlayer && creature.Id == AccountCreatorId)
         {
             Player p = (Player)creature;
 
@@ -67,7 +82,7 @@ public class AccountCreator:IScript
 
     public bool BeforeCreatureMove(Creature creature, Location fromLocation, Location toLocation, byte fromStackPosition, Tile toTile)
     {
-        if (creature.IsPlayer && creature.Name == "Account Creator")
+        if (creature.IsPlayer && creature.Id == AccountCreatorId)
         {
             ((Player)creature).Connection.SendCancelWalk();
             return false;
@@ -83,7 +98,7 @@ public class AccountCreator:IScript
             case DialogueState.AskName:
                 if (speech.Message.Length > 30)
                 {
-                    connection.SendTextMessage(TextMessageType.ConsoleRed, "Account names must be shorter or as long as 30 characters.");
+                    connection.SendTextMessage(TextMessageType.ConsoleRed, "Account names must be no more than 30 characters.");
                     connection.SendTextMessage(TextMessageType.ConsoleBlue, "What would you like your account name to be?");
                 }
                 else if (!System.Text.RegularExpressions.Regex.IsMatch(speech.Message, "^[a-zA-Z0-9]+$"))
@@ -118,13 +133,13 @@ public class AccountCreator:IScript
                 else
                 {
                     creators[connection].Password = speech.Message;
-                    int id=Database.CreateAccount(creators[connection].AccName, creators[connection].Password);
+                    int id = Database.CreateAccount(creators[connection].AccName, creators[connection].Password);
                     if (id > 0)
                     {
                         uint pId = game.GenerateAvailableId();
                         if (-1 != Database.CreatePlayer(id, "Account Manager " + Convert.ToBase64String(BitConverter.GetBytes(pId)), pId))
                         {
-                            connection.SendTextMessage(TextMessageType.ConsoleBlue, "Congratulations!Your account has been created successfully.");
+                            connection.SendTextMessage(TextMessageType.ConsoleBlue, "Congratulations! Your account has been created successfully.");
                             connection.SendTextMessage(TextMessageType.ConsoleBlue, "Details:");
                             connection.SendTextMessage(TextMessageType.ConsoleBlue, "Account Name:   " + creators[connection].AccName);
                             connection.SendTextMessage(TextMessageType.ConsoleBlue, "Password:   " + creators[connection].Password);

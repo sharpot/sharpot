@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using SharpOT.Util;
 using SharpOT.Scripting;
+using System.Diagnostics;
 
 namespace SharpOT
 {
@@ -30,8 +31,8 @@ namespace SharpOT
         {
             game = new Game();
 
-            //try
-            //{
+            try
+            {
                 LogStart("Initializing database");
                 Database.Initialize(SharpOT.Properties.Settings.Default.DatabaseFile);
                 LogDone();
@@ -53,17 +54,22 @@ namespace SharpOT
                 {
                     Log("There were errors when compiling scripts:\n\n" + errors);
                 }
+
                 LogStart("Listening for clients");
                 clientLoginListener.Start();
                 clientLoginListener.BeginAcceptSocket(new AsyncCallback(LoginListenerCallback), clientLoginListener);
                 clientGameListener.Start();
                 clientGameListener.BeginAcceptSocket(new AsyncCallback(GameListenerCallback), clientGameListener);
                 LogDone();
-            //}
-            //catch (Exception e)
-            //{
-            //    LogError(e.ToString());
-            //}
+            }
+            catch (Exception e)
+            {
+                LogError(e.ToString());
+                if (Debugger.IsAttached)
+                {
+                    throw;
+                }
+            }
 
             while (true)
             {

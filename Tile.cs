@@ -62,12 +62,12 @@ namespace SharpOT
 
         public IEnumerable<Item> GetTopItems()
         {
-            return Items.Where(i => i.GetOrder() < 4);
+            return Items.Where(i => i.GetOrder() < 4).OrderBy(i => i.GetOrder());
         }
 
         public IEnumerable<Item> GetDownItems()
         {
-            return Items.Where(i => i.GetOrder() > 4);
+            return Items.Where(i => i.GetOrder() > 4).OrderBy(i => i.GetOrder()); ;
         }
 
         public Thing GetThingAtStackPosition(byte stackPosition)

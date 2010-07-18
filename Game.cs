@@ -1007,6 +1007,7 @@ namespace SharpOT
             {
                 player.SavedLocation = Map.DefaultLocation;
             }
+
             Tile tile = Map.GetTile(player.SavedLocation);
             player.Tile = tile;
             connection.Player = player;
@@ -1100,7 +1101,7 @@ namespace SharpOT
                 Thing thing = GetThingAtLocation(player, location, stackPosition);
                 if (thing != null)
                     player.Connection.SendTextMessage(TextMessageType.DescriptionGreen, String.Format(
-                        "{0} [Id:{1}]", thing.GetLookAtString(), thing.GetThingId()));
+                        "{0} [Id:{1}, Location:{2}]", thing.GetLookAtString(), thing.GetThingId(), location.ToString()));
             }
         }
 

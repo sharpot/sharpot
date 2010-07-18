@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SharpOT
 {
-    public class Location
+    public class Location : IEquatable<Location>
     {
         public int X { get; set; }
         public int Y { get; set; }
@@ -84,12 +84,14 @@ namespace SharpOT
             return other.X == X && other.Y == Y && other.Z == Z;
         }
 
+        // From http://stackoverflow.com/questions/263400/what-is-the-best-algorithm-for-an-overridden-system-object-gethashcode
         public override int GetHashCode()
         {
-            ushort shortX = (ushort)X;
-            ushort shortY = (ushort)Y;
-            byte byteZ = (byte)Z;
-            return ((shortX << 3) + (shortY << 1) + byteZ).GetHashCode();
+            int hash = 17;
+            hash = hash * 23 + X.GetHashCode();
+            hash = hash * 23 + Y.GetHashCode();
+            hash = hash * 23 + Z.GetHashCode();
+            return hash;
         }
 
         public override string ToString()

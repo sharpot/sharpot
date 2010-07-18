@@ -8,9 +8,10 @@ public class AccountManager : IScript
     Game game;
     Dictionary<Connection, ManagementInfo> managers = new Dictionary<Connection, ManagementInfo>();
     string vocationsText;
-    static string ManagerNamePrefix = "Account Manager";
-    static string HelpPrompt = "Would you like to {create}/{delete} a character or change your {password}?";
-    static string CantUnderstand = "I can't understand what you mean.";
+    const string ManagerNamePrefix = "Account Manager";
+    const string HelpPrompt = "Would you like to {create}/{delete} a character or change your {password}?";
+    const string CantUnderstand = "I can't understand what you mean.";
+
     public bool Start(Game game)
     {
         this.game = game;
@@ -39,7 +40,7 @@ public class AccountManager : IScript
     {
         if (player.Name.Contains(ManagerNamePrefix))
         {
-            player.Connection.SendTextMessage(TextMessageType.ConsoleBlue, HelpPrompt);
+            player.Connection.SendTextMessage(TextMessageType.ConsoleOrange, HelpPrompt);
             managers.Add(player.Connection, new ManagementInfo { State = DialogueState.AskTask });
         }
     }
@@ -86,7 +87,7 @@ public class AccountManager : IScript
                 switch (speech.Message.ToLower())
                 {
                     case "create":
-                        connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like it to be {male} or {femal}'?");
+                        connection.SendTextMessage(TextMessageType.ConsoleBlue, "Would you like it to be {male} or {female}'?");
                         managers[connection].State = DialogueState.AskGender;
                         break;
                     case "delete":
@@ -99,7 +100,7 @@ public class AccountManager : IScript
                                 connection.SendTextMessage(TextMessageType.ConsoleBlue, i + ". " + managers[connection].CharactersList[i].Name);
                             }
                             connection.SendTextMessage(TextMessageType.ConsoleBlue, "What character would you like to delete (by index)?");
-                            managers[connection].State = DialogueState.AskIndex;
+                            managers[connection].State = DialogueState.AskDeleteIndex;
                         }
                         else
                         {
@@ -119,11 +120,12 @@ public class AccountManager : IScript
                 }
                 break;
             #endregion
+
             #region AskPassword
             case DialogueState.AskPassword:
                 if (speech.Message.Length > 29)
                 {
-                    connection.SendTextMessage(TextMessageType.ConsoleRed, "Passwords must be shorter or as long as 29 characters.");
+                    connection.SendTextMessage(TextMessageType.ConsoleRed, "Passwords must be no more than 29 characters.");
                     connection.SendTextMessage(TextMessageType.ConsoleBlue, "What would you like your password to be?");
                 }
                 else if (!System.Text.RegularExpressions.Regex.IsMatch(speech.Message, "^[a-zA-Z0-9]+$"))
@@ -145,6 +147,7 @@ public class AccountManager : IScript
                 }
                 break;
             #endregion
+
             #region AskGender
             case DialogueState.AskGender:
                 switch (speech.Message.ToLower())
@@ -164,6 +167,7 @@ public class AccountManager : IScript
                 managers[connection].State = DialogueState.AskVocation;
                 break;
             #endregion
+
             #region AskVocation
             case DialogueState.AskVocation:
                 try
@@ -179,6 +183,7 @@ public class AccountManager : IScript
                 }
                 break;
             #endregion
+
             #region AskName
             case DialogueState.AskName:
                 if (speech.Message.Length > 29)
@@ -221,8 +226,9 @@ public class AccountManager : IScript
                 }
                 break;
             #endregion
-            #region AskIndex
-            case DialogueState.AskIndex:
+
+            #region AskDeleteIndex
+            case DialogueState.AskDeleteIndex:
                 ushort us;
                 if(ushort.TryParse(speech.Message,out us))
                 {
@@ -230,7 +236,7 @@ public class AccountManager : IScript
                     {
                         managers[connection].DeleteSelected = managers[connection].CharactersList[(int)us].Name;
                         connection.SendTextMessage(TextMessageType.ConsoleOrange, "Are you sure you want to delete the character " + managers[connection].DeleteSelected + " from your account('yes' or 'no')?This decision is irreversible.");
-                        managers[connection].State = DialogueState.AskConfirmation;
+                        managers[connection].State = DialogueState.AskDeleteConfirmation;
                     }
                     else
                     {
@@ -246,8 +252,9 @@ public class AccountManager : IScript
 
                 break;
             #endregion
-            #region AskConfirmation
-            case DialogueState.AskConfirmation:
+
+            #region AskDeleteConfirmation
+            case DialogueState.AskDeleteConfirmation:
                 switch (speech.Message.ToLower())
                 {
                     case "yes":
@@ -304,7 +311,7 @@ public class AccountManager : IScript
         AskName,
         AskGender,
         AskVocation,
-        AskIndex,
-        AskConfirmation
+        AskDeleteIndex,
+        AskDeleteConfirmation
     }
 }
